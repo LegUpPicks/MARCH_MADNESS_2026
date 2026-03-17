@@ -1,4 +1,7 @@
-const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball';
+const ESPN_BASE = {
+  mens:   'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball',
+  womens: 'https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball',
+};
 
 // ── Name normalisation ─────────────────────────────────────────
 // Maps lowercase ESPN full team name → bracket short name
@@ -28,6 +31,18 @@ const ESPN_TO_BRACKET = {
   'wright state raiders':              'Wright St',
   'utah state aggies':                 'Utah St',
   'stephen f. austin lumberjacks':     'SF Austin',
+  'stephen f. austin ladyjacks':       'SF Austin',
+  'sf austin ladyjacks':               'SF Austin',
+  'charleston cougars':                'Col Charleston',
+  'southern lady jaguars':             'Southern Univ',
+  'southern university lady jaguars':  'Southern Univ',
+  'fairleigh dickinson knights':       'F Dickinson',
+  'fairleigh dickinson lady knights':  'F Dickinson',
+  'ole miss rebels':                   'Mississippi',
+  'mississippi rebels':                'Mississippi',
+  'oklahoma state cowgirls':           'Oklahoma St',
+  'ut san antonio roadrunners':        'UT San Antonio',
+  'utsa roadrunners':                  'UT San Antonio',
   'north carolina state wolfpack':     'NC State',
   'nc state wolfpack':                 'NC State',
   'pennsylvania quakers':              'Penn',
@@ -80,8 +95,9 @@ function teamMatches(espnName, bracketName) {
 }
 
 // ── Fetch all events for one date (YYYYMMDD) ───────────────────
-async function fetchEspnGamesForDate(dateStr) {
-  const url = `${ESPN_BASE}/scoreboard?dates=${dateStr}&groups=50`;
+async function fetchEspnGamesForDate(dateStr, gender = 'mens') {
+  const base = ESPN_BASE[gender] ?? ESPN_BASE.mens;
+  const url = `${base}/scoreboard?dates=${dateStr}&groups=50`;
   try {
     const res = await fetch(url);
     if (!res.ok) return [];
@@ -131,7 +147,7 @@ function parseEspnEvent(event, homeTeamName, awayTeamName) {
 // ── Main: fetch odds for a set of bracket games ────────────────
 // Fetches today + next 6 days in parallel to cover the current round
 // Returns: { [gameId]: { dk: { moneyline, spread, total } } }
-export async function fetchOddsForGames(bracketGames) {
+export async function fetchOddsForGames(bracketGames, gender = 'mens') {
   // Build date strings for today + next 6 days
   const today = new Date();
   const dates = Array.from({ length: 7 }, (_, i) => {
@@ -140,7 +156,7 @@ export async function fetchOddsForGames(bracketGames) {
     return d.toISOString().slice(0, 10).replace(/-/g, '');
   });
 
-  const allEventArrays = await Promise.all(dates.map(fetchEspnGamesForDate));
+  const allEventArrays = await Promise.all(dates.map(d => fetchEspnGamesForDate(d, gender)));
   const allEvents = allEventArrays.flat();
   console.log('[sportsbookApi] ESPN events found across 7 days:', allEvents.length);
 

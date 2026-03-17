@@ -1,8 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { fetchOddsForGames } from '../services/sportsbookApi';
 
-export function useSportsbookOdds(games) {
-  const [oddsMap, setOddsMap] = useState({});
+const storageKey = (gender) => `mm2026-odds-${gender}`;
+
+function loadCached(gender) {
+  try {
+    const raw = localStorage.getItem(storageKey(gender));
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCached(gender, oddsMap) {
+  try {
+    localStorage.setItem(storageKey(gender), JSON.stringify(oddsMap));
+  } catch {}
+}
+
+export function useSportsbookOdds(games, gender = 'mens') {
+  const [oddsMap, setOddsMap] = useState(() => loadCached(gender));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,20 +28,15 @@ export function useSportsbookOdds(games) {
     setLoading(true);
     setError(null);
     try {
-      const odds = await fetchOddsForGames(games);
+      const odds = await fetchOddsForGames(games, gender);
       setOddsMap(odds);
+      saveCached(gender, odds);
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
-  }, [games]);
-
-  // Fetch once on mount
-  useEffect(() => {
-    refresh();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [games, gender]);
 
   return { oddsMap, loading, error, refresh };
 }

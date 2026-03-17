@@ -6,7 +6,7 @@ import PredictionsTable from './PredictionsTable';
 
 export default function TournamentView({ gender }) {
   const state = useBracketState(gender);
-  const { oddsMap, loading: oddsLoading, error: oddsError, refresh: refreshOdds } = useSportsbookOdds(state.games);
+  const { oddsMap, loading: oddsLoading, error: oddsError, refresh: refreshOdds } = useSportsbookOdds(state.games, gender);
 
   // Auto-fill winners for completed games from ESPN results
   useEffect(() => {
