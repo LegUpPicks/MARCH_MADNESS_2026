@@ -28,8 +28,8 @@ h2 { color: #f0a500; text-align: center; font-size: 1.4em; margin: 28px 0 10px; 
 .region-name { color: #f0a500; font-size: 0.8em; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 1px; }
 .rounds { display: flex; flex-direction: row; gap: 2px; align-items: flex-start; }
 
-/* Right-side regions: reverse column order */
-.right-side .rounds { flex-direction: row-reverse; }
+/* Right-side regions: normal column order (E8 left → R64 right) */
+.right-side .rounds { flex-direction: row; }
 
 .round-col { display: flex; flex-direction: column; min-width: 112px; max-width: 120px; }
 .rnd-label { font-size: 0.62em; color: #8b949e; text-align: center; padding: 2px; border-bottom: 1px solid #21262d; margin-bottom: 3px; }
@@ -95,20 +95,20 @@ h2 { color: #f0a500; text-align: center; font-size: 1.4em; margin: 28px 0 10px; 
 <div class="playin" style="margin-bottom:14px;">
   <h3>PLAY-IN GAMES (First Four)</h3>
   <div class="playin-games">
-    <div class="playin-game"><span class="pi-label">X16:</span><span class="pi-w">Lehigh</span> def. <span class="pi-l">Prairie View</span></div>
-    <div class="playin-game"><span class="pi-label">Y11:</span><span class="pi-w">SMU</span> def. <span class="pi-l">Miami OH</span></div>
-    <div class="playin-game"><span class="pi-label">Y16:</span><span class="pi-w">UMBC</span> def. <span class="pi-l">Howard</span></div>
-    <div class="playin-game"><span class="pi-label">Z11:</span><span class="pi-w">NC State</span> def. <span class="pi-l">Texas</span></div>
+    <div class="playin-game"><span class="pi-label">SOUTH #16:</span><span class="pi-w">Lehigh</span> def. <span class="pi-l">Prairie View</span></div>
+    <div class="playin-game"><span class="pi-label">MIDWEST #11:</span><span class="pi-w">SMU</span> def. <span class="pi-l">Miami OH</span></div>
+    <div class="playin-game"><span class="pi-label">MIDWEST #16:</span><span class="pi-w">UMBC</span> def. <span class="pi-l">Howard</span></div>
+    <div class="playin-game"><span class="pi-label">WEST #11:</span><span class="pi-w">NC State</span> def. <span class="pi-l">Texas</span></div>
   </div>
 </div>
 
 <div class="bracket-wrap">
-  <!-- LEFT SIDE: W and Y regions -->
+  <!-- LEFT SIDE: W (East) and Y (Midwest) regions -->
   <div class="left-side">
 
     <!-- W REGION -->
     <div class="region">
-      <div class="region-name">WEST REGION (W)</div>
+      <div class="region-name">EAST REGION</div>
       <div class="rounds">
         <!-- R64 -->
         <div class="round-col">
@@ -144,9 +144,9 @@ h2 { color: #f0a500; text-align: center; font-size: 1.4em; margin: 28px 0 10px; 
       </div>
     </div>
 
-    <!-- Y REGION -->
+    <!-- MIDWEST REGION -->
     <div class="region">
-      <div class="region-name">Y REGION</div>
+      <div class="region-name">MIDWEST REGION</div>
       <div class="rounds">
         <!-- R64 -->
         <div class="round-col">
@@ -189,12 +189,12 @@ h2 { color: #f0a500; text-align: center; font-size: 1.4em; margin: 28px 0 10px; 
     <div class="ff-box">
       <h3>FINAL FOUR</h3>
       <div class="ff-game">
-        <div class="ff-team win"><span class="seed">1</span>Duke (W)</div>
-        <div class="ff-team loss"><span class="seed">1</span>Florida (X)</div>
+        <div class="ff-team win"><span class="seed">1</span>Duke (East)</div>
+        <div class="ff-team loss"><span class="seed">1</span>Florida (South)</div>
       </div>
       <div class="ff-game">
-        <div class="ff-team win"><span class="seed">3</span>Virginia (Y)</div>
-        <div class="ff-team loss"><span class="seed">1</span>Arizona (Z)</div>
+        <div class="ff-team win"><span class="seed">3</span>Virginia (Midwest)</div>
+        <div class="ff-team loss"><span class="seed">1</span>Arizona (West)</div>
       </div>
     </div>
     <div class="champ-box">
@@ -209,12 +209,12 @@ h2 { color: #f0a500; text-align: center; font-size: 1.4em; margin: 28px 0 10px; 
     </div>
   </div>
 
-  <!-- RIGHT SIDE: X and Z regions -->
+  <!-- RIGHT SIDE: X (South) and Z (West) regions -->
   <div class="right-side">
 
-    <!-- X REGION -->
+    <!-- SOUTH REGION -->
     <div class="region">
-      <div class="region-name">X REGION</div>
+      <div class="region-name">SOUTH REGION</div>
       <div class="rounds">
         <!-- E8 -->
         <div class="round-col e8-col">
@@ -250,9 +250,9 @@ h2 { color: #f0a500; text-align: center; font-size: 1.4em; margin: 28px 0 10px; 
       </div>
     </div>
 
-    <!-- Z REGION -->
+    <!-- WEST REGION -->
     <div class="region">
-      <div class="region-name">Z REGION</div>
+      <div class="region-name">WEST REGION</div>
       <div class="rounds">
         <!-- E8 -->
         <div class="round-col e8-col">

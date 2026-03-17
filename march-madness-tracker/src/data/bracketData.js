@@ -1282,3 +1282,111 @@ export function getPredictedMargin(game) {
   if (!game.prediction || game.prediction.spreadRaw === null) return null;
   return Math.abs(game.prediction.spreadRaw);
 }
+
+// ============================================================
+// Feed mappings for progressive bracket
+// ============================================================
+
+function _buildFeedsInto() {
+  const map = {};
+  function mf(from, to, slot) { map[from] = { nextGameId: to, slot }; }
+
+  // Men's W region
+  mf('M_W_R64_1v16','M_W_R32_1v9','top'); mf('M_W_R64_8v9','M_W_R32_1v9','bot');
+  mf('M_W_R64_4v13','M_W_R32_4v5','top'); mf('M_W_R64_5v12','M_W_R32_4v5','bot');
+  mf('M_W_R64_3v14','M_W_R32_3v6','top'); mf('M_W_R64_6v11','M_W_R32_3v6','bot');
+  mf('M_W_R64_2v15','M_W_R32_2v7','top'); mf('M_W_R64_7v10','M_W_R32_2v7','bot');
+  mf('M_W_R32_1v9','M_W_S16_1v4','top');  mf('M_W_R32_4v5','M_W_S16_1v4','bot');
+  mf('M_W_R32_3v6','M_W_S16_3v2','top');  mf('M_W_R32_2v7','M_W_S16_3v2','bot');
+  mf('M_W_S16_1v4','M_W_E8','top');        mf('M_W_S16_3v2','M_W_E8','bot');
+  mf('M_W_E8','M_FF_WX','top');
+
+  // Men's X region
+  mf('M_X_R64_1v16','M_X_R32_1v8','top'); mf('M_X_R64_8v9','M_X_R32_1v8','bot');
+  mf('M_X_R64_4v13','M_X_R32_4v5','top'); mf('M_X_R64_5v12','M_X_R32_4v5','bot');
+  mf('M_X_R64_3v14','M_X_R32_3v6','top'); mf('M_X_R64_6v11','M_X_R32_3v6','bot');
+  mf('M_X_R64_2v15','M_X_R32_2v7','top'); mf('M_X_R64_7v10','M_X_R32_2v7','bot');
+  mf('M_X_R32_1v8','M_X_S16_1v4','top');  mf('M_X_R32_4v5','M_X_S16_1v4','bot');
+  mf('M_X_R32_3v6','M_X_S16_3v2','top');  mf('M_X_R32_2v7','M_X_S16_3v2','bot');
+  mf('M_X_S16_1v4','M_X_E8','top');        mf('M_X_S16_3v2','M_X_E8','bot');
+  mf('M_X_E8','M_FF_WX','bot');
+
+  // Men's Y region
+  mf('M_Y_R64_1v16','M_Y_R32_1v8','top'); mf('M_Y_R64_8v9','M_Y_R32_1v8','bot');
+  mf('M_Y_R64_4v13','M_Y_R32_4v5','top'); mf('M_Y_R64_5v12','M_Y_R32_4v5','bot');
+  mf('M_Y_R64_3v14','M_Y_R32_3v6','top'); mf('M_Y_R64_6v11','M_Y_R32_3v6','bot');
+  mf('M_Y_R64_2v15','M_Y_R32_2v7','top'); mf('M_Y_R64_7v10','M_Y_R32_2v7','bot');
+  mf('M_Y_R32_1v8','M_Y_S16_1v5','top');  mf('M_Y_R32_4v5','M_Y_S16_1v5','bot');
+  mf('M_Y_R32_3v6','M_Y_S16_3v2','top');  mf('M_Y_R32_2v7','M_Y_S16_3v2','bot');
+  mf('M_Y_S16_1v5','M_Y_E8','top');        mf('M_Y_S16_3v2','M_Y_E8','bot');
+  mf('M_Y_E8','M_FF_YZ','top');
+
+  // Men's Z region
+  mf('M_Z_R64_1v16','M_Z_R32_1v8','top'); mf('M_Z_R64_8v9','M_Z_R32_1v8','bot');
+  mf('M_Z_R64_4v13','M_Z_R32_4v5','top'); mf('M_Z_R64_5v12','M_Z_R32_4v5','bot');
+  mf('M_Z_R64_3v14','M_Z_R32_3v6','top'); mf('M_Z_R64_6v11','M_Z_R32_3v6','bot');
+  mf('M_Z_R64_2v15','M_Z_R32_2v7','top'); mf('M_Z_R64_7v10','M_Z_R32_2v7','bot');
+  mf('M_Z_R32_1v8','M_Z_S16_1v4','top');  mf('M_Z_R32_4v5','M_Z_S16_1v4','bot');
+  mf('M_Z_R32_3v6','M_Z_S16_3v2','top');  mf('M_Z_R32_2v7','M_Z_S16_3v2','bot');
+  mf('M_Z_S16_1v4','M_Z_E8','top');        mf('M_Z_S16_3v2','M_Z_E8','bot');
+  mf('M_Z_E8','M_FF_YZ','bot');
+
+  // Men's FF -> Championship
+  mf('M_FF_WX','M_CHAMP','top'); mf('M_FF_YZ','M_CHAMP','bot');
+
+  // Women's W region
+  mf('W_W_R64_1v16','W_W_R32_1v9','top'); mf('W_W_R64_8v9','W_W_R32_1v9','bot');
+  mf('W_W_R64_4v13','W_W_R32_4v5','top'); mf('W_W_R64_5v12','W_W_R32_4v5','bot');
+  mf('W_W_R64_3v14','W_W_R32_3v11','top'); mf('W_W_R64_6v11','W_W_R32_3v11','bot');
+  mf('W_W_R64_2v15','W_W_R32_2v7','top'); mf('W_W_R64_7v10','W_W_R32_2v7','bot');
+  mf('W_W_R32_1v9','W_W_S16_1v4','top');  mf('W_W_R32_4v5','W_W_S16_1v4','bot');
+  mf('W_W_R32_3v11','W_W_S16_2v11','top'); mf('W_W_R32_2v7','W_W_S16_2v11','bot');
+  mf('W_W_S16_1v4','W_W_E8','top');        mf('W_W_S16_2v11','W_W_E8','bot');
+  mf('W_W_E8','W_FF_WX','top');
+
+  // Women's X region
+  mf('W_X_R64_1v16','W_X_R32_1v9','top'); mf('W_X_R64_8v9','W_X_R32_1v9','bot');
+  mf('W_X_R64_4v13','W_X_R32_4v5','top'); mf('W_X_R64_5v12','W_X_R32_4v5','bot');
+  mf('W_X_R64_3v14','W_X_R32_3v6','top'); mf('W_X_R64_6v11','W_X_R32_3v6','bot');
+  mf('W_X_R64_2v15','W_X_R32_2v7','top'); mf('W_X_R64_7v10','W_X_R32_2v7','bot');
+  mf('W_X_R32_1v9','W_X_S16_1v5','top');  mf('W_X_R32_4v5','W_X_S16_1v5','bot');
+  mf('W_X_R32_3v6','W_X_S16_6v7','top');  mf('W_X_R32_2v7','W_X_S16_6v7','bot');
+  mf('W_X_S16_1v5','W_X_E8','top');        mf('W_X_S16_6v7','W_X_E8','bot');
+  mf('W_X_E8','W_FF_WX','bot');
+
+  // Women's Y region
+  mf('W_Y_R64_1v16','W_Y_R32_1v8','top'); mf('W_Y_R64_8v9','W_Y_R32_1v8','bot');
+  mf('W_Y_R64_4v13','W_Y_R32_4v5','top'); mf('W_Y_R64_5v12','W_Y_R32_4v5','bot');
+  mf('W_Y_R64_3v14','W_Y_R32_3v6','top'); mf('W_Y_R64_6v11','W_Y_R32_3v6','bot');
+  mf('W_Y_R64_2v15','W_Y_R32_2v10','top'); mf('W_Y_R64_7v10','W_Y_R32_2v10','bot');
+  mf('W_Y_R32_1v8','W_Y_S16_1v4','top');  mf('W_Y_R32_4v5','W_Y_S16_1v4','bot');
+  mf('W_Y_R32_3v6','W_Y_S16_3v2','top');  mf('W_Y_R32_2v10','W_Y_S16_3v2','bot');
+  mf('W_Y_S16_1v4','W_Y_E8','top');        mf('W_Y_S16_3v2','W_Y_E8','bot');
+  mf('W_Y_E8','W_FF_YZ','top');
+
+  // Women's Z region
+  mf('W_Z_R64_1v16','W_Z_R32_1v8','top'); mf('W_Z_R64_8v9','W_Z_R32_1v8','bot');
+  mf('W_Z_R64_4v13','W_Z_R32_4v5','top'); mf('W_Z_R64_5v12','W_Z_R32_4v5','bot');
+  mf('W_Z_R64_3v14','W_Z_R32_3v6','top'); mf('W_Z_R64_6v11','W_Z_R32_3v6','bot');
+  mf('W_Z_R64_2v15','W_Z_R32_2v7','top'); mf('W_Z_R64_7v10','W_Z_R32_2v7','bot');
+  mf('W_Z_R32_1v8','W_Z_S16_1v5','top');  mf('W_Z_R32_4v5','W_Z_S16_1v5','bot');
+  mf('W_Z_R32_3v6','W_Z_S16_3v2','top');  mf('W_Z_R32_2v7','W_Z_S16_3v2','bot');
+  mf('W_Z_S16_1v5','W_Z_E8','top');        mf('W_Z_S16_3v2','W_Z_E8','bot');
+  mf('W_Z_E8','W_FF_YZ','bot');
+
+  // Women's FF -> Championship
+  mf('W_FF_WX','W_CHAMP','top'); mf('W_FF_YZ','W_CHAMP','bot');
+
+  return map;
+}
+
+export const FEEDS_INTO = _buildFeedsInto();
+
+export const FEEDS_FROM = (() => {
+  const map = {};
+  Object.entries(FEEDS_INTO).forEach(([from, { nextGameId, slot }]) => {
+    if (!map[nextGameId]) map[nextGameId] = {};
+    map[nextGameId][slot] = from;
+  });
+  return map;
+})();

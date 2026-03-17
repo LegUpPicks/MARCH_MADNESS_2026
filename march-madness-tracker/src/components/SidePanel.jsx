@@ -1,4 +1,4 @@
-import { getConfidence, getPredictedMargin } from '../data/bracketData';
+import { getConfidence, getPredictedMargin, FEEDS_INTO } from '../data/bracketData';
 
 const ROUND_LABELS = {
   playin: 'Play-In',
@@ -17,10 +17,12 @@ const CONF_LABELS = {
   unknown: { label: '?', color: '#8b949e' },
 };
 
-export default function SidePanel({ games, selections, onClear }) {
+export default function SidePanel({ games, selections, predictedRounds, resolveTeams, onClear }) {
   // ---- 1. Model Accuracy ----
-  const gamesWithPred = games.filter((g) => g.prediction !== null);
-  const gamesSelected = games.filter((g) => selections[g.id]);
+  // Count games where selections exist AND the round's predictions are revealed
+  const gamesSelected = games.filter(
+    (g) => selections[g.id] && predictedRounds.has(g.round)
+  );
   const gamesCorrect = gamesSelected.filter(
     (g) => g.prediction && selections[g.id] === g.prediction.winner
   );
@@ -32,7 +34,11 @@ export default function SidePanel({ games, selections, onClear }) {
       ? ((totalCorrect / totalSelected) * 100).toFixed(1)
       : null;
 
+  // Show clear button if any selections exist at all
+  const anySelections = games.some((g) => selections[g.id]);
+
   // ---- 2. Top Confident Picks ----
+  const gamesWithPred = games.filter((g) => g.prediction !== null);
   const ranked = [...gamesWithPred]
     .filter((g) => g.prediction.spreadRaw !== null)
     .sort(
@@ -42,12 +48,11 @@ export default function SidePanel({ games, selections, onClear }) {
     .slice(0, 10);
 
   // ---- 3. Next Round Predictions ----
-  // For each game where BOTH teams are now determined by actual selections,
-  // find the corresponding "next round" game in the bracket.
-  // We compute which teams have been "sent forward" to the next round
-  // by using actual selections (falling back to predicted winners for unplayed games).
-  // Here we only show games where BOTH participants are known from actual selections.
-  const nextRoundGames = getNextRoundGames(games, selections);
+  // Show games where both teams are known AND predictions are revealed for that round
+  const nextRoundGames = getNextRoundGames(games, selections, predictedRounds, resolveTeams);
+
+  // Check if any round is filled but not yet predicted (hint)
+  const filledButNotPredicted = getFilledUnpredictedRounds(games, selections, predictedRounds, resolveTeams);
 
   return (
     <aside className="side-panel">
@@ -65,10 +70,10 @@ export default function SidePanel({ games, selections, onClear }) {
             <div className="accuracy-pct">{accuracy}%</div>
           )}
           {totalSelected === 0 && (
-            <div className="accuracy-hint">Click teams to record results</div>
+            <div className="accuracy-hint">Select winners to track accuracy</div>
           )}
         </div>
-        {totalSelected > 0 && (
+        {anySelections && (
           <button className="clear-btn" onClick={onClear}>
             Clear All Selections
           </button>
@@ -131,11 +136,16 @@ export default function SidePanel({ games, selections, onClear }) {
       {/* --- Next Round Predictions --- */}
       <section className="panel-section">
         <h2 className="panel-heading">Next Round Predictions</h2>
-        {nextRoundGames.length === 0 ? (
+        {filledButNotPredicted.length > 0 && (
+          <p className="panel-empty">
+            {filledButNotPredicted.map((r) => ROUND_LABELS[r]).join(', ')} ready — click "Reveal" to see predictions.
+          </p>
+        )}
+        {nextRoundGames.length === 0 && filledButNotPredicted.length === 0 ? (
           <p className="panel-empty">
             Select winners in earlier rounds to see upcoming matchups.
           </p>
-        ) : (
+        ) : nextRoundGames.length > 0 ? (
           <table className="next-round-table">
             <thead>
               <tr>
@@ -188,197 +198,21 @@ export default function SidePanel({ games, selections, onClear }) {
               })}
             </tbody>
           </table>
-        )}
+        ) : null}
       </section>
     </aside>
   );
 }
 
-// ============================================================
-// Logic: find "next round" games where both teams are determined
-// by actual selections from the previous round.
-// ============================================================
-
-// Maps each r64 game to the r32 game it feeds into, etc.
-// We do this by the game ID naming convention.
-
-// The bracket feed-forward mapping by game ID:
-// For each round, we know which two games feed into the next.
-// This is encoded as: feedsInto[gameId] = { nextGameId, slot: 'top' | 'bot' }
-
-const FEEDS_INTO = buildFeedsInto();
-
-function buildFeedsInto() {
-  const map = {};
-
-  // Men's W region
-  // r64 -> r32
-  mapFeed(map, 'M_W_R64_1v16', 'M_W_R32_1v9', 'top');
-  mapFeed(map, 'M_W_R64_8v9', 'M_W_R32_1v9', 'bot');
-  mapFeed(map, 'M_W_R64_5v12', 'M_W_R32_4v5', 'bot');
-  mapFeed(map, 'M_W_R64_4v13', 'M_W_R32_4v5', 'top');
-  mapFeed(map, 'M_W_R64_6v11', 'M_W_R32_3v6', 'bot');
-  mapFeed(map, 'M_W_R64_3v14', 'M_W_R32_3v6', 'top');
-  mapFeed(map, 'M_W_R64_7v10', 'M_W_R32_2v7', 'bot');
-  mapFeed(map, 'M_W_R64_2v15', 'M_W_R32_2v7', 'top');
-  // r32 -> s16
-  mapFeed(map, 'M_W_R32_1v9', 'M_W_S16_1v4', 'top');
-  mapFeed(map, 'M_W_R32_4v5', 'M_W_S16_1v4', 'bot');
-  mapFeed(map, 'M_W_R32_3v6', 'M_W_S16_3v2', 'top');
-  mapFeed(map, 'M_W_R32_2v7', 'M_W_S16_3v2', 'bot');
-  // s16 -> e8
-  mapFeed(map, 'M_W_S16_1v4', 'M_W_E8', 'top');
-  mapFeed(map, 'M_W_S16_3v2', 'M_W_E8', 'bot');
-  // e8 -> ff
-  mapFeed(map, 'M_W_E8', 'M_FF_WX', 'top');
-
-  // Men's X region
-  mapFeed(map, 'M_X_R64_1v16', 'M_X_R32_1v8', 'top');
-  mapFeed(map, 'M_X_R64_8v9', 'M_X_R32_1v8', 'bot');
-  mapFeed(map, 'M_X_R64_5v12', 'M_X_R32_4v5', 'bot');
-  mapFeed(map, 'M_X_R64_4v13', 'M_X_R32_4v5', 'top');
-  mapFeed(map, 'M_X_R64_6v11', 'M_X_R32_3v6', 'bot');
-  mapFeed(map, 'M_X_R64_3v14', 'M_X_R32_3v6', 'top');
-  mapFeed(map, 'M_X_R64_7v10', 'M_X_R32_2v7', 'bot');
-  mapFeed(map, 'M_X_R64_2v15', 'M_X_R32_2v7', 'top');
-  mapFeed(map, 'M_X_R32_1v8', 'M_X_S16_1v4', 'top');
-  mapFeed(map, 'M_X_R32_4v5', 'M_X_S16_1v4', 'bot');
-  mapFeed(map, 'M_X_R32_3v6', 'M_X_S16_3v2', 'top');
-  mapFeed(map, 'M_X_R32_2v7', 'M_X_S16_3v2', 'bot');
-  mapFeed(map, 'M_X_S16_1v4', 'M_X_E8', 'top');
-  mapFeed(map, 'M_X_S16_3v2', 'M_X_E8', 'bot');
-  mapFeed(map, 'M_X_E8', 'M_FF_WX', 'bot');
-
-  // Men's Y region
-  mapFeed(map, 'M_Y_R64_1v16', 'M_Y_R32_1v8', 'top');
-  mapFeed(map, 'M_Y_R64_8v9', 'M_Y_R32_1v8', 'bot');
-  mapFeed(map, 'M_Y_R64_5v12', 'M_Y_R32_4v5', 'bot');
-  mapFeed(map, 'M_Y_R64_4v13', 'M_Y_R32_4v5', 'top');
-  mapFeed(map, 'M_Y_R64_6v11', 'M_Y_R32_3v6', 'bot');
-  mapFeed(map, 'M_Y_R64_3v14', 'M_Y_R32_3v6', 'top');
-  mapFeed(map, 'M_Y_R64_7v10', 'M_Y_R32_2v7', 'bot');
-  mapFeed(map, 'M_Y_R64_2v15', 'M_Y_R32_2v7', 'top');
-  mapFeed(map, 'M_Y_R32_1v8', 'M_Y_S16_1v5', 'top');
-  mapFeed(map, 'M_Y_R32_4v5', 'M_Y_S16_1v5', 'bot');
-  mapFeed(map, 'M_Y_R32_3v6', 'M_Y_S16_3v2', 'top');
-  mapFeed(map, 'M_Y_R32_2v7', 'M_Y_S16_3v2', 'bot');
-  mapFeed(map, 'M_Y_S16_1v5', 'M_Y_E8', 'top');
-  mapFeed(map, 'M_Y_S16_3v2', 'M_Y_E8', 'bot');
-  mapFeed(map, 'M_Y_E8', 'M_FF_YZ', 'top');
-
-  // Men's Z region
-  mapFeed(map, 'M_Z_R64_1v16', 'M_Z_R32_1v8', 'top');
-  mapFeed(map, 'M_Z_R64_8v9', 'M_Z_R32_1v8', 'bot');
-  mapFeed(map, 'M_Z_R64_5v12', 'M_Z_R32_4v5', 'bot');
-  mapFeed(map, 'M_Z_R64_4v13', 'M_Z_R32_4v5', 'top');
-  mapFeed(map, 'M_Z_R64_6v11', 'M_Z_R32_3v6', 'bot');
-  mapFeed(map, 'M_Z_R64_3v14', 'M_Z_R32_3v6', 'top');
-  mapFeed(map, 'M_Z_R64_7v10', 'M_Z_R32_2v7', 'bot');
-  mapFeed(map, 'M_Z_R64_2v15', 'M_Z_R32_2v7', 'top');
-  mapFeed(map, 'M_Z_R32_1v8', 'M_Z_S16_1v4', 'top');
-  mapFeed(map, 'M_Z_R32_4v5', 'M_Z_S16_1v4', 'bot');
-  mapFeed(map, 'M_Z_R32_3v6', 'M_Z_S16_3v2', 'top');
-  mapFeed(map, 'M_Z_R32_2v7', 'M_Z_S16_3v2', 'bot');
-  mapFeed(map, 'M_Z_S16_1v4', 'M_Z_E8', 'top');
-  mapFeed(map, 'M_Z_S16_3v2', 'M_Z_E8', 'bot');
-  mapFeed(map, 'M_Z_E8', 'M_FF_YZ', 'bot');
-
-  // Men's FF -> Championship
-  mapFeed(map, 'M_FF_WX', 'M_CHAMP', 'top');
-  mapFeed(map, 'M_FF_YZ', 'M_CHAMP', 'bot');
-
-  // Women's W region
-  mapFeed(map, 'W_W_R64_1v16', 'W_W_R32_1v9', 'top');
-  mapFeed(map, 'W_W_R64_8v9', 'W_W_R32_1v9', 'bot');
-  mapFeed(map, 'W_W_R64_5v12', 'W_W_R32_4v5', 'bot');
-  mapFeed(map, 'W_W_R64_4v13', 'W_W_R32_4v5', 'top');
-  mapFeed(map, 'W_W_R64_6v11', 'W_W_R32_3v11', 'bot');
-  mapFeed(map, 'W_W_R64_3v14', 'W_W_R32_3v11', 'top');
-  mapFeed(map, 'W_W_R64_7v10', 'W_W_R32_2v7', 'bot');
-  mapFeed(map, 'W_W_R64_2v15', 'W_W_R32_2v7', 'top');
-  mapFeed(map, 'W_W_R32_1v9', 'W_W_S16_1v4', 'top');
-  mapFeed(map, 'W_W_R32_4v5', 'W_W_S16_1v4', 'bot');
-  mapFeed(map, 'W_W_R32_3v11', 'W_W_S16_2v11', 'top');
-  mapFeed(map, 'W_W_R32_2v7', 'W_W_S16_2v11', 'bot');
-  mapFeed(map, 'W_W_S16_1v4', 'W_W_E8', 'top');
-  mapFeed(map, 'W_W_S16_2v11', 'W_W_E8', 'bot');
-  mapFeed(map, 'W_W_E8', 'W_FF_WX', 'top');
-
-  // Women's X region
-  mapFeed(map, 'W_X_R64_1v16', 'W_X_R32_1v9', 'top');
-  mapFeed(map, 'W_X_R64_8v9', 'W_X_R32_1v9', 'bot');
-  mapFeed(map, 'W_X_R64_5v12', 'W_X_R32_4v5', 'bot');
-  mapFeed(map, 'W_X_R64_4v13', 'W_X_R32_4v5', 'top');
-  mapFeed(map, 'W_X_R64_6v11', 'W_X_R32_3v6', 'bot');
-  mapFeed(map, 'W_X_R64_3v14', 'W_X_R32_3v6', 'top');
-  mapFeed(map, 'W_X_R64_7v10', 'W_X_R32_2v7', 'bot');
-  mapFeed(map, 'W_X_R64_2v15', 'W_X_R32_2v7', 'top');
-  mapFeed(map, 'W_X_R32_1v9', 'W_X_S16_1v5', 'top');
-  mapFeed(map, 'W_X_R32_4v5', 'W_X_S16_1v5', 'bot');
-  mapFeed(map, 'W_X_R32_3v6', 'W_X_S16_6v7', 'top');
-  mapFeed(map, 'W_X_R32_2v7', 'W_X_S16_6v7', 'bot');
-  mapFeed(map, 'W_X_S16_1v5', 'W_X_E8', 'top');
-  mapFeed(map, 'W_X_S16_6v7', 'W_X_E8', 'bot');
-  mapFeed(map, 'W_X_E8', 'W_FF_WX', 'bot');
-
-  // Women's Y region
-  mapFeed(map, 'W_Y_R64_1v16', 'W_Y_R32_1v8', 'top');
-  mapFeed(map, 'W_Y_R64_8v9', 'W_Y_R32_1v8', 'bot');
-  mapFeed(map, 'W_Y_R64_5v12', 'W_Y_R32_4v5', 'bot');
-  mapFeed(map, 'W_Y_R64_4v13', 'W_Y_R32_4v5', 'top');
-  mapFeed(map, 'W_Y_R64_6v11', 'W_Y_R32_3v6', 'bot');
-  mapFeed(map, 'W_Y_R64_3v14', 'W_Y_R32_3v6', 'top');
-  mapFeed(map, 'W_Y_R64_7v10', 'W_Y_R32_2v10', 'bot');
-  mapFeed(map, 'W_Y_R64_2v15', 'W_Y_R32_2v10', 'top');
-  mapFeed(map, 'W_Y_R32_1v8', 'W_Y_S16_1v4', 'top');
-  mapFeed(map, 'W_Y_R32_4v5', 'W_Y_S16_1v4', 'bot');
-  mapFeed(map, 'W_Y_R32_3v6', 'W_Y_S16_3v2', 'top');
-  mapFeed(map, 'W_Y_R32_2v10', 'W_Y_S16_3v2', 'bot');
-  mapFeed(map, 'W_Y_S16_1v4', 'W_Y_E8', 'top');
-  mapFeed(map, 'W_Y_S16_3v2', 'W_Y_E8', 'bot');
-  mapFeed(map, 'W_Y_E8', 'W_FF_YZ', 'top');
-
-  // Women's Z region
-  mapFeed(map, 'W_Z_R64_1v16', 'W_Z_R32_1v8', 'top');
-  mapFeed(map, 'W_Z_R64_8v9', 'W_Z_R32_1v8', 'bot');
-  mapFeed(map, 'W_Z_R64_5v12', 'W_Z_R32_4v5', 'bot');
-  mapFeed(map, 'W_Z_R64_4v13', 'W_Z_R32_4v5', 'top');
-  mapFeed(map, 'W_Z_R64_6v11', 'W_Z_R32_3v6', 'bot');
-  mapFeed(map, 'W_Z_R64_3v14', 'W_Z_R32_3v6', 'top');
-  mapFeed(map, 'W_Z_R64_7v10', 'W_Z_R32_2v7', 'bot');
-  mapFeed(map, 'W_Z_R64_2v15', 'W_Z_R32_2v7', 'top');
-  mapFeed(map, 'W_Z_R32_1v8', 'W_Z_S16_1v5', 'top');
-  mapFeed(map, 'W_Z_R32_4v5', 'W_Z_S16_1v5', 'bot');
-  mapFeed(map, 'W_Z_R32_3v6', 'W_Z_S16_3v2', 'top');
-  mapFeed(map, 'W_Z_R32_2v7', 'W_Z_S16_3v2', 'bot');
-  mapFeed(map, 'W_Z_S16_1v5', 'W_Z_E8', 'top');
-  mapFeed(map, 'W_Z_S16_3v2', 'W_Z_E8', 'bot');
-  mapFeed(map, 'W_Z_E8', 'W_FF_YZ', 'bot');
-
-  // Women's FF -> Championship
-  mapFeed(map, 'W_FF_WX', 'W_CHAMP', 'top');
-  mapFeed(map, 'W_FF_YZ', 'W_CHAMP', 'bot');
-
-  return map;
-}
-
-function mapFeed(map, fromId, toId, slot) {
-  map[fromId] = { nextGameId: toId, slot };
-}
-
 /**
- * Returns a list of next-round games where BOTH participants
- * have been determined by actual selections.
+ * Returns next-round games where both teams are determined via resolveTeams
+ * AND predictions are revealed for that game's round AND the game has not yet been selected.
  */
-function getNextRoundGames(games, selections) {
+function getNextRoundGames(games, selections, predictedRounds, resolveTeams) {
   const gameById = {};
   games.forEach((g) => (gameById[g.id] = g));
 
-  // For each game, compute the "actual winner" (selection) or null if not yet selected
-  // We find next-round games where BOTH feeding games have actual selections
-
-  // Build: for each nextGameId, track which slots have been filled by selections
-  const slotsFilled = {}; // { nextGameId: { top: teamObj | null, bot: teamObj | null } }
+  const slotsFilled = {};
 
   games.forEach((g) => {
     const feed = FEEDS_INTO[g.id];
@@ -389,9 +223,8 @@ function getNextRoundGames(games, selections) {
     }
 
     const actualWinner = selections[g.id];
-    if (!actualWinner) return; // not yet selected
+    if (!actualWinner) return;
 
-    // Determine seed of winner
     let winnerObj = null;
     if (actualWinner === g.topTeam.name) {
       winnerObj = { name: g.topTeam.name, seed: g.topTeam.seed };
@@ -403,15 +236,13 @@ function getNextRoundGames(games, selections) {
     }
   });
 
-  // Now find next-round games where BOTH top and bot have been filled by actual selections
   const results = [];
   Object.entries(slotsFilled).forEach(([nextGameId, slots]) => {
     if (slots.top && slots.bot) {
       const nextGame = gameById[nextGameId];
       if (!nextGame) return;
-      // Only show if that game has NOT yet been selected itself
-      // (so we don't show games already decided)
-      if (!selections[nextGameId]) {
+      // Only show if predictions are revealed for this round AND game not yet selected
+      if (!selections[nextGameId] && predictedRounds.has(nextGame.round)) {
         results.push({
           game: nextGame,
           actualTop: slots.top,
@@ -422,4 +253,23 @@ function getNextRoundGames(games, selections) {
   });
 
   return results;
+}
+
+/**
+ * Returns rounds that are fully filled (both teams known) but predictions not yet revealed.
+ */
+function getFilledUnpredictedRounds(games, selections, predictedRounds, resolveTeams) {
+  const ROUND_ORDER = ['r32', 's16', 'e8', 'ff', 'championship'];
+  const result = [];
+  for (const round of ROUND_ORDER) {
+    if (predictedRounds.has(round)) continue;
+    const rg = games.filter((g) => g.round === round);
+    if (!rg.length) continue;
+    const allFilled = rg.every((g) => {
+      const { topTeam, botTeam } = resolveTeams(g);
+      return topTeam !== null && botTeam !== null;
+    });
+    if (allFilled) result.push(round);
+  }
+  return result;
 }

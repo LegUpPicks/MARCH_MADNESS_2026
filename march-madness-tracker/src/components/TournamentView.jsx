@@ -1,26 +1,36 @@
-import { mensGames, womensGames } from '../data/bracketData';
-import { useSelections } from '../hooks/useSelections';
+import { useBracketState } from '../hooks/useBracketState';
 import BracketView from './BracketView';
 import SidePanel from './SidePanel';
+import PredictionsTable from './PredictionsTable';
 
 export default function TournamentView({ gender }) {
-  const games = gender === 'mens' ? mensGames : womensGames;
-  const [selections, setWinner, clearSelections] = useSelections(gender);
+  const state = useBracketState(gender);
 
   return (
     <div className="tournament-view">
       <div className="bracket-container">
         <BracketView
-          games={games}
-          selections={selections}
-          onSelect={setWinner}
+          games={state.games}
+          selections={state.selections}
+          predictedRounds={state.predictedRounds}
+          resolveTeams={state.resolveTeams}
+          nextPredictableRound={state.nextPredictableRound}
+          predictRound={state.predictRound}
+          onSelect={state.setWinner}
+        />
+        <PredictionsTable
+          games={state.games}
+          predictedRounds={state.predictedRounds}
+          resolveTeams={state.resolveTeams}
         />
       </div>
       <div className="side-panel-container">
         <SidePanel
-          games={games}
-          selections={selections}
-          onClear={clearSelections}
+          games={state.games}
+          selections={state.selections}
+          predictedRounds={state.predictedRounds}
+          resolveTeams={state.resolveTeams}
+          onClear={state.clearAll}
         />
       </div>
     </div>
