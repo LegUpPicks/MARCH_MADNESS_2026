@@ -31,6 +31,7 @@ export default function TournamentView({ gender }) {
           predictedRounds={state.predictedRounds}
           resolveTeams={state.resolveTeams}
           onClear={state.clearAll}
+          onSave={state.save}
         />
       </div>
     </div>

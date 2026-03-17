@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import { getConfidence, getPredictedMargin, FEEDS_INTO } from '../data/bracketData';
 
 const ROUND_LABELS = {
@@ -17,7 +18,14 @@ const CONF_LABELS = {
   unknown: { label: '?', color: '#8b949e' },
 };
 
-export default function SidePanel({ games, selections, predictedRounds, resolveTeams, onClear }) {
+export default function SidePanel({ games, selections, predictedRounds, resolveTeams, onClear, onSave }) {
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = useCallback(() => {
+    onSave?.();
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }, [onSave]);
   // ---- 1. Model Accuracy ----
   // Count games where selections exist AND the round's predictions are revealed
   const gamesSelected = games.filter(
@@ -73,11 +81,19 @@ export default function SidePanel({ games, selections, predictedRounds, resolveT
             <div className="accuracy-hint">Select winners to track accuracy</div>
           )}
         </div>
-        {anySelections && (
-          <button className="clear-btn" onClick={onClear}>
-            Clear All Selections
+        <div className="panel-actions">
+          <button
+            className={`save-btn${saved ? ' save-btn-saved' : ''}`}
+            onClick={handleSave}
+          >
+            {saved ? '✓ Saved' : 'Save Progress'}
           </button>
-        )}
+          {anySelections && (
+            <button className="clear-btn" onClick={onClear}>
+              Clear
+            </button>
+          )}
+        </div>
       </section>
 
       {/* --- Top Confident Picks --- */}

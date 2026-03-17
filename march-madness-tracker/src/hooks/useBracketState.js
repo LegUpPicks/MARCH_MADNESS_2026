@@ -13,14 +13,8 @@ export const ROUND_LABELS = {
   championship: 'Championship',
 };
 
-function getInitialSelections(games) {
-  const sels = {};
-  games.forEach((g) => {
-    if ((g.round === 'playin' || g.round === 'r64') && g.prediction?.winner) {
-      sels[g.id] = g.prediction.winner;
-    }
-  });
-  return sels;
+function getInitialSelections() {
+  return {};
 }
 
 function cascadeClear(changedId, selections) {
@@ -45,7 +39,7 @@ function cascadeClear(changedId, selections) {
 
 export function useBracketState(gender) {
   const games = useMemo(() => (gender === 'mens' ? mensGames : womensGames), [gender]);
-  const storageKey = `mm2026_v3_${gender}`;
+  const storageKey = `mm2026_v4_${gender}`;
 
   const gameById = useMemo(
     () => Object.fromEntries(games.map((g) => [g.id, g])),
@@ -55,7 +49,7 @@ export function useBracketState(gender) {
   const [selections, setSelections] = useState(() => {
     try {
       const s = JSON.parse(localStorage.getItem(storageKey) || 'null');
-      return s?.selections ?? getInitialSelections(games);
+      return s?.selections ?? getInitialSelections();
     } catch {
       return getInitialSelections(games);
     }
@@ -64,7 +58,7 @@ export function useBracketState(gender) {
   const [predictedRounds, setPredictedRounds] = useState(() => {
     try {
       const s = JSON.parse(localStorage.getItem(storageKey) || 'null');
-      return new Set(s?.predictedRounds ?? ['playin', 'r64']);
+      return new Set(s?.predictedRounds ?? []);
     } catch {
       return new Set(['playin', 'r64']);
     }
@@ -73,8 +67,8 @@ export function useBracketState(gender) {
   useEffect(() => {
     try {
       const s = JSON.parse(localStorage.getItem(storageKey) || 'null');
-      setSelections(s?.selections ?? getInitialSelections(games));
-      setPredictedRounds(new Set(s?.predictedRounds ?? ['playin', 'r64']));
+      setSelections(s?.selections ?? getInitialSelections());
+      setPredictedRounds(new Set(s?.predictedRounds ?? []));
     } catch {
       setSelections(getInitialSelections(games));
       setPredictedRounds(new Set(['playin', 'r64']));
@@ -155,9 +149,18 @@ export function useBracketState(gender) {
   }, []);
 
   const clearAll = useCallback(() => {
-    setSelections(getInitialSelections(games));
-    setPredictedRounds(new Set(['playin', 'r64']));
+    setSelections(getInitialSelections());
+    setPredictedRounds(new Set([]));
   }, [games]);
+
+  const save = useCallback(() => {
+    try {
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ selections, predictedRounds: [...predictedRounds] })
+      );
+    } catch { /* ignore */ }
+  }, [storageKey, selections, predictedRounds]);
 
   return {
     games,
@@ -168,6 +171,7 @@ export function useBracketState(gender) {
     predictRound,
     setWinner,
     clearAll,
+    save,
     gameById,
   };
 }
