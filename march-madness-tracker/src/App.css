@@ -129,26 +129,15 @@ body {
    Tournament View Layout
    ============================================================ */
 .tournament-view {
-  display: flex;
   flex: 1;
   overflow: hidden;
   height: 100%;
 }
 
 .bracket-container {
-  flex: 1;
+  height: 100%;
   overflow: auto;
   padding: 12px;
-  min-width: 0;
-}
-
-.side-panel-container {
-  width: 340px;
-  min-width: 300px;
-  flex-shrink: 0;
-  overflow-y: auto;
-  border-left: 1px solid var(--border);
-  background: var(--surface);
 }
 
 /* ============================================================
@@ -780,29 +769,6 @@ body {
 /* ============================================================
    Responsive / Overflow
    ============================================================ */
-@media (max-width: 1200px) {
-  .side-panel-container {
-    width: 300px;
-    min-width: 260px;
-  }
-}
-
-@media (max-width: 900px) {
-  .tournament-view {
-    flex-direction: column;
-  }
-
-  .side-panel-container {
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid var(--border);
-    max-height: 40vh;
-  }
-
-  .bracket-container {
-    max-height: 60vh;
-  }
-}
 
 /* ============================================================
    Predict Banner

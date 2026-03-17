@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useBracketState } from '../hooks/useBracketState';
 import { useSportsbookOdds } from '../hooks/useSportsbookOdds';
 import BracketView from './BracketView';
-import SidePanel from './SidePanel';
 import PredictionsTable from './PredictionsTable';
 
 export default function TournamentView({ gender }) {
@@ -43,16 +42,6 @@ export default function TournamentView({ gender }) {
           oddsLoading={oddsLoading}
           oddsError={oddsError}
           onRefreshOdds={refreshOdds}
-        />
-      </div>
-      <div className="side-panel-container">
-        <SidePanel
-          games={state.games}
-          selections={state.selections}
-          predictedRounds={state.predictedRounds}
-          resolveTeams={state.resolveTeams}
-          onClear={state.clearAll}
-          onSave={state.save}
         />
       </div>
     </div>
