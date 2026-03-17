@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import modelPredictions from '../data/modelPredictions.json';
+import BetslipModal from './BetslipModal';
 
 const ROUND_ORDER = ['playin', 'r64', 'r32', 's16', 'e8', 'ff', 'championship'];
 const ROUND_LABELS = {
@@ -69,6 +71,9 @@ function LiveOddsCells({ oddsData, topName, botName }) {
 }
 
 export default function PredictionsTable({ games, predictedRounds, resolveTeams, oddsMap, oddsLoading, oddsError, onRefreshOdds }) {
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [showBetslip, setShowBetslip] = useState(false);
+
   let displayRound = null;
   for (let i = ROUND_ORDER.length - 1; i >= 0; i--) {
     const r = ROUND_ORDER[i];
@@ -89,7 +94,26 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
 
   const hasAnyOdds = Object.keys(oddsMap ?? {}).length > 0;
 
+  function toggleRow(id) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  const betslipItems = rows
+    .filter(({ game }) => selectedIds.has(game.id))
+    .map(({ game, topTeam, botTeam, mp }) => ({
+      id:        game.id,
+      topName:   topTeam?.name ?? mp.wTeam,
+      botName:   botTeam?.name ?? mp.lTeam,
+      oddsData:  oddsMap?.[game.id]?.dk ?? null,
+      modelData: { seeded: mp.seeded ?? null, noSeed: mp.noSeed ?? null },
+    }));
+
   return (
+    <>
     <div className="predictions-table-section">
       <div className="predictions-table-header">
         <div className="predictions-table-title-row">
@@ -99,6 +123,13 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
           <span className="predictions-table-subtitle">Seeded Model vs No-Seed Model</span>
         </div>
         <div className="predictions-table-actions">
+          <button
+            className={`betslip-open-btn${selectedIds.size > 0 ? ' active' : ''}`}
+            onClick={() => setShowBetslip(true)}
+            disabled={selectedIds.size === 0}
+          >
+            Create Betslip {selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
+          </button>
           <button
             className={`odds-refresh-btn${oddsLoading ? ' odds-refresh-loading' : ''}`}
             onClick={onRefreshOdds}
@@ -116,6 +147,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
         <table className="predictions-table">
           <thead>
             <tr>
+              <th className="pt-col-check" rowSpan={2}></th>
               <th className="pt-col-matchup" rowSpan={2}>Matchup</th>
               <th className="pt-col-model" colSpan={3}>With Seeds</th>
               <th className="pt-col-divider" rowSpan={2}></th>
@@ -137,9 +169,18 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               const botName  = botTeam?.name ?? mp.lTeam;
               const agree    = s && ns && s.predWinner === ns.predWinner;
               const gameOdds = oddsMap?.[game.id]?.dk ?? null;
+              const checked  = selectedIds.has(game.id);
 
               return (
-                <tr key={game.id} className={agree ? 'pt-row' : 'pt-row pt-row-disagree'}>
+                <tr key={game.id} className={`${agree ? 'pt-row' : 'pt-row pt-row-disagree'}${checked ? ' pt-row-checked' : ''}`}>
+                  <td className="pt-check">
+                    <input
+                      type="checkbox"
+                      className="pt-checkbox"
+                      checked={checked}
+                      onChange={() => toggleRow(game.id)}
+                    />
+                  </td>
                   <td className="pt-matchup">
                     <span className="pt-team">{topName}</span>
                     <span className="pt-vs"> vs </span>
@@ -202,5 +243,9 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
         </table>
       </div>
     </div>
+    {showBetslip && (
+      <BetslipModal items={betslipItems} onClose={() => setShowBetslip(false)} />
+    )}
+    </>
   );
 }
