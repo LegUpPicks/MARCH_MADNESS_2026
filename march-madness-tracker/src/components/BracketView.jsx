@@ -35,7 +35,7 @@ function sortByOrder(games, round) {
   return games;
 }
 
-function RegionBracket({ region, games, selections, predictedRounds, resolveTeams, onSelect }) {
+function RegionBracket({ region, games, selections, predictedRounds, resolveTeams }) {
   const rounds = ['r64','r32','s16','e8'];
   const roundGames = {};
   rounds.forEach((r) => {
@@ -53,7 +53,6 @@ function RegionBracket({ region, games, selections, predictedRounds, resolveTeam
         botTeam={botTeam}
         prediction={prediction}
         selection={selections[game.id] || null}
-        onSelect={(name) => onSelect(game.id, name)}
       />
     );
   }
@@ -77,7 +76,6 @@ function RegionBracket({ region, games, selections, predictedRounds, resolveTeam
 
 export default function BracketView({
   games, selections, predictedRounds, resolveTeams,
-  nextPredictableRound, predictRound, onSelect,
 }) {
   const playinGames = getGamesByRound(games, 'playin');
   const ffGames = getGamesByRound(games, 'ff');
@@ -96,27 +94,12 @@ export default function BracketView({
         botTeam={botTeam}
         prediction={prediction}
         selection={selections[game.id] || null}
-        onSelect={(name) => onSelect(game.id, name)}
       />
     );
   }
 
   return (
     <div className="bracket-view">
-      {/* Predict Banner */}
-      {nextPredictableRound && (
-        <div className="predict-banner">
-          <span className="predict-banner-text">
-            All {ROUND_LABELS[nextPredictableRound]} matchups are set —
-          </span>
-          <button
-            className="predict-btn"
-            onClick={() => predictRound(nextPredictableRound)}
-          >
-            Reveal {ROUND_LABELS[nextPredictableRound]} Predictions
-          </button>
-        </div>
-      )}
 
       {/* Play-in */}
       {playinGames.length > 0 && (
@@ -138,8 +121,8 @@ export default function BracketView({
       {/* Main bracket */}
       <div className="main-bracket">
         <div className="bracket-side bracket-left">
-          <RegionBracket region="W" games={games} selections={selections} predictedRounds={predictedRounds} resolveTeams={resolveTeams} onSelect={onSelect} />
-          <RegionBracket region="X" games={games} selections={selections} predictedRounds={predictedRounds} resolveTeams={resolveTeams} onSelect={onSelect} />
+          <RegionBracket region="W" games={games} selections={selections} predictedRounds={predictedRounds} resolveTeams={resolveTeams} />
+          <RegionBracket region="X" games={games} selections={selections} predictedRounds={predictedRounds} resolveTeams={resolveTeams} />
         </div>
 
         <div className="bracket-center">
@@ -161,8 +144,8 @@ export default function BracketView({
         </div>
 
         <div className="bracket-side bracket-right">
-          <RegionBracket region="Y" games={games} selections={selections} predictedRounds={predictedRounds} resolveTeams={resolveTeams} onSelect={onSelect} />
-          <RegionBracket region="Z" games={games} selections={selections} predictedRounds={predictedRounds} resolveTeams={resolveTeams} onSelect={onSelect} />
+          <RegionBracket region="Y" games={games} selections={selections} predictedRounds={predictedRounds} resolveTeams={resolveTeams} />
+          <RegionBracket region="Z" games={games} selections={selections} predictedRounds={predictedRounds} resolveTeams={resolveTeams} />
         </div>
       </div>
     </div>

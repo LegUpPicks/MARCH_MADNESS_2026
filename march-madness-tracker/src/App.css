@@ -346,15 +346,10 @@ body {
   align-items: center;
   gap: 4px;
   padding: 4px 6px;
-  cursor: pointer;
-  transition: background 0.1s;
   min-height: 24px;
   position: relative;
 }
 
-.team-row:hover {
-  background: var(--card-hover);
-}
 
 .team-seed {
   font-size: 10px;
@@ -875,11 +870,25 @@ body {
 
 .predictions-table-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
   padding: 10px 14px 8px;
   border-bottom: 1px solid var(--border);
   background: var(--surface2);
+  flex-wrap: wrap;
+}
+
+.predictions-table-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.predictions-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .predictions-table-title {
@@ -1024,4 +1033,82 @@ body {
 .pt-na {
   color: var(--text-muted);
   text-align: center;
+}
+
+/* ── Live Odds columns ────────────────────────────────────────── */
+.pt-col-book {
+  text-align: center !important;
+  color: var(--gold) !important;
+  border-left: 1px solid var(--border);
+}
+
+.pt-col-divider-wide {
+  width: 10px;
+  padding: 0 !important;
+  background: var(--bg);
+  border-left: 3px solid var(--gold);
+  border-right: 3px solid var(--gold);
+  opacity: 0.4;
+}
+
+.pt-odds-ml,
+.pt-odds-spread,
+.pt-odds-total {
+  min-width: 60px;
+  vertical-align: middle;
+}
+
+.odds-line {
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.odds-spread-line {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.odds-juice {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.odds-team-name {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+
+/* ── Odds Refresh button ─────────────────────────────────────── */
+.odds-refresh-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+
+.odds-refresh-btn:hover:not(:disabled) {
+  background: rgba(210, 153, 34, 0.12);
+}
+
+.odds-refresh-btn:disabled,
+.odds-refresh-loading {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.odds-error {
+  font-size: 11px;
+  color: var(--red);
+}
+
+.odds-status {
+  font-size: 11px;
+  color: var(--text-muted);
 }

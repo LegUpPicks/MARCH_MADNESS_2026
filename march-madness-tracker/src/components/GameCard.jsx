@@ -13,7 +13,7 @@ function confFromPred(prediction) {
   return 'low';
 }
 
-export default function GameCard({ game, topTeam, botTeam, prediction, selection, onSelect }) {
+export default function GameCard({ game, topTeam, botTeam, prediction, selection }) {
   const isDisabled = !topTeam || !botTeam;
 
   const predictedWinner = prediction?.winner ?? null;
@@ -70,8 +70,6 @@ export default function GameCard({ game, topTeam, botTeam, prediction, selection
       <div
         key={team.name}
         className={teamClass(isTop)}
-        onClick={() => !isDisabled && onSelect(team.name)}
-        title={isDisabled ? undefined : `Mark ${team.name} as winner`}
       >
         <span className="team-seed">{team.seed}</span>
         <span className="team-name">{team.name}</span>
