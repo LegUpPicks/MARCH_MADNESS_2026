@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Python virtual environment
+.venv/
+__pycache__/
+*.py[cod]
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Large files exceeding GitHub's 100MB limit
+data_2026/MMasseyOrdinals.csv
+
+# Claude IDE config
+.claude/
