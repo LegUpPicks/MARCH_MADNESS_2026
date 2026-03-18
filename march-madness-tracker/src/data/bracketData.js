@@ -1,6 +1,27 @@
 // ============================================================
 // 2026 NCAA Tournament Bracket Data
 // ============================================================
+import modelPredictions from './modelPredictions.json';
+
+/**
+ * Build a prediction object from modelPredictions.json using balanced_rounds.
+ * Falls back to seeded model if balanced_rounds not yet available.
+ * @param {string} gameId  - e.g. 'M_W_R64_1v16'
+ * @param {string} topName - the wTeam (top team) name as listed in the games array
+ */
+function getPred(gameId, topName) {
+  const entry = modelPredictions[gameId];
+  if (!entry) return null;
+  const src = entry.balanced_rounds ?? entry.seeded ?? null;
+  if (!src) return null;
+  const topWins = src.predWinner === topName;
+  return {
+    winner: src.predWinner,
+    spreadRaw: topWins ? src.spread : -src.spread,
+    winIndicator: topWins ? 1 : 0,
+    total: src.total,
+  };
+}
 
 // ---- MEN'S BRACKET ----
 
@@ -12,7 +33,7 @@ export const mensGames = [
     region: 'X',
     topTeam: { name: 'Lehigh', seed: 16 },
     botTeam: { name: 'Prairie View', seed: 16 },
-    prediction: { winner: 'Lehigh', spreadRaw: 3.2, winIndicator: 1, total: 137.3 },
+    prediction: getPred('M_PI_X16', 'Lehigh'),
     playinSlot: 'X16',
   },
   {
@@ -21,7 +42,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Miami OH', seed: 11 },
     botTeam: { name: 'SMU', seed: 11 },
-    prediction: { winner: 'SMU', spreadRaw: -2.5, winIndicator: 0, total: 157.6 },
+    prediction: getPred('M_PI_Y11', 'Miami OH'),
     playinSlot: 'Y11',
   },
   {
@@ -30,7 +51,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Howard', seed: 16 },
     botTeam: { name: 'UMBC', seed: 16 },
-    prediction: { winner: 'UMBC', spreadRaw: 2.7, winIndicator: 0, total: 152.5 },
+    prediction: getPred('M_PI_Y16', 'Howard'),
     playinSlot: 'Y16',
   },
   {
@@ -39,7 +60,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'NC State', seed: 11 },
     botTeam: { name: 'Texas', seed: 11 },
-    prediction: { winner: 'NC State', spreadRaw: 3.8, winIndicator: 1, total: 154.5 },
+    prediction: getPred('M_PI_Z11', 'NC State'),
     playinSlot: 'Z11',
   },
 
@@ -50,7 +71,7 @@ export const mensGames = [
     region: 'W',
     topTeam: { name: 'Duke', seed: 1 },
     botTeam: { name: 'Siena', seed: 16 },
-    prediction: { winner: 'Duke', spreadRaw: 17.6, winIndicator: 1, total: 140.0 },
+    prediction: getPred('M_W_R64_1v16', 'Duke'),
     playinSlot: null,
   },
   {
@@ -59,7 +80,7 @@ export const mensGames = [
     region: 'W',
     topTeam: { name: 'Ohio St', seed: 8 },
     botTeam: { name: 'TCU', seed: 9 },
-    prediction: { winner: 'TCU', spreadRaw: -2.0, winIndicator: 0, total: 143.6 },
+    prediction: getPred('M_W_R64_8v9', 'Ohio St'),
     playinSlot: null,
   },
   {
@@ -77,7 +98,7 @@ export const mensGames = [
     region: 'W',
     topTeam: { name: 'Kansas', seed: 4 },
     botTeam: { name: 'Cal Baptist', seed: 13 },
-    prediction: { winner: 'Kansas', spreadRaw: 7.1, winIndicator: 1, total: 138.7 },
+    prediction: getPred('M_W_R64_4v13', 'Kansas'),
     playinSlot: null,
   },
   {
@@ -86,7 +107,7 @@ export const mensGames = [
     region: 'W',
     topTeam: { name: 'Louisville', seed: 6 },
     botTeam: { name: 'S Florida', seed: 11 },
-    prediction: { winner: 'Louisville', spreadRaw: 7.0, winIndicator: 1, total: 152.7 },
+    prediction: getPred('M_W_R64_6v11', 'Louisville'),
     playinSlot: null,
   },
   {
@@ -95,7 +116,7 @@ export const mensGames = [
     region: 'W',
     topTeam: { name: 'Michigan St', seed: 3 },
     botTeam: { name: 'N Dakota St', seed: 14 },
-    prediction: { winner: 'Michigan St', spreadRaw: 11.1, winIndicator: 1, total: 153.3 },
+    prediction: getPred('M_W_R64_3v14', 'Michigan St'),
     playinSlot: null,
   },
   {
@@ -104,7 +125,7 @@ export const mensGames = [
     region: 'W',
     topTeam: { name: 'UCLA', seed: 7 },
     botTeam: { name: 'UCF', seed: 10 },
-    prediction: { winner: 'UCLA', spreadRaw: 1.3, winIndicator: 1, total: 153.3 },
+    prediction: getPred('M_W_R64_7v10', 'UCLA'),
     playinSlot: null,
   },
   {
@@ -113,7 +134,7 @@ export const mensGames = [
     region: 'W',
     topTeam: { name: 'Connecticut', seed: 2 },
     botTeam: { name: 'Furman', seed: 15 },
-    prediction: { winner: 'Connecticut', spreadRaw: 13.8, winIndicator: 1, total: 134.4 },
+    prediction: getPred('M_W_R64_2v15', 'Connecticut'),
     playinSlot: null,
   },
 
@@ -124,7 +145,7 @@ export const mensGames = [
     region: 'X',
     topTeam: { name: 'Florida', seed: 1 },
     botTeam: { name: 'Lehigh*', seed: 16 },
-    prediction: { winner: 'Florida', spreadRaw: 22.4, winIndicator: 1, total: 146.9 },
+    prediction: getPred('M_X_R64_1v16', 'Florida'),
     playinSlot: 'X16',
   },
   {
@@ -133,7 +154,7 @@ export const mensGames = [
     region: 'X',
     topTeam: { name: 'Clemson', seed: 8 },
     botTeam: { name: 'Iowa', seed: 9 },
-    prediction: { winner: 'Clemson', spreadRaw: 0.2, winIndicator: 1, total: 130.7 },
+    prediction: getPred('M_X_R64_8v9', 'Clemson'),
     playinSlot: null,
   },
   {
@@ -142,7 +163,7 @@ export const mensGames = [
     region: 'X',
     topTeam: { name: 'Vanderbilt', seed: 5 },
     botTeam: { name: 'McNeese St', seed: 12 },
-    prediction: { winner: 'Vanderbilt', spreadRaw: 3.7, winIndicator: 1, total: 149.6 },
+    prediction: getPred('M_X_R64_5v12', 'Vanderbilt'),
     playinSlot: null,
   },
   {
@@ -151,7 +172,7 @@ export const mensGames = [
     region: 'X',
     topTeam: { name: 'Nebraska', seed: 4 },
     botTeam: { name: 'Troy', seed: 13 },
-    prediction: { winner: 'Nebraska', spreadRaw: 11.8, winIndicator: 1, total: 140.8 },
+    prediction: getPred('M_X_R64_4v13', 'Nebraska'),
     playinSlot: null,
   },
   {
@@ -160,7 +181,7 @@ export const mensGames = [
     region: 'X',
     topTeam: { name: 'N Carolina', seed: 6 },
     botTeam: { name: 'VCU', seed: 11 },
-    prediction: { winner: 'N Carolina', spreadRaw: 1.5, winIndicator: 1, total: 146.9 },
+    prediction: getPred('M_X_R64_6v11', 'N Carolina'),
     playinSlot: null,
   },
   {
@@ -169,7 +190,7 @@ export const mensGames = [
     region: 'X',
     topTeam: { name: 'Illinois', seed: 3 },
     botTeam: { name: 'Penn', seed: 14 },
-    prediction: { winner: 'Illinois', spreadRaw: 8.2, winIndicator: 1, total: 153.2 },
+    prediction: getPred('M_X_R64_3v14', 'Illinois'),
     playinSlot: null,
   },
   {
@@ -187,7 +208,7 @@ export const mensGames = [
     region: 'X',
     topTeam: { name: 'Houston', seed: 2 },
     botTeam: { name: 'Idaho', seed: 15 },
-    prediction: { winner: 'Houston', spreadRaw: 18.6, winIndicator: 1, total: 144.3 },
+    prediction: getPred('M_X_R64_2v15', 'Houston'),
     playinSlot: null,
   },
 
@@ -198,7 +219,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Michigan', seed: 1 },
     botTeam: { name: 'UMBC*', seed: 16 },
-    prediction: { winner: 'Michigan', spreadRaw: 18.7, winIndicator: 1, total: 147.2 },
+    prediction: getPred('M_Y_R64_1v16', 'Michigan'),
     playinSlot: 'Y16',
   },
   {
@@ -207,7 +228,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Georgia', seed: 8 },
     botTeam: { name: 'St Louis', seed: 9 },
-    prediction: { winner: 'Georgia', spreadRaw: 1.6, winIndicator: 1, total: 147.9 },
+    prediction: getPred('M_Y_R64_8v9', 'Georgia'),
     playinSlot: null,
   },
   {
@@ -216,7 +237,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Texas Tech', seed: 5 },
     botTeam: { name: 'Akron', seed: 12 },
-    prediction: { winner: 'Texas Tech', spreadRaw: 2.9, winIndicator: 1, total: 159.2 },
+    prediction: getPred('M_Y_R64_5v12', 'Texas Tech'),
     playinSlot: null,
   },
   {
@@ -225,7 +246,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Alabama', seed: 4 },
     botTeam: { name: 'Hofstra', seed: 13 },
-    prediction: { winner: 'Alabama', spreadRaw: 7.5, winIndicator: 1, total: 150.4 },
+    prediction: getPred('M_Y_R64_4v13', 'Alabama'),
     playinSlot: null,
   },
   {
@@ -234,7 +255,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Tennessee', seed: 6 },
     botTeam: { name: 'SMU*', seed: 11 },
-    prediction: { winner: 'Tennessee', spreadRaw: 2.8, winIndicator: 1, total: 157.0 },
+    prediction: getPred('M_Y_R64_6v11', 'Tennessee'),
     playinSlot: 'Y11',
   },
   {
@@ -243,7 +264,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Virginia', seed: 3 },
     botTeam: { name: 'Wright St', seed: 14 },
-    prediction: { winner: 'Virginia', spreadRaw: 18.0, winIndicator: 1, total: 149.7 },
+    prediction: getPred('M_Y_R64_3v14', 'Virginia'),
     playinSlot: null,
   },
   {
@@ -252,7 +273,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Kentucky', seed: 7 },
     botTeam: { name: 'Santa Clara', seed: 10 },
-    prediction: { winner: 'Kentucky', spreadRaw: -3.6, winIndicator: 1, total: 152.1 },
+    prediction: getPred('M_Y_R64_7v10', 'Kentucky'),
     playinSlot: null,
   },
   {
@@ -261,7 +282,7 @@ export const mensGames = [
     region: 'Y',
     topTeam: { name: 'Iowa St', seed: 2 },
     botTeam: { name: 'Tennessee St', seed: 15 },
-    prediction: { winner: 'Iowa St', spreadRaw: 18.2, winIndicator: 1, total: 149.3 },
+    prediction: getPred('M_Y_R64_2v15', 'Iowa St'),
     playinSlot: null,
   },
 
@@ -272,7 +293,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'Arizona', seed: 1 },
     botTeam: { name: 'LIU Brooklyn', seed: 16 },
-    prediction: { winner: 'Arizona', spreadRaw: 18.9, winIndicator: 1, total: 144.0 },
+    prediction: getPred('M_Z_R64_1v16', 'Arizona'),
     playinSlot: null,
   },
   {
@@ -281,7 +302,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'Villanova', seed: 8 },
     botTeam: { name: 'Utah St', seed: 9 },
-    prediction: { winner: 'Villanova', spreadRaw: 0.8, winIndicator: 1, total: 141.2 },
+    prediction: getPred('M_Z_R64_8v9', 'Villanova'),
     playinSlot: null,
   },
   {
@@ -290,7 +311,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'Wisconsin', seed: 5 },
     botTeam: { name: 'High Point', seed: 12 },
-    prediction: { winner: 'Wisconsin', spreadRaw: 4.5, winIndicator: 1, total: 159.4 },
+    prediction: getPred('M_Z_R64_5v12', 'Wisconsin'),
     playinSlot: null,
   },
   {
@@ -299,7 +320,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'Arkansas', seed: 4 },
     botTeam: { name: 'Hawaii', seed: 13 },
-    prediction: { winner: 'Arkansas', spreadRaw: 7.6, winIndicator: 1, total: 147.7 },
+    prediction: getPred('M_Z_R64_4v13', 'Arkansas'),
     playinSlot: null,
   },
   {
@@ -308,7 +329,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'BYU', seed: 6 },
     botTeam: { name: 'NC State*', seed: 11 },
-    prediction: { winner: 'BYU', spreadRaw: 2.0, winIndicator: 1, total: 158.5 },
+    prediction: getPred('M_Z_R64_6v11', 'BYU'),
     playinSlot: 'Z11',
   },
   {
@@ -317,7 +338,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'Gonzaga', seed: 3 },
     botTeam: { name: 'Kennesaw', seed: 14 },
-    prediction: { winner: 'Gonzaga', spreadRaw: 16.6, winIndicator: 1, total: 143.0 },
+    prediction: getPred('M_Z_R64_3v14', 'Gonzaga'),
     playinSlot: null,
   },
   {
@@ -326,7 +347,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'Miami FL', seed: 7 },
     botTeam: { name: 'Missouri', seed: 10 },
-    prediction: { winner: 'Miami FL', spreadRaw: -0.6, winIndicator: 1, total: 139.3 },
+    prediction: getPred('M_Z_R64_7v10', 'Miami FL'),
     playinSlot: null,
   },
   {
@@ -335,7 +356,7 @@ export const mensGames = [
     region: 'Z',
     topTeam: { name: 'Purdue', seed: 2 },
     botTeam: { name: 'Queens NC', seed: 15 },
-    prediction: { winner: 'Purdue', spreadRaw: 16.1, winIndicator: 1, total: 157.4 },
+    prediction: getPred('M_Z_R64_2v15', 'Purdue'),
     playinSlot: null,
   },
 
@@ -641,7 +662,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'Arizona St', seed: 10 },
     botTeam: { name: 'Virginia', seed: 10 },
-    prediction: { winner: 'Virginia', spreadRaw: -2.6, winIndicator: 0, total: 131.3 },
+    prediction: getPred('W_PI_X10', 'Arizona St'),
     playinSlot: 'X10',
   },
   {
@@ -650,7 +671,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'Samford', seed: 16 },
     botTeam: { name: 'Southern Univ', seed: 16 },
-    prediction: { winner: 'Southern Univ', spreadRaw: -8.6, winIndicator: 0, total: 112.0 },
+    prediction: getPred('W_PI_X16', 'Samford'),
     playinSlot: 'X16',
   },
   {
@@ -659,7 +680,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'Missouri St', seed: 16 },
     botTeam: { name: 'SF Austin', seed: 16 },
-    prediction: { winner: 'SF Austin', spreadRaw: -7.5, winIndicator: 0, total: 127.4 },
+    prediction: getPred('W_PI_Y16', 'Missouri St'),
     playinSlot: 'Y16',
   },
   {
@@ -668,7 +689,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'Nebraska', seed: 11 },
     botTeam: { name: 'Richmond', seed: 11 },
-    prediction: { winner: 'Nebraska', spreadRaw: 5.0, winIndicator: 1, total: 139.4 },
+    prediction: getPred('W_PI_Z11', 'Nebraska'),
     playinSlot: 'Z11',
   },
 
@@ -679,7 +700,7 @@ export const womensGames = [
     region: 'W',
     topTeam: { name: 'Connecticut', seed: 1 },
     botTeam: { name: 'UT San Antonio', seed: 16 },
-    prediction: { winner: 'Connecticut', spreadRaw: null, winIndicator: 1, total: null },
+    prediction: getPred('W_W_R64_1v16', 'Connecticut'),
     playinSlot: null,
   },
   {
@@ -688,7 +709,7 @@ export const womensGames = [
     region: 'W',
     topTeam: { name: 'Iowa St', seed: 8 },
     botTeam: { name: 'Syracuse', seed: 9 },
-    prediction: { winner: 'Syracuse', spreadRaw: 2.7, winIndicator: 0, total: 140.9 },
+    prediction: getPred('W_W_R64_8v9', 'Iowa St'),
     playinSlot: null,
   },
   {
@@ -697,7 +718,7 @@ export const womensGames = [
     region: 'W',
     topTeam: { name: 'Maryland', seed: 5 },
     botTeam: { name: 'Murray St', seed: 12 },
-    prediction: { winner: 'Maryland', spreadRaw: 18.8, winIndicator: 1, total: 147.0 },
+    prediction: getPred('W_W_R64_5v12', 'Maryland'),
     playinSlot: null,
   },
   {
@@ -706,7 +727,7 @@ export const womensGames = [
     region: 'W',
     topTeam: { name: 'N Carolina', seed: 4 },
     botTeam: { name: 'W Illinois', seed: 13 },
-    prediction: { winner: 'N Carolina', spreadRaw: 18.9, winIndicator: 1, total: 145.3 },
+    prediction: getPred('W_W_R64_4v13', 'N Carolina'),
     playinSlot: null,
   },
   {
@@ -715,7 +736,7 @@ export const womensGames = [
     region: 'W',
     topTeam: { name: 'Notre Dame', seed: 6 },
     botTeam: { name: 'Fairfield', seed: 11 },
-    prediction: { winner: 'Fairfield', spreadRaw: 8.5, winIndicator: 0, total: 131.2 },
+    prediction: getPred('W_W_R64_6v11', 'Notre Dame'),
     playinSlot: null,
   },
   {
@@ -724,7 +745,7 @@ export const womensGames = [
     region: 'W',
     topTeam: { name: 'Ohio St', seed: 3 },
     botTeam: { name: 'Howard', seed: 14 },
-    prediction: { winner: 'Ohio St', spreadRaw: 30.6, winIndicator: 1, total: 139.5 },
+    prediction: getPred('W_W_R64_3v14', 'Ohio St'),
     playinSlot: null,
   },
   {
@@ -733,7 +754,7 @@ export const womensGames = [
     region: 'W',
     topTeam: { name: 'Illinois', seed: 7 },
     botTeam: { name: 'Colorado', seed: 10 },
-    prediction: { winner: 'Illinois', spreadRaw: 7.3, winIndicator: 1, total: 129.5 },
+    prediction: getPred('W_W_R64_7v10', 'Illinois'),
     playinSlot: null,
   },
   {
@@ -742,7 +763,7 @@ export const womensGames = [
     region: 'W',
     topTeam: { name: 'Vanderbilt', seed: 2 },
     botTeam: { name: 'High Point', seed: 15 },
-    prediction: { winner: 'Vanderbilt', spreadRaw: 25.5, winIndicator: 1, total: 154.7 },
+    prediction: getPred('W_W_R64_2v15', 'Vanderbilt'),
     playinSlot: null,
   },
 
@@ -753,7 +774,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'S Carolina', seed: 1 },
     botTeam: { name: 'S Univ*', seed: 16 },
-    prediction: { winner: 'S Carolina', spreadRaw: 45.9, winIndicator: 1, total: 131.6 },
+    prediction: getPred('W_X_R64_1v16', 'S Carolina'),
     playinSlot: 'X16',
   },
   {
@@ -762,7 +783,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'Clemson', seed: 8 },
     botTeam: { name: 'USC', seed: 9 },
-    prediction: { winner: 'USC', spreadRaw: -1.2, winIndicator: 0, total: 129.9 },
+    prediction: getPred('W_X_R64_8v9', 'Clemson'),
     playinSlot: null,
   },
   {
@@ -771,7 +792,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'Michigan St', seed: 5 },
     botTeam: { name: 'Colorado St', seed: 12 },
-    prediction: { winner: 'Michigan St', spreadRaw: 16.2, winIndicator: 1, total: 135.1 },
+    prediction: getPred('W_X_R64_5v12', 'Michigan St'),
     playinSlot: null,
   },
   {
@@ -780,7 +801,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'Oklahoma', seed: 4 },
     botTeam: { name: 'Idaho', seed: 13 },
-    prediction: { winner: 'Oklahoma', spreadRaw: 26.8, winIndicator: 1, total: 153.3 },
+    prediction: getPred('W_X_R64_4v13', 'Oklahoma'),
     playinSlot: null,
   },
   {
@@ -789,7 +810,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'Washington', seed: 6 },
     botTeam: { name: 'S Dakota St', seed: 11 },
-    prediction: { winner: 'Washington', spreadRaw: 1.3, winIndicator: 1, total: 136.0 },
+    prediction: getPred('W_X_R64_6v11', 'Washington'),
     playinSlot: null,
   },
   {
@@ -798,7 +819,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'TCU', seed: 3 },
     botTeam: { name: 'UC San Diego', seed: 14 },
-    prediction: { winner: 'TCU', spreadRaw: 28.2, winIndicator: 1, total: 139.0 },
+    prediction: getPred('W_X_R64_3v14', 'TCU'),
     playinSlot: null,
   },
   {
@@ -807,7 +828,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'Georgia', seed: 7 },
     botTeam: { name: 'Virginia*', seed: 10 },
-    prediction: { winner: 'Georgia', spreadRaw: -0.1, winIndicator: 1, total: 134.1 },
+    prediction: getPred('W_X_R64_7v10', 'Georgia'),
     playinSlot: 'X10',
   },
   {
@@ -816,7 +837,7 @@ export const womensGames = [
     region: 'X',
     topTeam: { name: 'Iowa', seed: 2 },
     botTeam: { name: 'F Dickinson', seed: 15 },
-    prediction: { winner: 'Iowa', spreadRaw: 27.5, winIndicator: 1, total: 134.3 },
+    prediction: getPred('W_X_R64_2v15', 'Iowa'),
     playinSlot: null,
   },
 
@@ -827,7 +848,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'Texas', seed: 1 },
     botTeam: { name: 'SF Austin*', seed: 16 },
-    prediction: { winner: 'Texas', spreadRaw: 41.4, winIndicator: 1, total: 149.6 },
+    prediction: getPred('W_Y_R64_1v16', 'Texas'),
     playinSlot: 'Y16',
   },
   {
@@ -836,7 +857,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'Oregon', seed: 8 },
     botTeam: { name: 'Virginia Tech', seed: 9 },
-    prediction: { winner: 'Oregon', spreadRaw: 2.1, winIndicator: 1, total: 140.7 },
+    prediction: getPred('W_Y_R64_8v9', 'Oregon'),
     playinSlot: null,
   },
   {
@@ -845,7 +866,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'Kentucky', seed: 5 },
     botTeam: { name: 'James Madison', seed: 12 },
-    prediction: { winner: 'Kentucky', spreadRaw: 2.4, winIndicator: 1, total: 138.5 },
+    prediction: getPred('W_Y_R64_5v12', 'Kentucky'),
     playinSlot: null,
   },
   {
@@ -854,7 +875,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'W Virginia', seed: 4 },
     botTeam: { name: 'Miami OH', seed: 13 },
-    prediction: { winner: 'W Virginia', spreadRaw: 23.7, winIndicator: 1, total: 139.1 },
+    prediction: getPred('W_Y_R64_4v13', 'W Virginia'),
     playinSlot: null,
   },
   {
@@ -863,7 +884,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'Alabama', seed: 6 },
     botTeam: { name: 'Rhode Island', seed: 11 },
-    prediction: { winner: 'Alabama', spreadRaw: 5.9, winIndicator: 1, total: 122.6 },
+    prediction: getPred('W_Y_R64_6v11', 'Alabama'),
     playinSlot: null,
   },
   {
@@ -872,7 +893,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'Louisville', seed: 3 },
     botTeam: { name: 'Vermont', seed: 14 },
-    prediction: { winner: 'Louisville', spreadRaw: 26.3, winIndicator: 1, total: 132.3 },
+    prediction: getPred('W_Y_R64_3v14', 'Louisville'),
     playinSlot: null,
   },
   {
@@ -881,7 +902,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'NC State', seed: 7 },
     botTeam: { name: 'Tennessee', seed: 10 },
-    prediction: { winner: 'Tennessee', spreadRaw: 6.2, winIndicator: 0, total: 150.7 },
+    prediction: getPred('W_Y_R64_7v10', 'NC State'),
     playinSlot: null,
   },
   {
@@ -890,7 +911,7 @@ export const womensGames = [
     region: 'Y',
     topTeam: { name: 'Michigan', seed: 2 },
     botTeam: { name: 'Holy Cross', seed: 15 },
-    prediction: { winner: 'Michigan', spreadRaw: 36.9, winIndicator: 1, total: 134.5 },
+    prediction: getPred('W_Y_R64_2v15', 'Michigan'),
     playinSlot: null,
   },
 
@@ -901,7 +922,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'UCLA', seed: 1 },
     botTeam: { name: 'Cal Baptist', seed: 16 },
-    prediction: { winner: 'UCLA', spreadRaw: 44.0, winIndicator: 1, total: 155.0 },
+    prediction: getPred('W_Z_R64_1v16', 'UCLA'),
     playinSlot: null,
   },
   {
@@ -910,7 +931,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'Oklahoma St', seed: 8 },
     botTeam: { name: 'Princeton', seed: 9 },
-    prediction: { winner: 'Oklahoma St', spreadRaw: 6.4, winIndicator: 1, total: 137.2 },
+    prediction: getPred('W_Z_R64_8v9', 'Oklahoma St'),
     playinSlot: null,
   },
   {
@@ -919,7 +940,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'Mississippi', seed: 5 },
     botTeam: { name: 'Gonzaga', seed: 12 },
-    prediction: { winner: 'Mississippi', spreadRaw: 11.8, winIndicator: 1, total: 139.5 },
+    prediction: getPred('W_Z_R64_5v12', 'Mississippi'),
     playinSlot: null,
   },
   {
@@ -928,7 +949,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'Minnesota', seed: 4 },
     botTeam: { name: 'WI Green Bay', seed: 13 },
-    prediction: { winner: 'Minnesota', spreadRaw: 23.8, winIndicator: 1, total: 133.6 },
+    prediction: getPred('W_Z_R64_4v13', 'Minnesota'),
     playinSlot: null,
   },
   {
@@ -937,7 +958,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'Baylor', seed: 6 },
     botTeam: { name: 'Nebraska*', seed: 11 },
-    prediction: { winner: 'Baylor', spreadRaw: -0.1, winIndicator: 1, total: 132.7 },
+    prediction: getPred('W_Z_R64_6v11', 'Baylor'),
     playinSlot: 'Z11',
   },
   {
@@ -946,7 +967,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'Duke', seed: 3 },
     botTeam: { name: 'Col Charleston', seed: 14 },
-    prediction: { winner: 'Duke', spreadRaw: 26.7, winIndicator: 1, total: 135.6 },
+    prediction: getPred('W_Z_R64_3v14', 'Duke'),
     playinSlot: null,
   },
   {
@@ -955,7 +976,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'Texas Tech', seed: 7 },
     botTeam: { name: 'Villanova', seed: 10 },
-    prediction: { winner: 'Texas Tech', spreadRaw: 6.7, winIndicator: 1, total: 136.7 },
+    prediction: getPred('W_Z_R64_7v10', 'Texas Tech'),
     playinSlot: null,
   },
   {
@@ -964,7 +985,7 @@ export const womensGames = [
     region: 'Z',
     topTeam: { name: 'LSU', seed: 2 },
     botTeam: { name: 'Jacksonville', seed: 15 },
-    prediction: { winner: 'LSU', spreadRaw: 56.9, winIndicator: 1, total: 153.9 },
+    prediction: getPred('W_Z_R64_2v15', 'LSU'),
     playinSlot: null,
   },
 

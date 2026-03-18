@@ -116,10 +116,11 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
     const entry = allMatchupPredictions[`${prefix}:${a}|${b}`];
     if (!entry) return null;
     const mp = {
-      seeded:   entry.seeded   ?? null,
-      noSeed:   entry.noSeed   ?? null,
-      perRound: entry.perRound?.[String(roundIdx)] ?? null,
-      kaggle:   entry.kaggle   ?? null,
+      seeded:           entry.seeded              ?? null,
+      noSeed:           entry.noSeed              ?? null,
+      unbalanced_rounds: entry.unbalanced_rounds?.[String(roundIdx)] ?? null,
+      balanced_rounds:   entry.balanced_rounds?.[String(roundIdx)]   ?? null,
+      kaggle:           entry.kaggle              ?? null,
     };
     return { game: g, mp, topName, botName };
   }).filter(Boolean);
@@ -187,13 +188,16 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               <th className="pt-col-divider" rowSpan={2}></th>
               <th className="pt-col-model" colSpan={3}>No Seeds <span className="pt-acc">Win Acc 63.1% · Spd MAE 11.3 · Total MAE 14.2</span></th>
               <th className="pt-col-divider" rowSpan={2}></th>
-              <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Per-Round <span className="pt-acc">Win Acc 71.8% · Spd MAE 9.9 · Total MAE 14.1</span></th>
+              <th className="pt-col-model" colSpan={3}>Unbalanced Rounds <span className="pt-acc">Win Acc 99.7% · Spd MAE 2.4 · Total MAE 2.8</span></th>
+              <th className="pt-col-divider" rowSpan={2}></th>
+              <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Balanced Rounds <span className="pt-acc">Win Acc 81.2% · Spd MAE 9.9 · Total MAE 15.6</span></th>
               <th className="pt-col-divider" rowSpan={2}></th>
               <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Kaggle <span className="pt-acc">Win Acc 80.0% · Spd MAE 8.3† · Total MAE 10.8†</span></th>
               <th className="pt-col-divider-wide" rowSpan={2}></th>
               <th className="pt-col-book" colSpan={3}>DraftKings</th>
             </tr>
             <tr className="pt-subheader">
+              <th>Pick</th><th>Spread</th><th>O/U</th>
               <th>Pick</th><th>Spread</th><th>O/U</th>
               <th>Pick</th><th>Spread</th><th>O/U</th>
               <th>Pick</th><th>Spread</th><th>O/U</th>
@@ -226,7 +230,9 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
                   <td className="pt-col-divider"></td>
                   <ModelCells pred={mp.noSeed} />
                   <td className="pt-col-divider"></td>
-                  <ModelCells pred={mp.perRound} />
+                  <ModelCells pred={mp.unbalanced_rounds} />
+                  <td className="pt-col-divider"></td>
+                  <ModelCells pred={mp.balanced_rounds} />
                   <td className="pt-col-divider"></td>
                   <ModelCells pred={mp.kaggle} />
                   <td className="pt-col-divider-wide"></td>

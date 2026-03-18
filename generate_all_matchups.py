@@ -59,31 +59,33 @@ KAGGLE_FEATURES = [
 ]
 
 # ═══════════════════════════════════════════════════════════════
-# PER-ROUND MODELS — load cached or train fresh
+# PER-ROUND MODELS — unbalanced and balanced, all data (2003–2025)
 # ═══════════════════════════════════════════════════════════════
 NON_FEATURE_COLS = {'SEASON','WIN_INDICATOR','L_TEAMID','W_TEAMID','W_SCORE','L_SCORE','ROUND','L_REGION','W_REGION'}
 DROP_COLS = ['W_CTWINS','W_AVERAGECTSCORE','L_CTWINS','L_AVERAGECTSCORE',
              'W_WLOCN','W_WLOCH','W_WLOCA','L_WLOCN','L_WLOCH','L_WLOCA']
+UPSET_SEED_DIFF = 5
 
-def train_round_models(csv_path, label):
-    print(f"  Training per-round models ({label})...")
+def _load_and_augment(csv_path):
     final = (pd.read_csv(csv_path)
              .rename(columns={'WTEAMID':'W_TEAMID','LTEAMID':'L_TEAMID','WSCORE':'W_SCORE','LSCORE':'L_SCORE'}))
-    final['WIN_INDICATOR'] = 1
     final = final.drop(columns=[c for c in DROP_COLS if c in final.columns])
     feat_cols = [c for c in final.columns if c not in NON_FEATURE_COLS]
 
-    train = final[(final.SEASON >= 2010) & (final.SEASON <= 2025)].copy()
+    train = final[final.SEASON <= 2025].copy()
     w_cols = sorted([c for c in train.columns if c.startswith('W_')])
     l_cols = ['L_' + c[2:] for c in w_cols]
     swapped = train.copy()
     for wc, lc in zip(w_cols, l_cols): swapped[wc] = train[lc]; swapped[lc] = train[wc]
     train = pd.concat([train, swapped], ignore_index=True)
     train['WIN_INDICATOR'] = (train['W_SCORE'] > train['L_SCORE']).astype(int)
+    return train, feat_cols
 
+def train_unbalanced_rounds(csv_path, label):
+    print(f"  Training unbalanced_rounds ({label}, all seasons 2003–2025)...")
+    train, feat_cols = _load_and_augment(csv_path)
     WIN_P = dict(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, eval_metric='logloss')
     REG_P = dict(learning_rate=0.1, max_depth=3, min_child_weight=2, n_estimators=100, eval_metric='rmse')
-
     round_models = {}
     for r in range(0, 7):
         rt = train[train.ROUND == r]
@@ -97,25 +99,41 @@ def train_round_models(csv_path, label):
         print(f"    Round {r}: {len(rt)//2} games")
     return round_models, feat_cols
 
-print("\nPer-round models:")
-pr_m_path = os.path.join(MODEL_DIR, 'round_models_M.joblib')
-pr_w_path = os.path.join(MODEL_DIR, 'round_models_W.joblib')
+def train_balanced_rounds(csv_path, label):
+    print(f"  Training balanced_rounds ({label}, scale_pos_weight per round, all seasons 2003–2025)...")
+    train, feat_cols = _load_and_augment(csv_path)
+    WIN_P = dict(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, eval_metric='logloss')
+    REG_P = dict(learning_rate=0.1, max_depth=3, min_child_weight=2, n_estimators=100, eval_metric='rmse')
+    round_models = {}
+    for r in range(0, 7):
+        rt = train[train.ROUND == r]
+        if len(rt) < 5: continue
+        X = rt[feat_cols]
+        y_win = rt['WIN_INDICATOR']
+        seed_diff = rt['W_SEED'] - rt['L_SEED']
+        n_upsets = ((seed_diff >= UPSET_SEED_DIFF) & (y_win == 1)).sum()
+        n_non = len(rt) - n_upsets
+        spw = round(n_non / n_upsets, 2) if n_upsets > 0 else 1.0
+        round_models[r] = {
+            'win':    XGBClassifier(scale_pos_weight=spw, **WIN_P).fit(X, y_win),
+            'spread': XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] - rt['L_SCORE']),
+            'total':  XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] + rt['L_SCORE']),
+        }
+        print(f"    Round {r}: {len(rt)//2} games | scale_pos_weight={spw}")
+    return round_models, feat_cols
 
-if os.path.exists(pr_m_path):
-    print("  Loading cached M round models...")
-    PR_M, PR_M_FEAT = joblib.load(pr_m_path)
-else:
-    PR_M, PR_M_FEAT = train_round_models(os.path.join(DATA_DIR, 'final_features.csv'), 'Men')
-    joblib.dump((PR_M, PR_M_FEAT), pr_m_path)
-    print("  Saved round_models_M.joblib")
+print("\nTraining unbalanced_rounds...")
+PR_M_UNBAL, PR_M_FEAT = train_unbalanced_rounds(os.path.join(DATA_DIR, 'final_features.csv'), 'Men')
+joblib.dump((PR_M_UNBAL, PR_M_FEAT), os.path.join(MODEL_DIR, 'round_models_M_unbalanced.joblib'))
+PR_W_UNBAL, PR_W_FEAT = train_unbalanced_rounds(os.path.join(DATA_DIR, 'final_features_W.csv'), 'Women')
+joblib.dump((PR_W_UNBAL, PR_W_FEAT), os.path.join(MODEL_DIR, 'round_models_W_unbalanced.joblib'))
 
-if os.path.exists(pr_w_path):
-    print("  Loading cached W round models...")
-    PR_W, PR_W_FEAT = joblib.load(pr_w_path)
-else:
-    PR_W, PR_W_FEAT = train_round_models(os.path.join(DATA_DIR, 'final_features_W.csv'), 'Women')
-    joblib.dump((PR_W, PR_W_FEAT), pr_w_path)
-    print("  Saved round_models_W.joblib")
+print("\nTraining balanced_rounds...")
+PR_M_BAL, PR_M_BAL_FEAT = train_balanced_rounds(os.path.join(DATA_DIR, 'final_features.csv'), 'Men')
+joblib.dump((PR_M_BAL, PR_M_BAL_FEAT), os.path.join(MODEL_DIR, 'round_models_M_balanced.joblib'))
+PR_W_BAL, PR_W_BAL_FEAT = train_balanced_rounds(os.path.join(DATA_DIR, 'final_features_W.csv'), 'Women')
+joblib.dump((PR_W_BAL, PR_W_BAL_FEAT), os.path.join(MODEL_DIR, 'round_models_W_balanced.joblib'))
+print("  Saved all 4 model files.")
 
 # ═══════════════════════════════════════════════════════════════
 # SEASON STATS & NAME MAPS
@@ -326,6 +344,15 @@ def make_per_round_pred(round_models, feat_cols, X_df, top_seed, bot_seed, top_n
     except:
         return None
 
+def make_all_rounds_pred(round_models, feat_cols, X_df, top_seed, bot_seed, top_name, bot_name):
+    """Return per-round predictions for all 7 rounds (0–6)."""
+    result = {}
+    for r in range(0, 7):
+        pred = make_per_round_pred(round_models, feat_cols, X_df, top_seed, bot_seed, top_name, bot_name, r)
+        if pred:
+            result[str(r)] = pred
+    return result
+
 def make_kaggle_pred(kaggle_feats, top_id, bot_id, top_seed, bot_seed, top_name, bot_name, men_women):
     if not kaggle_feats: return None
     median_feats = {k: float(np.median([v[k] for v in kaggle_feats.values() if k in v]))
@@ -357,7 +384,9 @@ def make_kaggle_pred(kaggle_feats, top_id, bot_id, top_seed, bot_seed, top_name,
 # GENERATE ALL MATCHUPS
 # ═══════════════════════════════════════════════════════════════
 def generate_gender_matchups(team_seeds, name_map, stats_2026, models_bundle,
-                              pr_models, pr_feat_cols, kaggle_feats, men_women, prefix):
+                              pr_models_unbal, pr_feat_unbal,
+                              pr_models_bal, pr_feat_bal,
+                              kaggle_feats, men_women, prefix):
     all_teams = sorted(team_seeds.keys())
     output = {}
     total_pairs = len(all_teams) * (len(all_teams) - 1) // 2
@@ -386,12 +415,12 @@ def generate_gender_matchups(team_seeds, name_map, stats_2026, models_bundle,
         # Kaggle
         entry['kaggle'] = make_kaggle_pred(kaggle_feats, top_id, bot_id,
                                             top_seed, bot_seed, top, bot, men_women)
-        # Per-Round (for each round 0-6)
-        entry['perRound'] = {}
-        for r in range(0, 7):
-            pred = make_per_round_pred(pr_models, pr_feat_cols, df, top_seed, bot_seed, top, bot, r)
-            if pred:
-                entry['perRound'][str(r)] = pred
+        # Unbalanced rounds (no class weighting)
+        entry['unbalanced_rounds'] = make_all_rounds_pred(
+            pr_models_unbal, pr_feat_unbal, df, top_seed, bot_seed, top, bot)
+        # Balanced rounds (scale_pos_weight per round)
+        entry['balanced_rounds'] = make_all_rounds_pred(
+            pr_models_bal, pr_feat_bal, df, top_seed, bot_seed, top, bot)
 
         key = f"{prefix}:{top}|{bot}"
         output[key] = entry
@@ -404,10 +433,12 @@ def generate_gender_matchups(team_seeds, name_map, stats_2026, models_bundle,
 output = {}
 output.update(generate_gender_matchups(
     M_SEEDS, men_name_map, ss_m_2026, M_MODELS,
-    PR_M, PR_M_FEAT, KF_M, men_women=1, prefix='m'))
+    PR_M_UNBAL, PR_M_FEAT, PR_M_BAL, PR_M_BAL_FEAT,
+    KF_M, men_women=1, prefix='m'))
 output.update(generate_gender_matchups(
     W_SEEDS, women_name_map, ss_w_2026, W_MODELS,
-    PR_W, PR_W_FEAT, KF_W, men_women=0, prefix='w'))
+    PR_W_UNBAL, PR_W_FEAT, PR_W_BAL, PR_W_BAL_FEAT,
+    KF_W, men_women=0, prefix='w'))
 
 with open(OUT_FILE, 'w') as f:
     json.dump(output, f, separators=(',', ':'))  # compact JSON to reduce file size

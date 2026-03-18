@@ -72,53 +72,78 @@ women_name_map = build_map(os.path.join(DATA_DIR, 'WTeamSpellings.csv'), {
     'nebraska*':   3304,
 })
 
-# ══════════════════════════════════════════════════════════════
-# PER-ROUND MODELS
-# ══════════════════════════════════════════════════════════════
 
-NON_FEATURE_COLS = {'SEASON', 'WIN_INDICATOR', 'L_TEAMID', 'W_TEAMID',
-                    'W_SCORE', 'L_SCORE', 'ROUND', 'L_REGION', 'W_REGION'}
-DROP_COLS = ['W_CTWINS', 'W_AVERAGECTSCORE', 'L_CTWINS', 'L_AVERAGECTSCORE',
-             'W_WLOCN', 'W_WLOCH', 'W_WLOCA', 'L_WLOCN', 'L_WLOCH', 'L_WLOCA']
+# PER-ROUND MODELS -- unbalanced and balanced, all data (2003-2025)
 
-def train_round_models(csv_path, label):
-    print(f"Training per-round models ({label})...")
+NON_FEATURE_COLS = {"SEASON", "WIN_INDICATOR", "L_TEAMID", "W_TEAMID",
+                    "W_SCORE", "L_SCORE", "ROUND", "L_REGION", "W_REGION"}
+DROP_COLS = ["W_CTWINS", "W_AVERAGECTSCORE", "L_CTWINS", "L_AVERAGECTSCORE",
+             "W_WLOCN", "W_WLOCH", "W_WLOCA", "L_WLOCN", "L_WLOCH", "L_WLOCA"]
+UPSET_SEED_DIFF = 5
+
+def _load_and_augment_all(csv_path):
     final = (
         pd.read_csv(csv_path)
-        .rename(columns={'WTEAMID':'W_TEAMID','LTEAMID':'L_TEAMID','WSCORE':'W_SCORE','LSCORE':'L_SCORE'})
+        .rename(columns={"WTEAMID":"W_TEAMID","LTEAMID":"L_TEAMID","WSCORE":"W_SCORE","LSCORE":"L_SCORE"})
     )
-    final['WIN_INDICATOR'] = 1
     final = final.drop(columns=[c for c in DROP_COLS if c in final.columns])
     feat_cols = [c for c in final.columns if c not in NON_FEATURE_COLS]
-
-    train = final[(final.SEASON >= 2010) & (final.SEASON <= 2025)].copy()
-    w_cols = sorted([c for c in train.columns if c.startswith('W_')])
-    l_cols = ['L_' + c[2:] for c in w_cols]
+    train = final[final.SEASON <= 2025].copy()
+    w_cols = sorted([c for c in train.columns if c.startswith("W_")])
+    l_cols = ["L_" + c[2:] for c in w_cols]
     swapped = train.copy()
     for wc, lc in zip(w_cols, l_cols):
         swapped[wc] = train[lc]; swapped[lc] = train[wc]
     train = pd.concat([train, swapped], ignore_index=True)
-    train['WIN_INDICATOR'] = (train['W_SCORE'] > train['L_SCORE']).astype(int)
+    train["WIN_INDICATOR"] = (train["W_SCORE"] > train["L_SCORE"]).astype(int)
+    return train, feat_cols
 
-    WIN_P = dict(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, eval_metric='logloss')
-    REG_P = dict(learning_rate=0.1, max_depth=3, min_child_weight=2, n_estimators=100, eval_metric='rmse')
-
+def train_unbalanced_rounds(csv_path, label):
+    print(f"Training unbalanced_rounds ({label}, all seasons 2003-2025)...")
+    train, feat_cols = _load_and_augment_all(csv_path)
+    WIN_P = dict(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, eval_metric="logloss")
+    REG_P = dict(learning_rate=0.1, max_depth=3, min_child_weight=2, n_estimators=100, eval_metric="rmse")
     round_models = {}
     for r in range(0, 7):
         rt = train[train.ROUND == r]
-        if len(rt) < 5:
-            continue
+        if len(rt) < 5: continue
         X = rt[feat_cols]
         round_models[r] = {
-            'win':    XGBClassifier(**WIN_P).fit(X, rt['WIN_INDICATOR']),
-            'spread': XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] - rt['L_SCORE']),
-            'total':  XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] + rt['L_SCORE']),
+            "win":    XGBClassifier(**WIN_P).fit(X, rt["WIN_INDICATOR"]),
+            "spread": XGBRegressor(**REG_P).fit(X, rt["W_SCORE"] - rt["L_SCORE"]),
+            "total":  XGBRegressor(**REG_P).fit(X, rt["W_SCORE"] + rt["L_SCORE"]),
         }
         print(f"  Round {r}: {len(rt)//2} unique games in training set")
     return round_models, feat_cols
 
-PR_M, PR_M_FEAT_COLS = train_round_models(os.path.join(DATA_DIR, 'final_features.csv'), 'Men')
-PR_W, PR_W_FEAT_COLS = train_round_models(os.path.join(DATA_DIR, 'final_features_W.csv'), 'Women')
+def train_balanced_rounds(csv_path, label):
+    print(f"Training balanced_rounds ({label}, scale_pos_weight, all seasons 2003-2025)...")
+    train, feat_cols = _load_and_augment_all(csv_path)
+    WIN_P = dict(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, eval_metric="logloss")
+    REG_P = dict(learning_rate=0.1, max_depth=3, min_child_weight=2, n_estimators=100, eval_metric="rmse")
+    round_models = {}
+    for r in range(0, 7):
+        rt = train[train.ROUND == r]
+        if len(rt) < 5: continue
+        X = rt[feat_cols]
+        y_win = rt["WIN_INDICATOR"]
+        seed_diff = rt["W_SEED"] - rt["L_SEED"]
+        n_upsets = ((seed_diff >= UPSET_SEED_DIFF) & (y_win == 1)).sum()
+        n_non = len(rt) - n_upsets
+        spw = round(n_non / n_upsets, 2) if n_upsets > 0 else 1.0
+        round_models[r] = {
+            "win":    XGBClassifier(scale_pos_weight=spw, **WIN_P).fit(X, y_win),
+            "spread": XGBRegressor(**REG_P).fit(X, rt["W_SCORE"] - rt["L_SCORE"]),
+            "total":  XGBRegressor(**REG_P).fit(X, rt["W_SCORE"] + rt["L_SCORE"]),
+        }
+        print(f"  Round {r}: {len(rt)//2} games | scale_pos_weight={spw}")
+    return round_models, feat_cols
+
+
+PR_M_UNBAL, PR_M_UNBAL_FEAT = train_unbalanced_rounds(os.path.join(DATA_DIR, "final_features.csv"), "Men")
+PR_W_UNBAL, PR_W_UNBAL_FEAT = train_unbalanced_rounds(os.path.join(DATA_DIR, "final_features_W.csv"), "Women")
+PR_M_BAL,   PR_M_BAL_FEAT   = train_balanced_rounds(os.path.join(DATA_DIR, "final_features.csv"), "Men")
+PR_W_BAL,   PR_W_BAL_FEAT   = train_balanced_rounds(os.path.join(DATA_DIR, "final_features_W.csv"), "Women")
 
 # ══════════════════════════════════════════════════════════════
 # KAGGLE FEATURES FOR 2026
@@ -244,9 +269,10 @@ def get_game_round(game_id):
 
 # ── Prediction helpers ─────────────────────────────────────────
 def predict_game(name_map, stats_2026, models, top_name, top_seed, bot_name, bot_seed,
-                 pr_models=None, pr_feat_cols=None, game_id=None,
-                 kaggle_feats=None, men_women=1):
-    """Return dict with seeded, noSeed, perRound, kaggle predictions."""
+                 pr_models_unbal=None, pr_feat_unbal=None,
+                 pr_models_bal=None, pr_feat_bal=None,
+                 game_id=None, kaggle_feats=None, men_women=1):
+    """Return dict with seeded, noSeed, unbalanced_rounds, balanced_rounds, kaggle predictions."""
     top_id = name_map.get(top_name.lower())
     bot_id = name_map.get(bot_name.lower())
 
@@ -307,26 +333,33 @@ def predict_game(name_map, stats_2026, models, top_name, top_seed, bot_name, bot
         print(f"  NoSeed error: {e}")
         results['noSeed'] = None
 
-    # ── Per-Round ──────────────────────────────────────────────
-    if pr_models and pr_feat_cols and game_id:
+    # -- unbalanced_rounds and balanced_rounds --
+    def _run_per_round(pr_models, pr_feat_cols, key_name):
+        if not pr_models or not pr_feat_cols or not game_id:
+            return
         game_round = get_game_round(game_id)
         rm = pr_models.get(game_round) or pr_models.get(1)
-        if rm:
-            try:
-                X_pr = df_s.reindex(columns=pr_feat_cols, fill_value=0)
-                proba_pr = rm['win'].predict_proba(X_pr)[0]
-                win_prob_pr = float(round(proba_pr[1], 3))
-                pred_winner_pr = top_name if win_prob_pr >= 0.5 else bot_name
-                display_prob_pr = float(round(win_prob_pr if win_prob_pr >= 0.5 else 1 - win_prob_pr, 3))
-                spread_pr = round(float(rm['spread'].predict(X_pr)[0]), 1)
-                total_pr  = round(float(rm['total'].predict(X_pr)[0]), 1)
-                if pred_winner_pr == bot_name:
-                    spread_pr = -spread_pr
-                results['perRound'] = {'predWinner': pred_winner_pr, 'winProb': display_prob_pr,
-                                       'spread': abs(spread_pr), 'total': total_pr, 'round': game_round}
-            except Exception as e:
-                print(f"  PerRound error (round={game_round}): {e}")
-                results['perRound'] = None
+        if not rm:
+            return
+        try:
+            X_pr = df_s.reindex(columns=pr_feat_cols, fill_value=0)
+            proba_pr = rm['win'].predict_proba(X_pr)[0]
+            win_prob_pr = float(round(proba_pr[1], 3))
+            pred_winner_pr = top_name if win_prob_pr >= 0.5 else bot_name
+            display_prob_pr = float(round(win_prob_pr if win_prob_pr >= 0.5 else 1 - win_prob_pr, 3))
+            spread_pr = round(float(rm['spread'].predict(X_pr)[0]), 1)
+            total_pr  = round(float(rm['total'].predict(X_pr)[0]), 1)
+            if pred_winner_pr == bot_name:
+                spread_pr = -spread_pr
+            results[key_name] = {'predWinner': pred_winner_pr, 'winProb': display_prob_pr,
+                                  'spread': abs(spread_pr), 'total': total_pr, 'round': game_round}
+        except Exception as e:
+            print(f'  {key_name} error (round={game_round}): {e}')
+            results[key_name] = None
+
+    _run_per_round(pr_models_unbal, pr_feat_unbal, 'unbalanced_rounds')
+    _run_per_round(pr_models_bal,   pr_feat_bal,   'balanced_rounds')
+
 
     # ── Kaggle ────────────────────────────────────────────────
     if kaggle_feats and top_id and bot_id:
@@ -540,8 +573,9 @@ for (gid, top, tseed, bot, bseed, region) in MEN_GAMES:
     print(f"{gid}: {top}({tseed}) vs {bot}({bseed})")
     preds = predict_game(
         men_name_map, ss_m_2026, M, top, tseed, bot, bseed,
-        pr_models=PR_M, pr_feat_cols=PR_M_FEAT_COLS, game_id=gid,
-        kaggle_feats=KF_M, men_women=1,
+        pr_models_unbal=PR_M_UNBAL, pr_feat_unbal=PR_M_UNBAL_FEAT,
+        pr_models_bal=PR_M_BAL, pr_feat_bal=PR_M_BAL_FEAT,
+        game_id=gid, kaggle_feats=KF_M, men_women=1,
     )
     entry = {'wTeam': top, 'lTeam': bot, 'wSeed': tseed, 'lSeed': bseed, 'region': region}
     entry.update(preds)
@@ -552,8 +586,9 @@ for (gid, top, tseed, bot, bseed, region) in WOMEN_GAMES:
     print(f"{gid}: {top}({tseed}) vs {bot}({bseed})")
     preds = predict_game(
         women_name_map, ss_w_2026, W, top, tseed, bot, bseed,
-        pr_models=PR_W, pr_feat_cols=PR_W_FEAT_COLS, game_id=gid,
-        kaggle_feats=KF_W, men_women=0,
+        pr_models_unbal=PR_W_UNBAL, pr_feat_unbal=PR_W_UNBAL_FEAT,
+        pr_models_bal=PR_W_BAL, pr_feat_bal=PR_W_BAL_FEAT,
+        game_id=gid, kaggle_feats=KF_W, men_women=0,
     )
     entry = {'wTeam': top, 'lTeam': bot, 'wSeed': tseed, 'lSeed': bseed, 'region': region}
     entry.update(preds)

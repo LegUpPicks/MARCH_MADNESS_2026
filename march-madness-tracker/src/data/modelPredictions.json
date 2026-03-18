@@ -14,8 +14,28 @@
     "noSeed": {
       "predWinner": "Lehigh",
       "winProb": 0.633,
-      "spread": -0.6,
+      "spread": 0.6,
       "total": 139.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Lehigh",
+      "winProb": 0.973,
+      "spread": 6.0,
+      "total": 166.5,
+      "round": 0
+    },
+    "balanced_rounds": {
+      "predWinner": "Lehigh",
+      "winProb": 0.973,
+      "spread": 6.0,
+      "total": 166.5,
+      "round": 0
+    },
+    "kaggle": {
+      "predWinner": "Lehigh",
+      "winProb": 0.528,
+      "spread": 0.2,
+      "total": 142.1
     }
   },
   "M_PI_Y11": {
@@ -27,14 +47,34 @@
     "seeded": {
       "predWinner": "SMU",
       "winProb": 0.608,
-      "spread": -2.5,
+      "spread": 2.5,
       "total": 157.6
     },
     "noSeed": {
       "predWinner": "SMU",
       "winProb": 0.504,
-      "spread": -0.1,
+      "spread": 0.1,
       "total": 159.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "SMU",
+      "winProb": 0.667,
+      "spread": 0.2,
+      "total": 152.2,
+      "round": 0
+    },
+    "balanced_rounds": {
+      "predWinner": "SMU",
+      "winProb": 0.667,
+      "spread": 0.2,
+      "total": 152.2,
+      "round": 0
+    },
+    "kaggle": {
+      "predWinner": "SMU",
+      "winProb": 0.587,
+      "spread": 3.7,
+      "total": 160.8
     }
   },
   "M_PI_Y16": {
@@ -54,6 +94,26 @@
       "winProb": 0.638,
       "spread": 1.4,
       "total": 141.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Howard",
+      "winProb": 0.674,
+      "spread": 5.3,
+      "total": 145.9,
+      "round": 0
+    },
+    "balanced_rounds": {
+      "predWinner": "Howard",
+      "winProb": 0.674,
+      "spread": 5.3,
+      "total": 145.9,
+      "round": 0
+    },
+    "kaggle": {
+      "predWinner": "UMBC",
+      "winProb": 0.546,
+      "spread": 0.7,
+      "total": 146.7
     }
   },
   "M_PI_Z11": {
@@ -73,6 +133,26 @@
       "winProb": 0.645,
       "spread": 1.0,
       "total": 155.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.742,
+      "spread": 6.5,
+      "total": 138.6,
+      "round": 0
+    },
+    "balanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.742,
+      "spread": 6.5,
+      "total": 138.6,
+      "round": 0
+    },
+    "kaggle": {
+      "predWinner": "NC State",
+      "winProb": 0.581,
+      "spread": 1.2,
+      "total": 154.8
     }
   },
   "M_W_R64_1v16": {
@@ -92,6 +172,26 @@
       "winProb": 0.866,
       "spread": 14.0,
       "total": 139.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.929,
+      "spread": 18.6,
+      "total": 138.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.98,
+      "spread": 18.6,
+      "total": 138.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Duke",
+      "winProb": 0.99,
+      "spread": 31.5,
+      "total": 141.2
     }
   },
   "M_W_R64_8v9": {
@@ -103,14 +203,34 @@
     "seeded": {
       "predWinner": "TCU",
       "winProb": 0.57,
-      "spread": -2.0,
+      "spread": 2.0,
       "total": 143.6
     },
     "noSeed": {
       "predWinner": "TCU",
       "winProb": 0.735,
-      "spread": -2.7,
+      "spread": 2.7,
       "total": 144.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "TCU",
+      "winProb": 0.723,
+      "spread": 1.4,
+      "total": 145.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Ohio St",
+      "winProb": 0.731,
+      "spread": 1.4,
+      "total": 145.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Ohio St",
+      "winProb": 0.504,
+      "spread": 0.1,
+      "total": 147.8
     }
   },
   "M_W_R64_5v12": {
@@ -130,6 +250,26 @@
       "winProb": 0.866,
       "spread": 8.5,
       "total": 136.7
+    },
+    "unbalanced_rounds": {
+      "predWinner": "St John's",
+      "winProb": 0.579,
+      "spread": 4.6,
+      "total": 131.5,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "St John's",
+      "winProb": 0.929,
+      "spread": 4.6,
+      "total": 131.5,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "St John's",
+      "winProb": 0.831,
+      "spread": 11.0,
+      "total": 139.1
     }
   },
   "M_W_R64_4v13": {
@@ -149,6 +289,26 @@
       "winProb": 0.746,
       "spread": 3.7,
       "total": 138.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Kansas",
+      "winProb": 0.761,
+      "spread": 7.6,
+      "total": 140.1,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Kansas",
+      "winProb": 0.973,
+      "spread": 7.6,
+      "total": 140.1,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Kansas",
+      "winProb": 0.877,
+      "spread": 12.6,
+      "total": 145.8
     }
   },
   "M_W_R64_6v11": {
@@ -168,6 +328,26 @@
       "winProb": 0.849,
       "spread": 7.4,
       "total": 152.9
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Louisville",
+      "winProb": 0.782,
+      "spread": 7.2,
+      "total": 182.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Louisville",
+      "winProb": 0.978,
+      "spread": 7.2,
+      "total": 182.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Louisville",
+      "winProb": 0.745,
+      "spread": 6.8,
+      "total": 173.6
     }
   },
   "M_W_R64_3v14": {
@@ -187,6 +367,26 @@
       "winProb": 0.535,
       "spread": 4.5,
       "total": 152.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan St",
+      "winProb": 0.892,
+      "spread": 11.7,
+      "total": 144.4,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan St",
+      "winProb": 0.978,
+      "spread": 11.7,
+      "total": 144.4,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Michigan St",
+      "winProb": 0.942,
+      "spread": 17.8,
+      "total": 144.1
     }
   },
   "M_W_R64_7v10": {
@@ -204,8 +404,28 @@
     "noSeed": {
       "predWinner": "UCLA",
       "winProb": 0.753,
-      "spread": -0.6,
+      "spread": 0.6,
       "total": 153.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.79,
+      "spread": 8.5,
+      "total": 155.3,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.978,
+      "spread": 8.5,
+      "total": 155.3,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "UCLA",
+      "winProb": 0.672,
+      "spread": 5.0,
+      "total": 152.6
     }
   },
   "M_W_R64_2v15": {
@@ -225,6 +445,26 @@
       "winProb": 0.841,
       "spread": 14.6,
       "total": 131.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.9,
+      "spread": 16.4,
+      "total": 137.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.991,
+      "spread": 16.4,
+      "total": 137.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.976,
+      "spread": 24.3,
+      "total": 141.1
     }
   },
   "M_X_R64_1v16": {
@@ -244,6 +484,26 @@
       "winProb": 0.949,
       "spread": 20.8,
       "total": 147.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Florida",
+      "winProb": 0.984,
+      "spread": 23.5,
+      "total": 149.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Florida",
+      "winProb": 0.998,
+      "spread": 23.5,
+      "total": 149.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Florida",
+      "winProb": 0.99,
+      "spread": 31.2,
+      "total": 148.3
     }
   },
   "M_X_R64_8v9": {
@@ -263,6 +523,26 @@
       "winProb": 0.506,
       "spread": 0.6,
       "total": 130.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Iowa",
+      "winProb": 0.733,
+      "spread": 0.9,
+      "total": 132.5,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Clemson",
+      "winProb": 0.756,
+      "spread": 0.9,
+      "total": 132.5,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Clemson",
+      "winProb": 0.557,
+      "spread": 1.1,
+      "total": 133.3
     }
   },
   "M_X_R64_5v12": {
@@ -282,6 +562,26 @@
       "winProb": 0.619,
       "spread": 2.7,
       "total": 148.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.518,
+      "spread": 3.2,
+      "total": 150.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.598,
+      "spread": 3.2,
+      "total": 150.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.748,
+      "spread": 7.2,
+      "total": 153.0
     }
   },
   "M_X_R64_4v13": {
@@ -301,6 +601,26 @@
       "winProb": 0.915,
       "spread": 13.1,
       "total": 138.9
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Nebraska",
+      "winProb": 0.852,
+      "spread": 11.8,
+      "total": 141.3,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Nebraska",
+      "winProb": 0.982,
+      "spread": 11.8,
+      "total": 141.3,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Nebraska",
+      "winProb": 0.874,
+      "spread": 12.4,
+      "total": 142.9
     }
   },
   "M_X_R64_6v11": {
@@ -318,8 +638,28 @@
     "noSeed": {
       "predWinner": "VCU",
       "winProb": 0.662,
-      "spread": -0.4,
+      "spread": 0.4,
       "total": 148.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "N Carolina",
+      "winProb": 0.578,
+      "spread": 2.1,
+      "total": 140.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "N Carolina",
+      "winProb": 0.957,
+      "spread": 2.1,
+      "total": 140.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "N Carolina",
+      "winProb": 0.621,
+      "spread": 2.9,
+      "total": 155.6
     }
   },
   "M_X_R64_3v14": {
@@ -339,6 +679,26 @@
       "winProb": 0.725,
       "spread": 7.6,
       "total": 152.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Illinois",
+      "winProb": 0.848,
+      "spread": 14.1,
+      "total": 147.8,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Illinois",
+      "winProb": 0.972,
+      "spread": 14.1,
+      "total": 147.8,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Illinois",
+      "winProb": 0.966,
+      "spread": 21.9,
+      "total": 155.5
     }
   },
   "M_X_R64_7v10": {
@@ -358,6 +718,26 @@
       "winProb": 0.768,
       "spread": 4.5,
       "total": 148.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "St Mary's CA",
+      "winProb": 0.756,
+      "spread": 7.1,
+      "total": 152.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "St Mary's CA",
+      "winProb": 0.939,
+      "spread": 7.1,
+      "total": 152.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "St Mary's CA",
+      "winProb": 0.714,
+      "spread": 5.6,
+      "total": 162.4
     }
   },
   "M_X_R64_2v15": {
@@ -377,6 +757,26 @@
       "winProb": 0.872,
       "spread": 16.6,
       "total": 144.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Houston",
+      "winProb": 0.832,
+      "spread": 19.6,
+      "total": 138.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Houston",
+      "winProb": 0.992,
+      "spread": 19.6,
+      "total": 138.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Houston",
+      "winProb": 0.99,
+      "spread": 24.8,
+      "total": 142.6
     }
   },
   "M_Y_R64_1v16": {
@@ -396,6 +796,26 @@
       "winProb": 0.776,
       "spread": 13.1,
       "total": 144.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.929,
+      "spread": 21.3,
+      "total": 151.4,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.989,
+      "spread": 21.3,
+      "total": 151.4,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Michigan",
+      "winProb": 0.99,
+      "spread": 36.0,
+      "total": 152.4
     }
   },
   "M_Y_R64_8v9": {
@@ -415,6 +835,26 @@
       "winProb": 0.585,
       "spread": 1.7,
       "total": 148.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "St Louis",
+      "winProb": 0.624,
+      "spread": 2.4,
+      "total": 162.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Georgia",
+      "winProb": 0.817,
+      "spread": 2.4,
+      "total": 162.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Georgia",
+      "winProb": 0.554,
+      "spread": 1.1,
+      "total": 167.4
     }
   },
   "M_Y_R64_5v12": {
@@ -432,8 +872,28 @@
     "noSeed": {
       "predWinner": "Akron",
       "winProb": 0.62,
-      "spread": -0.2,
+      "spread": 0.2,
       "total": 159.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Texas Tech",
+      "winProb": 0.656,
+      "spread": 5.4,
+      "total": 151.9,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Texas Tech",
+      "winProb": 0.918,
+      "spread": 5.4,
+      "total": 151.9,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Texas Tech",
+      "winProb": 0.787,
+      "spread": 9.0,
+      "total": 161.4
     }
   },
   "M_Y_R64_4v13": {
@@ -453,6 +913,26 @@
       "winProb": 0.649,
       "spread": 5.7,
       "total": 149.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Alabama",
+      "winProb": 0.815,
+      "spread": 6.7,
+      "total": 151.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Alabama",
+      "winProb": 0.965,
+      "spread": 6.7,
+      "total": 151.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Alabama",
+      "winProb": 0.884,
+      "spread": 12.5,
+      "total": 161.8
     }
   },
   "M_Y_R64_6v11": {
@@ -472,6 +952,26 @@
       "winProb": 0.769,
       "spread": 3.5,
       "total": 160.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Tennessee",
+      "winProb": 0.794,
+      "spread": 5.4,
+      "total": 155.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Tennessee",
+      "winProb": 0.958,
+      "spread": 5.4,
+      "total": 155.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Tennessee",
+      "winProb": 0.754,
+      "spread": 7.4,
+      "total": 159.1
     }
   },
   "M_Y_R64_3v14": {
@@ -491,6 +991,26 @@
       "winProb": 0.886,
       "spread": 14.9,
       "total": 150.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Virginia",
+      "winProb": 0.952,
+      "spread": 15.2,
+      "total": 145.1,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Virginia",
+      "winProb": 0.993,
+      "spread": 15.2,
+      "total": 145.1,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Virginia",
+      "winProb": 0.941,
+      "spread": 17.6,
+      "total": 149.9
     }
   },
   "M_Y_R64_7v10": {
@@ -502,7 +1022,7 @@
     "seeded": {
       "predWinner": "Kentucky",
       "winProb": 0.615,
-      "spread": -3.6,
+      "spread": 3.6,
       "total": 152.1
     },
     "noSeed": {
@@ -510,6 +1030,26 @@
       "winProb": 0.589,
       "spread": 0.9,
       "total": 152.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Santa Clara",
+      "winProb": 0.513,
+      "spread": 1.3,
+      "total": 152.1,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Kentucky",
+      "winProb": 0.788,
+      "spread": 1.3,
+      "total": 152.1,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Kentucky",
+      "winProb": 0.536,
+      "spread": 0.6,
+      "total": 162.2
     }
   },
   "M_Y_R64_2v15": {
@@ -529,6 +1069,26 @@
       "winProb": 0.874,
       "spread": 15.3,
       "total": 145.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Iowa St",
+      "winProb": 0.917,
+      "spread": 21.1,
+      "total": 147.8,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Iowa St",
+      "winProb": 0.997,
+      "spread": 21.1,
+      "total": 147.8,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Iowa St",
+      "winProb": 0.978,
+      "spread": 23.2,
+      "total": 150.0
     }
   },
   "M_Z_R64_1v16": {
@@ -548,6 +1108,26 @@
       "winProb": 0.871,
       "spread": 14.8,
       "total": 143.7
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.975,
+      "spread": 25.5,
+      "total": 147.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.997,
+      "spread": 25.5,
+      "total": 147.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Arizona",
+      "winProb": 0.99,
+      "spread": 28.3,
+      "total": 154.2
     }
   },
   "M_Z_R64_8v9": {
@@ -565,8 +1145,28 @@
     "noSeed": {
       "predWinner": "Utah St",
       "winProb": 0.541,
-      "spread": -5.2,
+      "spread": 5.2,
       "total": 142.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Villanova",
+      "winProb": 0.59,
+      "spread": 2.7,
+      "total": 136.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Villanova",
+      "winProb": 0.881,
+      "spread": 2.7,
+      "total": 136.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Villanova",
+      "winProb": 0.542,
+      "spread": 0.1,
+      "total": 148.1
     }
   },
   "M_Z_R64_5v12": {
@@ -584,8 +1184,28 @@
     "noSeed": {
       "predWinner": "Wisconsin",
       "winProb": 0.541,
-      "spread": -3.5,
+      "spread": 3.5,
       "total": 157.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Wisconsin",
+      "winProb": 0.847,
+      "spread": 2.2,
+      "total": 161.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Wisconsin",
+      "winProb": 0.911,
+      "spread": 2.2,
+      "total": 161.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Wisconsin",
+      "winProb": 0.772,
+      "spread": 7.7,
+      "total": 163.5
     }
   },
   "M_Z_R64_4v13": {
@@ -605,6 +1225,26 @@
       "winProb": 0.84,
       "spread": 8.7,
       "total": 146.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Arkansas",
+      "winProb": 0.746,
+      "spread": 7.6,
+      "total": 153.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Arkansas",
+      "winProb": 0.982,
+      "spread": 7.6,
+      "total": 153.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Arkansas",
+      "winProb": 0.92,
+      "spread": 16.4,
+      "total": 157.9
     }
   },
   "M_Z_R64_6v11": {
@@ -624,6 +1264,26 @@
       "winProb": 0.617,
       "spread": 5.7,
       "total": 158.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "BYU",
+      "winProb": 0.704,
+      "spread": 3.1,
+      "total": 153.3,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "BYU",
+      "winProb": 0.884,
+      "spread": 3.1,
+      "total": 153.3,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "BYU",
+      "winProb": 0.654,
+      "spread": 4.4,
+      "total": 156.5
     }
   },
   "M_Z_R64_3v14": {
@@ -643,6 +1303,26 @@
       "winProb": 0.95,
       "spread": 15.1,
       "total": 143.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Gonzaga",
+      "winProb": 0.936,
+      "spread": 15.1,
+      "total": 158.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Gonzaga",
+      "winProb": 0.992,
+      "spread": 15.1,
+      "total": 158.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Gonzaga",
+      "winProb": 0.972,
+      "spread": 22.1,
+      "total": 157.3
     }
   },
   "M_Z_R64_7v10": {
@@ -654,7 +1334,7 @@
     "seeded": {
       "predWinner": "Miami FL",
       "winProb": 0.665,
-      "spread": -0.6,
+      "spread": 0.6,
       "total": 139.3
     },
     "noSeed": {
@@ -662,6 +1342,26 @@
       "winProb": 0.64,
       "spread": 4.7,
       "total": 141.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Miami FL",
+      "winProb": 0.605,
+      "spread": 5.0,
+      "total": 144.5,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Miami FL",
+      "winProb": 0.94,
+      "spread": 5.0,
+      "total": 144.5,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Miami FL",
+      "winProb": 0.63,
+      "spread": 3.0,
+      "total": 152.4
     }
   },
   "M_Z_R64_2v15": {
@@ -681,6 +1381,26 @@
       "winProb": 0.869,
       "spread": 11.7,
       "total": 153.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Purdue",
+      "winProb": 0.946,
+      "spread": 16.7,
+      "total": 152.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Purdue",
+      "winProb": 0.992,
+      "spread": 16.7,
+      "total": 152.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Purdue",
+      "winProb": 0.99,
+      "spread": 26.3,
+      "total": 158.7
     }
   },
   "M_W_R32_1v9": {
@@ -700,6 +1420,26 @@
       "winProb": 0.775,
       "spread": 7.4,
       "total": 149.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.763,
+      "spread": 8.2,
+      "total": 148.0,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.938,
+      "spread": 8.2,
+      "total": 148.0,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Duke",
+      "winProb": 0.93,
+      "spread": 16.0,
+      "total": 148.3
     }
   },
   "M_W_R32_4v5": {
@@ -717,8 +1457,28 @@
     "noSeed": {
       "predWinner": "St John's",
       "winProb": 0.648,
-      "spread": -3.0,
+      "spread": 3.0,
       "total": 149.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Kansas",
+      "winProb": 0.855,
+      "spread": 2.7,
+      "total": 145.8,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Kansas",
+      "winProb": 0.945,
+      "spread": 2.7,
+      "total": 145.8,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Kansas",
+      "winProb": 0.505,
+      "spread": 0.6,
+      "total": 155.1
     }
   },
   "M_W_R32_3v6": {
@@ -730,14 +1490,34 @@
     "seeded": {
       "predWinner": "Michigan St",
       "winProb": 0.662,
-      "spread": -1.4,
+      "spread": 1.4,
       "total": 151.2
     },
     "noSeed": {
       "predWinner": "Michigan St",
       "winProb": 0.594,
-      "spread": -2.3,
+      "spread": 2.3,
       "total": 150.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Louisville",
+      "winProb": 0.535,
+      "spread": 2.1,
+      "total": 154.2,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan St",
+      "winProb": 0.925,
+      "spread": 2.1,
+      "total": 154.2,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Michigan St",
+      "winProb": 0.693,
+      "spread": 5.7,
+      "total": 156.1
     }
   },
   "M_W_R32_2v7": {
@@ -757,6 +1537,26 @@
       "winProb": 0.768,
       "spread": 6.0,
       "total": 145.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.745,
+      "spread": 3.6,
+      "total": 140.7,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.968,
+      "spread": 3.6,
+      "total": 140.7,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.725,
+      "spread": 5.9,
+      "total": 140.6
     }
   },
   "M_X_R32_1v8": {
@@ -776,6 +1576,26 @@
       "winProb": 0.838,
       "spread": 7.9,
       "total": 154.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Florida",
+      "winProb": 0.958,
+      "spread": 8.9,
+      "total": 155.0,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Florida",
+      "winProb": 0.985,
+      "spread": 8.9,
+      "total": 155.0,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Florida",
+      "winProb": 0.866,
+      "spread": 11.1,
+      "total": 150.7
     }
   },
   "M_X_R32_4v5": {
@@ -793,8 +1613,28 @@
     "noSeed": {
       "predWinner": "Nebraska",
       "winProb": 0.561,
-      "spread": -2.1,
+      "spread": 2.1,
       "total": 145.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Nebraska",
+      "winProb": 0.719,
+      "spread": 2.5,
+      "total": 154.2,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Nebraska",
+      "winProb": 0.889,
+      "spread": 2.5,
+      "total": 154.2,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Nebraska",
+      "winProb": 0.544,
+      "spread": 0.1,
+      "total": 153.7
     }
   },
   "M_X_R32_3v6": {
@@ -814,6 +1654,26 @@
       "winProb": 0.613,
       "spread": 3.4,
       "total": 152.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Illinois",
+      "winProb": 0.787,
+      "spread": 2.8,
+      "total": 147.0,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Illinois",
+      "winProb": 0.945,
+      "spread": 2.8,
+      "total": 147.0,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Illinois",
+      "winProb": 0.722,
+      "spread": 6.2,
+      "total": 159.7
     }
   },
   "M_X_R32_2v7": {
@@ -833,6 +1693,26 @@
       "winProb": 0.502,
       "spread": 0.2,
       "total": 144.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Houston",
+      "winProb": 0.694,
+      "spread": 6.0,
+      "total": 148.3,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Houston",
+      "winProb": 0.9,
+      "spread": 6.0,
+      "total": 148.3,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Houston",
+      "winProb": 0.793,
+      "spread": 8.4,
+      "total": 142.2
     }
   },
   "M_Y_R32_1v8": {
@@ -852,6 +1732,26 @@
       "winProb": 0.531,
       "spread": 1.6,
       "total": 154.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.956,
+      "spread": 9.2,
+      "total": 153.2,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.992,
+      "spread": 9.2,
+      "total": 153.2,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Michigan",
+      "winProb": 0.924,
+      "spread": 13.8,
+      "total": 167.6
     }
   },
   "M_Y_R32_4v5": {
@@ -863,14 +1763,34 @@
     "seeded": {
       "predWinner": "Texas Tech",
       "winProb": 0.511,
-      "spread": -5.2,
+      "spread": 5.2,
       "total": 155.6
     },
     "noSeed": {
       "predWinner": "Texas Tech",
       "winProb": 0.576,
-      "spread": -4.0,
+      "spread": 4.0,
       "total": 155.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Texas Tech",
+      "winProb": 0.599,
+      "spread": 0.5,
+      "total": 147.6,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Alabama",
+      "winProb": 0.74,
+      "spread": 0.5,
+      "total": 147.6,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Alabama",
+      "winProb": 0.541,
+      "spread": 0.2,
+      "total": 169.8
     }
   },
   "M_Y_R32_3v6": {
@@ -890,6 +1810,26 @@
       "winProb": 0.625,
       "spread": 3.4,
       "total": 154.9
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Virginia",
+      "winProb": 0.89,
+      "spread": 4.3,
+      "total": 149.0,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Virginia",
+      "winProb": 0.986,
+      "spread": 4.3,
+      "total": 149.0,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Virginia",
+      "winProb": 0.689,
+      "spread": 4.7,
+      "total": 151.1
     }
   },
   "M_Y_R32_2v7": {
@@ -909,6 +1849,26 @@
       "winProb": 0.718,
       "spread": 2.3,
       "total": 142.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Iowa St",
+      "winProb": 0.934,
+      "spread": 11.1,
+      "total": 151.0,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Iowa St",
+      "winProb": 0.981,
+      "spread": 11.1,
+      "total": 151.0,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Iowa St",
+      "winProb": 0.808,
+      "spread": 8.9,
+      "total": 153.9
     }
   },
   "M_Z_R32_1v8": {
@@ -928,6 +1888,26 @@
       "winProb": 0.727,
       "spread": 9.2,
       "total": 141.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.968,
+      "spread": 12.2,
+      "total": 159.2,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.994,
+      "spread": 12.2,
+      "total": 159.2,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Arizona",
+      "winProb": 0.881,
+      "spread": 13.0,
+      "total": 154.1
     }
   },
   "M_Z_R32_4v5": {
@@ -939,7 +1919,7 @@
     "seeded": {
       "predWinner": "Arkansas",
       "winProb": 0.64,
-      "spread": -1.2,
+      "spread": 1.2,
       "total": 155.7
     },
     "noSeed": {
@@ -947,6 +1927,26 @@
       "winProb": 0.668,
       "spread": 0.7,
       "total": 152.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Arkansas",
+      "winProb": 0.85,
+      "spread": 3.0,
+      "total": 153.8,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Arkansas",
+      "winProb": 0.968,
+      "spread": 3.0,
+      "total": 153.8,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Arkansas",
+      "winProb": 0.671,
+      "spread": 5.0,
+      "total": 166.9
     }
   },
   "M_Z_R32_3v6": {
@@ -966,6 +1966,26 @@
       "winProb": 0.761,
       "spread": 1.9,
       "total": 146.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Gonzaga",
+      "winProb": 0.918,
+      "spread": 8.2,
+      "total": 161.9,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Gonzaga",
+      "winProb": 0.987,
+      "spread": 8.2,
+      "total": 161.9,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Gonzaga",
+      "winProb": 0.772,
+      "spread": 7.0,
+      "total": 158.6
     }
   },
   "M_Z_R32_2v7": {
@@ -985,6 +2005,26 @@
       "winProb": 0.684,
       "spread": 2.5,
       "total": 150.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Purdue",
+      "winProb": 0.86,
+      "spread": 3.0,
+      "total": 158.3,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Purdue",
+      "winProb": 0.992,
+      "spread": 3.0,
+      "total": 158.3,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Purdue",
+      "winProb": 0.797,
+      "spread": 8.8,
+      "total": 152.4
     }
   },
   "M_W_S16_1v4": {
@@ -1004,6 +2044,26 @@
       "winProb": 0.684,
       "spread": 6.9,
       "total": 146.9
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.882,
+      "spread": 5.2,
+      "total": 152.7,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.992,
+      "spread": 5.2,
+      "total": 152.7,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Duke",
+      "winProb": 0.774,
+      "spread": 7.5,
+      "total": 148.5
     }
   },
   "M_W_S16_3v2": {
@@ -1015,14 +2075,34 @@
     "seeded": {
       "predWinner": "Michigan St",
       "winProb": 0.512,
-      "spread": -2.0,
+      "spread": 2.0,
       "total": 148.9
     },
     "noSeed": {
       "predWinner": "Connecticut",
       "winProb": 0.655,
-      "spread": -2.6,
+      "spread": 2.6,
       "total": 146.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.933,
+      "spread": 2.5,
+      "total": 151.9,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.672,
+      "spread": 2.5,
+      "total": 151.9,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.597,
+      "spread": 2.8,
+      "total": 140.9
     }
   },
   "M_X_S16_1v4": {
@@ -1042,6 +2122,26 @@
       "winProb": 0.545,
       "spread": 7.4,
       "total": 150.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Florida",
+      "winProb": 0.938,
+      "spread": 1.2,
+      "total": 168.6,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Florida",
+      "winProb": 0.994,
+      "spread": 1.2,
+      "total": 168.6,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Florida",
+      "winProb": 0.751,
+      "spread": 6.4,
+      "total": 154.4
     }
   },
   "M_X_S16_3v2": {
@@ -1053,7 +2153,7 @@
     "seeded": {
       "predWinner": "Illinois",
       "winProb": 0.619,
-      "spread": -3.1,
+      "spread": 3.1,
       "total": 156.9
     },
     "noSeed": {
@@ -1061,6 +2161,26 @@
       "winProb": 0.574,
       "spread": 2.0,
       "total": 154.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Houston",
+      "winProb": 0.753,
+      "spread": 1.4,
+      "total": 155.9,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Illinois",
+      "winProb": 0.95,
+      "spread": 1.4,
+      "total": 155.9,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Houston",
+      "winProb": 0.653,
+      "spread": 4.1,
+      "total": 149.0
     }
   },
   "M_Y_S16_1v5": {
@@ -1080,6 +2200,26 @@
       "winProb": 0.637,
       "spread": 6.2,
       "total": 148.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.787,
+      "spread": 1.1,
+      "total": 173.2,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.958,
+      "spread": 1.1,
+      "total": 173.2,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Michigan",
+      "winProb": 0.804,
+      "spread": 8.2,
+      "total": 158.9
     }
   },
   "M_Y_S16_3v2": {
@@ -1099,6 +2239,26 @@
       "winProb": 0.618,
       "spread": 2.6,
       "total": 142.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Virginia",
+      "winProb": 0.52,
+      "spread": 0.4,
+      "total": 158.1,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Virginia",
+      "winProb": 0.984,
+      "spread": 0.4,
+      "total": 158.1,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Iowa St",
+      "winProb": 0.597,
+      "spread": 3.6,
+      "total": 147.3
     }
   },
   "M_Z_S16_1v4": {
@@ -1118,6 +2278,26 @@
       "winProb": 0.603,
       "spread": 3.4,
       "total": 149.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.736,
+      "spread": 4.5,
+      "total": 162.1,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.967,
+      "spread": 4.5,
+      "total": 162.1,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Arizona",
+      "winProb": 0.692,
+      "spread": 5.1,
+      "total": 168.4
     }
   },
   "M_Z_S16_3v2": {
@@ -1129,7 +2309,7 @@
     "seeded": {
       "predWinner": "Purdue",
       "winProb": 0.628,
-      "spread": -1.3,
+      "spread": 1.3,
       "total": 152.7
     },
     "noSeed": {
@@ -1137,6 +2317,26 @@
       "winProb": 0.533,
       "spread": 0.4,
       "total": 150.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Purdue",
+      "winProb": 0.637,
+      "spread": 4.9,
+      "total": 150.6,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Gonzaga",
+      "winProb": 0.808,
+      "spread": 4.9,
+      "total": 150.6,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Purdue",
+      "winProb": 0.554,
+      "spread": 2.1,
+      "total": 153.9
     }
   },
   "M_W_E8": {
@@ -1156,6 +2356,26 @@
       "winProb": 0.589,
       "spread": 6.0,
       "total": 148.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.578,
+      "spread": 2.7,
+      "total": 150.2,
+      "round": 4
+    },
+    "balanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.969,
+      "spread": 2.7,
+      "total": 150.2,
+      "round": 4
+    },
+    "kaggle": {
+      "predWinner": "Duke",
+      "winProb": 0.716,
+      "spread": 5.8,
+      "total": 146.8
     }
   },
   "M_X_E8": {
@@ -1173,8 +2393,28 @@
     "noSeed": {
       "predWinner": "Florida",
       "winProb": 0.698,
-      "spread": -1.7,
+      "spread": 1.7,
       "total": 168.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Illinois",
+      "winProb": 0.517,
+      "spread": 0.1,
+      "total": 150.3,
+      "round": 4
+    },
+    "balanced_rounds": {
+      "predWinner": "Illinois",
+      "winProb": 0.727,
+      "spread": 0.1,
+      "total": 150.3,
+      "round": 4
+    },
+    "kaggle": {
+      "predWinner": "Florida",
+      "winProb": 0.665,
+      "spread": 3.8,
+      "total": 162.9
     }
   },
   "M_Y_E8": {
@@ -1192,8 +2432,28 @@
     "noSeed": {
       "predWinner": "Virginia",
       "winProb": 0.675,
-      "spread": -0.1,
+      "spread": 0.1,
       "total": 149.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.812,
+      "spread": 12.2,
+      "total": 140.1,
+      "round": 4
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.995,
+      "spread": 12.2,
+      "total": 140.1,
+      "round": 4
+    },
+    "kaggle": {
+      "predWinner": "Michigan",
+      "winProb": 0.656,
+      "spread": 3.5,
+      "total": 155.3
     }
   },
   "M_Z_E8": {
@@ -1213,6 +2473,26 @@
       "winProb": 0.58,
       "spread": 1.5,
       "total": 150.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.571,
+      "spread": 6.1,
+      "total": 138.2,
+      "round": 4
+    },
+    "balanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.956,
+      "spread": 6.1,
+      "total": 138.2,
+      "round": 4
+    },
+    "kaggle": {
+      "predWinner": "Arizona",
+      "winProb": 0.575,
+      "spread": 1.9,
+      "total": 158.0
     }
   },
   "M_FF_WX": {
@@ -1230,8 +2510,28 @@
     "noSeed": {
       "predWinner": "Florida",
       "winProb": 0.556,
-      "spread": -0.6,
+      "spread": 0.6,
       "total": 149.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.508,
+      "spread": 0.1,
+      "total": 144.5,
+      "round": 5
+    },
+    "balanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.737,
+      "spread": 0.1,
+      "total": 144.5,
+      "round": 5
+    },
+    "kaggle": {
+      "predWinner": "Duke",
+      "winProb": 0.589,
+      "spread": 2.0,
+      "total": 157.1
     }
   },
   "M_FF_YZ": {
@@ -1243,7 +2543,7 @@
     "seeded": {
       "predWinner": "Virginia",
       "winProb": 0.511,
-      "spread": -3.1,
+      "spread": 3.1,
       "total": 148.8
     },
     "noSeed": {
@@ -1251,6 +2551,26 @@
       "winProb": 0.559,
       "spread": 2.6,
       "total": 152.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Arizona",
+      "winProb": 0.705,
+      "spread": 1.4,
+      "total": 155.1,
+      "round": 5
+    },
+    "balanced_rounds": {
+      "predWinner": "Virginia",
+      "winProb": 0.723,
+      "spread": 1.4,
+      "total": 155.1,
+      "round": 5
+    },
+    "kaggle": {
+      "predWinner": "Arizona",
+      "winProb": 0.599,
+      "spread": 4.0,
+      "total": 156.0
     }
   },
   "M_CHAMP": {
@@ -1270,6 +2590,26 @@
       "winProb": 0.542,
       "spread": 2.2,
       "total": 148.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.772,
+      "spread": 2.4,
+      "total": 133.9,
+      "round": 6
+    },
+    "balanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.738,
+      "spread": 2.4,
+      "total": 133.9,
+      "round": 6
+    },
+    "kaggle": {
+      "predWinner": "Duke",
+      "winProb": 0.66,
+      "spread": 4.5,
+      "total": 148.5
     }
   },
   "W_PI_X10": {
@@ -1281,14 +2621,34 @@
     "seeded": {
       "predWinner": "Virginia",
       "winProb": 0.501,
-      "spread": -2.6,
+      "spread": 2.6,
       "total": 131.3
     },
     "noSeed": {
       "predWinner": "Virginia",
       "winProb": 0.788,
-      "spread": -8.3,
+      "spread": 8.3,
       "total": 129.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Arizona St",
+      "winProb": 0.515,
+      "spread": 9.2,
+      "total": 120.5,
+      "round": 0
+    },
+    "balanced_rounds": {
+      "predWinner": "Arizona St",
+      "winProb": 0.515,
+      "spread": 9.2,
+      "total": 120.5,
+      "round": 0
+    },
+    "kaggle": {
+      "predWinner": "Virginia",
+      "winProb": 0.611,
+      "spread": 2.9,
+      "total": 131.9
     }
   },
   "W_PI_X16": {
@@ -1300,7 +2660,7 @@
     "seeded": {
       "predWinner": "Southern Univ",
       "winProb": 0.867,
-      "spread": -8.6,
+      "spread": 8.6,
       "total": 112.0
     },
     "noSeed": {
@@ -1308,6 +2668,26 @@
       "winProb": 0.925,
       "spread": 0.5,
       "total": 115.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Southern Univ",
+      "winProb": 0.515,
+      "spread": 3.7,
+      "total": 119.2,
+      "round": 0
+    },
+    "balanced_rounds": {
+      "predWinner": "Southern Univ",
+      "winProb": 0.515,
+      "spread": 3.7,
+      "total": 119.2,
+      "round": 0
+    },
+    "kaggle": {
+      "predWinner": "Southern Univ",
+      "winProb": 0.525,
+      "spread": 1.7,
+      "total": 125.6
     }
   },
   "W_PI_Y16": {
@@ -1319,14 +2699,34 @@
     "seeded": {
       "predWinner": "SF Austin",
       "winProb": 0.728,
-      "spread": -7.5,
+      "spread": 7.5,
       "total": 127.4
     },
     "noSeed": {
       "predWinner": "SF Austin",
       "winProb": 0.871,
-      "spread": -6.5,
+      "spread": 6.5,
       "total": 132.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Missouri St",
+      "winProb": 0.515,
+      "spread": 9.9,
+      "total": 118.8,
+      "round": 0
+    },
+    "balanced_rounds": {
+      "predWinner": "Missouri St",
+      "winProb": 0.515,
+      "spread": 9.9,
+      "total": 118.8,
+      "round": 0
+    },
+    "kaggle": {
+      "predWinner": "SF Austin",
+      "winProb": 0.619,
+      "spread": 2.4,
+      "total": 138.1
     }
   },
   "W_PI_Z11": {
@@ -1346,6 +2746,26 @@
       "winProb": 0.619,
       "spread": 12.3,
       "total": 139.7
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Richmond",
+      "winProb": 0.515,
+      "spread": 5.5,
+      "total": 130.1,
+      "round": 0
+    },
+    "balanced_rounds": {
+      "predWinner": "Richmond",
+      "winProb": 0.515,
+      "spread": 5.5,
+      "total": 130.1,
+      "round": 0
+    },
+    "kaggle": {
+      "predWinner": "Nebraska",
+      "winProb": 0.506,
+      "spread": 0.7,
+      "total": 142.7
     }
   },
   "W_W_R64_1v16": {
@@ -1365,6 +2785,26 @@
       "winProb": 0.986,
       "spread": 53.5,
       "total": 122.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.995,
+      "spread": 49.3,
+      "total": 128.4,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.999,
+      "spread": 49.3,
+      "total": 128.4,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.99,
+      "spread": 44.3,
+      "total": 140.6
     }
   },
   "W_W_R64_8v9": {
@@ -1382,8 +2822,28 @@
     "noSeed": {
       "predWinner": "Syracuse",
       "winProb": 0.527,
-      "spread": -0.8,
+      "spread": 0.8,
       "total": 142.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Syracuse",
+      "winProb": 0.565,
+      "spread": 3.0,
+      "total": 145.1,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Iowa St",
+      "winProb": 0.829,
+      "spread": 3.0,
+      "total": 145.1,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Syracuse",
+      "winProb": 0.518,
+      "spread": 0.8,
+      "total": 150.6
     }
   },
   "W_W_R64_5v12": {
@@ -1403,6 +2863,26 @@
       "winProb": 0.805,
       "spread": 21.4,
       "total": 150.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Maryland",
+      "winProb": 0.966,
+      "spread": 16.0,
+      "total": 152.5,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Maryland",
+      "winProb": 0.996,
+      "spread": 16.0,
+      "total": 152.5,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Maryland",
+      "winProb": 0.898,
+      "spread": 12.7,
+      "total": 166.3
     }
   },
   "W_W_R64_4v13": {
@@ -1422,6 +2902,26 @@
       "winProb": 0.747,
       "spread": 20.7,
       "total": 142.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "N Carolina",
+      "winProb": 0.983,
+      "spread": 23.8,
+      "total": 144.8,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "N Carolina",
+      "winProb": 0.999,
+      "spread": 23.8,
+      "total": 144.8,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "N Carolina",
+      "winProb": 0.931,
+      "spread": 16.8,
+      "total": 140.4
     }
   },
   "W_W_R64_6v11": {
@@ -1441,6 +2941,26 @@
       "winProb": 0.585,
       "spread": 12.3,
       "total": 132.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Notre Dame",
+      "winProb": 0.501,
+      "spread": 14.5,
+      "total": 142.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Notre Dame",
+      "winProb": 0.982,
+      "spread": 14.5,
+      "total": 142.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Notre Dame",
+      "winProb": 0.734,
+      "spread": 6.8,
+      "total": 140.6
     }
   },
   "W_W_R64_3v14": {
@@ -1460,6 +2980,26 @@
       "winProb": 0.937,
       "spread": 22.6,
       "total": 139.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Ohio St",
+      "winProb": 0.987,
+      "spread": 29.2,
+      "total": 139.8,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Ohio St",
+      "winProb": 0.999,
+      "spread": 29.2,
+      "total": 139.8,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Ohio St",
+      "winProb": 0.965,
+      "spread": 22.7,
+      "total": 141.4
     }
   },
   "W_W_R64_7v10": {
@@ -1479,6 +3019,26 @@
       "winProb": 0.744,
       "spread": 4.1,
       "total": 131.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Colorado",
+      "winProb": 0.815,
+      "spread": 6.4,
+      "total": 130.2,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Illinois",
+      "winProb": 0.725,
+      "spread": 6.4,
+      "total": 130.2,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Illinois",
+      "winProb": 0.583,
+      "spread": 2.0,
+      "total": 137.6
     }
   },
   "W_W_R64_2v15": {
@@ -1498,6 +3058,26 @@
       "winProb": 0.899,
       "spread": 18.7,
       "total": 154.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.99,
+      "spread": 28.6,
+      "total": 147.4,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Vanderbilt",
+      "winProb": 1.0,
+      "spread": 28.6,
+      "total": 147.4,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.99,
+      "spread": 25.5,
+      "total": 150.9
     }
   },
   "W_X_R64_1v16": {
@@ -1517,6 +3097,26 @@
       "winProb": 0.996,
       "spread": 47.1,
       "total": 129.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "S Carolina",
+      "winProb": 0.996,
+      "spread": 55.8,
+      "total": 136.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "S Carolina",
+      "winProb": 1.0,
+      "spread": 55.8,
+      "total": 136.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "S Carolina",
+      "winProb": 0.99,
+      "spread": 37.5,
+      "total": 143.6
     }
   },
   "W_X_R64_8v9": {
@@ -1528,14 +3128,34 @@
     "seeded": {
       "predWinner": "USC",
       "winProb": 0.654,
-      "spread": -1.2,
+      "spread": 1.2,
       "total": 129.9
     },
     "noSeed": {
       "predWinner": "USC",
       "winProb": 0.544,
-      "spread": -1.7,
+      "spread": 1.7,
       "total": 131.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Clemson",
+      "winProb": 0.551,
+      "spread": 1.6,
+      "total": 134.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Clemson",
+      "winProb": 0.974,
+      "spread": 1.6,
+      "total": 134.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "USC",
+      "winProb": 0.525,
+      "spread": 0.9,
+      "total": 130.3
     }
   },
   "W_X_R64_5v12": {
@@ -1555,6 +3175,26 @@
       "winProb": 0.917,
       "spread": 19.9,
       "total": 138.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan St",
+      "winProb": 0.903,
+      "spread": 17.9,
+      "total": 132.2,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan St",
+      "winProb": 0.945,
+      "spread": 17.9,
+      "total": 132.2,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Michigan St",
+      "winProb": 0.817,
+      "spread": 10.1,
+      "total": 134.7
     }
   },
   "W_X_R64_4v13": {
@@ -1574,6 +3214,26 @@
       "winProb": 0.926,
       "spread": 18.8,
       "total": 153.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Oklahoma",
+      "winProb": 0.996,
+      "spread": 34.0,
+      "total": 156.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Oklahoma",
+      "winProb": 1.0,
+      "spread": 34.0,
+      "total": 156.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Oklahoma",
+      "winProb": 0.952,
+      "spread": 22.2,
+      "total": 173.7
     }
   },
   "W_X_R64_6v11": {
@@ -1593,6 +3253,26 @@
       "winProb": 0.793,
       "spread": 1.4,
       "total": 135.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Washington",
+      "winProb": 0.737,
+      "spread": 0.3,
+      "total": 136.5,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Washington",
+      "winProb": 0.965,
+      "spread": 0.3,
+      "total": 136.5,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Washington",
+      "winProb": 0.675,
+      "spread": 4.8,
+      "total": 138.0
     }
   },
   "W_X_R64_3v14": {
@@ -1612,6 +3292,26 @@
       "winProb": 0.898,
       "spread": 26.5,
       "total": 140.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "TCU",
+      "winProb": 0.991,
+      "spread": 28.7,
+      "total": 136.9,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "TCU",
+      "winProb": 1.0,
+      "spread": 28.7,
+      "total": 136.9,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "TCU",
+      "winProb": 0.95,
+      "spread": 20.5,
+      "total": 138.5
     }
   },
   "W_X_R64_7v10": {
@@ -1623,14 +3323,34 @@
     "seeded": {
       "predWinner": "Georgia",
       "winProb": 0.808,
-      "spread": -0.1,
+      "spread": 0.1,
       "total": 134.1
     },
     "noSeed": {
       "predWinner": "Virginia*",
       "winProb": 0.568,
-      "spread": -1.4,
+      "spread": 1.4,
       "total": 133.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Virginia*",
+      "winProb": 0.668,
+      "spread": 2.4,
+      "total": 138.5,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Georgia",
+      "winProb": 0.887,
+      "spread": 2.4,
+      "total": 138.5,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Georgia",
+      "winProb": 0.547,
+      "spread": 1.2,
+      "total": 138.9
     }
   },
   "W_X_R64_2v15": {
@@ -1650,6 +3370,26 @@
       "winProb": 0.78,
       "spread": 12.7,
       "total": 134.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Iowa",
+      "winProb": 0.98,
+      "spread": 27.1,
+      "total": 133.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Iowa",
+      "winProb": 0.999,
+      "spread": 27.1,
+      "total": 133.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Iowa",
+      "winProb": 0.949,
+      "spread": 20.6,
+      "total": 136.1
     }
   },
   "W_Y_R64_1v16": {
@@ -1669,6 +3409,26 @@
       "winProb": 0.984,
       "spread": 32.8,
       "total": 152.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.98,
+      "spread": 46.5,
+      "total": 148.9,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.999,
+      "spread": 46.5,
+      "total": 148.9,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Texas",
+      "winProb": 0.99,
+      "spread": 36.6,
+      "total": 151.0
     }
   },
   "W_Y_R64_8v9": {
@@ -1686,8 +3446,28 @@
     "noSeed": {
       "predWinner": "Virginia Tech",
       "winProb": 0.583,
-      "spread": -0.9,
+      "spread": 0.9,
       "total": 140.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Oregon",
+      "winProb": 0.788,
+      "spread": 4.8,
+      "total": 141.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Oregon",
+      "winProb": 0.988,
+      "spread": 4.8,
+      "total": 141.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Oregon",
+      "winProb": 0.608,
+      "spread": 2.7,
+      "total": 142.1
     }
   },
   "W_Y_R64_5v12": {
@@ -1707,6 +3487,26 @@
       "winProb": 0.725,
       "spread": 1.8,
       "total": 139.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Kentucky",
+      "winProb": 0.952,
+      "spread": 7.5,
+      "total": 142.4,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Kentucky",
+      "winProb": 0.995,
+      "spread": 7.5,
+      "total": 142.4,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Kentucky",
+      "winProb": 0.776,
+      "spread": 8.8,
+      "total": 146.8
     }
   },
   "W_Y_R64_4v13": {
@@ -1726,6 +3526,26 @@
       "winProb": 0.884,
       "spread": 20.0,
       "total": 136.7
+    },
+    "unbalanced_rounds": {
+      "predWinner": "W Virginia",
+      "winProb": 0.981,
+      "spread": 19.9,
+      "total": 142.1,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "W Virginia",
+      "winProb": 1.0,
+      "spread": 19.9,
+      "total": 142.1,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "W Virginia",
+      "winProb": 0.904,
+      "spread": 14.3,
+      "total": 135.8
     }
   },
   "W_Y_R64_6v11": {
@@ -1745,6 +3565,26 @@
       "winProb": 0.858,
       "spread": 12.8,
       "total": 124.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Alabama",
+      "winProb": 0.867,
+      "spread": 9.4,
+      "total": 123.1,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Alabama",
+      "winProb": 0.988,
+      "spread": 9.4,
+      "total": 123.1,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Alabama",
+      "winProb": 0.656,
+      "spread": 4.4,
+      "total": 129.7
     }
   },
   "W_Y_R64_3v14": {
@@ -1764,6 +3604,26 @@
       "winProb": 0.917,
       "spread": 24.8,
       "total": 133.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Louisville",
+      "winProb": 0.991,
+      "spread": 32.1,
+      "total": 136.9,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Louisville",
+      "winProb": 1.0,
+      "spread": 32.1,
+      "total": 136.9,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Louisville",
+      "winProb": 0.99,
+      "spread": 24.7,
+      "total": 130.3
     }
   },
   "W_Y_R64_7v10": {
@@ -1783,6 +3643,26 @@
       "winProb": 0.591,
       "spread": 1.4,
       "total": 151.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Tennessee",
+      "winProb": 0.788,
+      "spread": 0.7,
+      "total": 160.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "NC State",
+      "winProb": 0.581,
+      "spread": 0.7,
+      "total": 160.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "NC State",
+      "winProb": 0.634,
+      "spread": 3.6,
+      "total": 162.5
     }
   },
   "W_Y_R64_2v15": {
@@ -1802,6 +3682,26 @@
       "winProb": 0.974,
       "spread": 25.1,
       "total": 135.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.994,
+      "spread": 38.3,
+      "total": 136.6,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 1.0,
+      "spread": 38.3,
+      "total": 136.6,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Michigan",
+      "winProb": 0.99,
+      "spread": 29.1,
+      "total": 133.5
     }
   },
   "W_Z_R64_1v16": {
@@ -1821,6 +3721,26 @@
       "winProb": 0.971,
       "spread": 28.6,
       "total": 153.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.99,
+      "spread": 36.4,
+      "total": 159.9,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 1.0,
+      "spread": 36.4,
+      "total": 159.9,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "UCLA",
+      "winProb": 0.99,
+      "spread": 41.0,
+      "total": 154.2
     }
   },
   "W_Z_R64_8v9": {
@@ -1840,6 +3760,26 @@
       "winProb": 0.914,
       "spread": 17.8,
       "total": 134.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Oklahoma St",
+      "winProb": 0.786,
+      "spread": 10.2,
+      "total": 144.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Oklahoma St",
+      "winProb": 0.988,
+      "spread": 10.2,
+      "total": 144.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Oklahoma St",
+      "winProb": 0.545,
+      "spread": 0.9,
+      "total": 140.5
     }
   },
   "W_Z_R64_5v12": {
@@ -1859,6 +3799,26 @@
       "winProb": 0.971,
       "spread": 15.4,
       "total": 138.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Mississippi",
+      "winProb": 0.909,
+      "spread": 12.2,
+      "total": 138.7,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Mississippi",
+      "winProb": 0.991,
+      "spread": 12.2,
+      "total": 138.7,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Mississippi",
+      "winProb": 0.792,
+      "spread": 8.5,
+      "total": 144.1
     }
   },
   "W_Z_R64_4v13": {
@@ -1878,6 +3838,26 @@
       "winProb": 0.902,
       "spread": 22.1,
       "total": 130.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Minnesota",
+      "winProb": 0.989,
+      "spread": 20.2,
+      "total": 135.4,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Minnesota",
+      "winProb": 0.999,
+      "spread": 20.2,
+      "total": 135.4,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Minnesota",
+      "winProb": 0.92,
+      "spread": 15.2,
+      "total": 132.5
     }
   },
   "W_Z_R64_6v11": {
@@ -1889,14 +3869,34 @@
     "seeded": {
       "predWinner": "Baylor",
       "winProb": 0.541,
-      "spread": -0.1,
+      "spread": 0.1,
       "total": 132.7
     },
     "noSeed": {
       "predWinner": "Nebraska*",
       "winProb": 0.78,
-      "spread": -4.5,
+      "spread": 4.5,
       "total": 134.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Baylor",
+      "winProb": 0.644,
+      "spread": 6.6,
+      "total": 142.5,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Baylor",
+      "winProb": 0.992,
+      "spread": 6.6,
+      "total": 142.5,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Baylor",
+      "winProb": 0.549,
+      "spread": 0.8,
+      "total": 145.4
     }
   },
   "W_Z_R64_3v14": {
@@ -1916,6 +3916,26 @@
       "winProb": 0.962,
       "spread": 16.7,
       "total": 136.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.995,
+      "spread": 31.3,
+      "total": 142.9,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 1.0,
+      "spread": 31.3,
+      "total": 142.9,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Duke",
+      "winProb": 0.985,
+      "spread": 25.9,
+      "total": 141.7
     }
   },
   "W_Z_R64_7v10": {
@@ -1935,6 +3955,26 @@
       "winProb": 0.594,
       "spread": 5.6,
       "total": 134.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Texas Tech",
+      "winProb": 0.504,
+      "spread": 4.4,
+      "total": 141.0,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "Texas Tech",
+      "winProb": 0.938,
+      "spread": 4.4,
+      "total": 141.0,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "Villanova",
+      "winProb": 0.517,
+      "spread": 0.7,
+      "total": 138.3
     }
   },
   "W_Z_R64_2v15": {
@@ -1954,6 +3994,26 @@
       "winProb": 0.993,
       "spread": 44.1,
       "total": 153.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "LSU",
+      "winProb": 0.995,
+      "spread": 55.7,
+      "total": 165.8,
+      "round": 1
+    },
+    "balanced_rounds": {
+      "predWinner": "LSU",
+      "winProb": 1.0,
+      "spread": 55.7,
+      "total": 165.8,
+      "round": 1
+    },
+    "kaggle": {
+      "predWinner": "LSU",
+      "winProb": 0.99,
+      "spread": 42.1,
+      "total": 158.4
     }
   },
   "W_W_R32_1v9": {
@@ -1973,6 +4033,26 @@
       "winProb": 0.842,
       "spread": 19.5,
       "total": 145.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.8,
+      "spread": 28.7,
+      "total": 135.9,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.961,
+      "spread": 28.7,
+      "total": 135.9,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.99,
+      "spread": 26.4,
+      "total": 144.0
     }
   },
   "W_W_R32_4v5": {
@@ -1984,14 +4064,34 @@
     "seeded": {
       "predWinner": "N Carolina",
       "winProb": 0.567,
-      "spread": -3.4,
+      "spread": 3.4,
       "total": 140.9
     },
     "noSeed": {
       "predWinner": "Maryland",
       "winProb": 0.507,
-      "spread": -3.8,
+      "spread": 3.8,
       "total": 140.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Maryland",
+      "winProb": 0.744,
+      "spread": 1.1,
+      "total": 142.7,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "N Carolina",
+      "winProb": 0.855,
+      "spread": 1.1,
+      "total": 142.7,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "N Carolina",
+      "winProb": 0.506,
+      "spread": 0.4,
+      "total": 149.7
     }
   },
   "W_W_R32_3v11": {
@@ -2011,6 +4111,26 @@
       "winProb": 0.505,
       "spread": 9.3,
       "total": 142.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Ohio St",
+      "winProb": 0.956,
+      "spread": 15.1,
+      "total": 135.3,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Ohio St",
+      "winProb": 0.996,
+      "spread": 15.1,
+      "total": 135.3,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Ohio St",
+      "winProb": 0.849,
+      "spread": 11.5,
+      "total": 148.2
     }
   },
   "W_W_R32_2v7": {
@@ -2030,6 +4150,26 @@
       "winProb": 0.81,
       "spread": 5.1,
       "total": 146.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.873,
+      "spread": 7.2,
+      "total": 139.2,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.976,
+      "spread": 7.2,
+      "total": 139.2,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.799,
+      "spread": 8.2,
+      "total": 155.4
     }
   },
   "W_X_R32_1v9": {
@@ -2049,6 +4189,26 @@
       "winProb": 0.951,
       "spread": 29.5,
       "total": 145.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "S Carolina",
+      "winProb": 0.987,
+      "spread": 33.8,
+      "total": 136.3,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "S Carolina",
+      "winProb": 0.998,
+      "spread": 33.8,
+      "total": 136.3,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "S Carolina",
+      "winProb": 0.963,
+      "spread": 20.7,
+      "total": 151.4
     }
   },
   "W_X_R32_4v5": {
@@ -2068,6 +4228,26 @@
       "winProb": 0.678,
       "spread": 5.0,
       "total": 152.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan St",
+      "winProb": 0.556,
+      "spread": 2.3,
+      "total": 140.7,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Oklahoma",
+      "winProb": 0.605,
+      "spread": 2.3,
+      "total": 140.7,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Oklahoma",
+      "winProb": 0.677,
+      "spread": 5.8,
+      "total": 168.9
     }
   },
   "W_X_R32_3v6": {
@@ -2087,6 +4267,26 @@
       "winProb": 0.696,
       "spread": 7.1,
       "total": 137.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "TCU",
+      "winProb": 0.717,
+      "spread": 6.9,
+      "total": 141.6,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "TCU",
+      "winProb": 0.82,
+      "spread": 6.9,
+      "total": 141.6,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "TCU",
+      "winProb": 0.678,
+      "spread": 4.5,
+      "total": 137.6
     }
   },
   "W_X_R32_2v7": {
@@ -2106,6 +4306,26 @@
       "winProb": 0.519,
       "spread": 3.3,
       "total": 135.4
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Iowa",
+      "winProb": 0.931,
+      "spread": 12.2,
+      "total": 135.3,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Iowa",
+      "winProb": 0.985,
+      "spread": 12.2,
+      "total": 135.3,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Iowa",
+      "winProb": 0.721,
+      "spread": 6.0,
+      "total": 143.9
     }
   },
   "W_Y_R32_1v8": {
@@ -2125,6 +4345,26 @@
       "winProb": 0.953,
       "spread": 14.9,
       "total": 148.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.855,
+      "spread": 23.7,
+      "total": 126.8,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.985,
+      "spread": 23.7,
+      "total": 126.8,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Texas",
+      "winProb": 0.956,
+      "spread": 19.8,
+      "total": 145.7
     }
   },
   "W_Y_R32_4v5": {
@@ -2144,6 +4384,26 @@
       "winProb": 0.633,
       "spread": 5.7,
       "total": 128.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Kentucky",
+      "winProb": 0.654,
+      "spread": 3.0,
+      "total": 128.9,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "W Virginia",
+      "winProb": 0.83,
+      "spread": 3.0,
+      "total": 128.9,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "W Virginia",
+      "winProb": 0.589,
+      "spread": 1.7,
+      "total": 140.3
     }
   },
   "W_Y_R32_3v6": {
@@ -2163,6 +4423,26 @@
       "winProb": 0.791,
       "spread": 7.7,
       "total": 138.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Louisville",
+      "winProb": 0.893,
+      "spread": 12.5,
+      "total": 143.7,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Louisville",
+      "winProb": 0.923,
+      "spread": 12.5,
+      "total": 143.7,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Louisville",
+      "winProb": 0.801,
+      "spread": 8.4,
+      "total": 143.5
     }
   },
   "W_Y_R32_2v10": {
@@ -2182,6 +4462,26 @@
       "winProb": 0.81,
       "spread": 12.1,
       "total": 152.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.915,
+      "spread": 19.3,
+      "total": 132.2,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.987,
+      "spread": 19.3,
+      "total": 132.2,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Michigan",
+      "winProb": 0.898,
+      "spread": 13.8,
+      "total": 159.3
     }
   },
   "W_Z_R32_1v8": {
@@ -2201,6 +4501,26 @@
       "winProb": 0.758,
       "spread": 18.2,
       "total": 139.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.955,
+      "spread": 25.5,
+      "total": 139.5,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.993,
+      "spread": 25.5,
+      "total": 139.5,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "UCLA",
+      "winProb": 0.949,
+      "spread": 19.4,
+      "total": 155.3
     }
   },
   "W_Z_R32_4v5": {
@@ -2212,14 +4532,34 @@
     "seeded": {
       "predWinner": "Mississippi",
       "winProb": 0.575,
-      "spread": -1.5,
+      "spread": 1.5,
       "total": 133.9
     },
     "noSeed": {
       "predWinner": "Mississippi",
       "winProb": 0.714,
-      "spread": -1.6,
+      "spread": 1.6,
       "total": 136.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Minnesota",
+      "winProb": 0.545,
+      "spread": 6.3,
+      "total": 123.7,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Minnesota",
+      "winProb": 0.943,
+      "spread": 6.3,
+      "total": 123.7,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Minnesota",
+      "winProb": 0.668,
+      "spread": 4.1,
+      "total": 145.4
     }
   },
   "W_Z_R32_3v6": {
@@ -2239,6 +4579,26 @@
       "winProb": 0.84,
       "spread": 2.8,
       "total": 132.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.87,
+      "spread": 5.7,
+      "total": 128.5,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "Duke",
+      "winProb": 0.985,
+      "spread": 5.7,
+      "total": 128.5,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "Duke",
+      "winProb": 0.806,
+      "spread": 8.4,
+      "total": 143.0
     }
   },
   "W_Z_R32_2v7": {
@@ -2258,6 +4618,26 @@
       "winProb": 0.937,
       "spread": 16.7,
       "total": 143.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "LSU",
+      "winProb": 0.84,
+      "spread": 24.3,
+      "total": 137.4,
+      "round": 2
+    },
+    "balanced_rounds": {
+      "predWinner": "LSU",
+      "winProb": 0.967,
+      "spread": 24.3,
+      "total": 137.4,
+      "round": 2
+    },
+    "kaggle": {
+      "predWinner": "LSU",
+      "winProb": 0.932,
+      "spread": 19.3,
+      "total": 154.5
     }
   },
   "W_W_S16_1v4": {
@@ -2277,6 +4657,26 @@
       "winProb": 0.822,
       "spread": 10.9,
       "total": 148.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.947,
+      "spread": 22.7,
+      "total": 118.9,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.998,
+      "spread": 22.7,
+      "total": 118.9,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.924,
+      "spread": 14.3,
+      "total": 145.3
     }
   },
   "W_W_S16_2v11": {
@@ -2288,14 +4688,34 @@
     "seeded": {
       "predWinner": "Vanderbilt",
       "winProb": 0.79,
-      "spread": -9.9,
+      "spread": 9.9,
       "total": 152.5
     },
     "noSeed": {
       "predWinner": "Vanderbilt",
       "winProb": 0.681,
-      "spread": -4.1,
+      "spread": 4.1,
       "total": 158.0
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.97,
+      "spread": 8.0,
+      "total": 115.4,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.908,
+      "spread": 8.0,
+      "total": 115.4,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Vanderbilt",
+      "winProb": 0.878,
+      "spread": 13.4,
+      "total": 146.0
     }
   },
   "W_X_S16_1v5": {
@@ -2315,6 +4735,26 @@
       "winProb": 0.87,
       "spread": 12.8,
       "total": 144.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "S Carolina",
+      "winProb": 0.938,
+      "spread": 7.9,
+      "total": 132.3,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "S Carolina",
+      "winProb": 0.996,
+      "spread": 7.9,
+      "total": 132.3,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "S Carolina",
+      "winProb": 0.899,
+      "spread": 13.1,
+      "total": 159.0
     }
   },
   "W_X_S16_6v7": {
@@ -2326,14 +4766,34 @@
     "seeded": {
       "predWinner": "Washington",
       "winProb": 0.786,
-      "spread": -1.8,
+      "spread": 1.8,
       "total": 130.4
     },
     "noSeed": {
       "predWinner": "Washington",
       "winProb": 0.563,
-      "spread": -0.0,
+      "spread": 0.0,
       "total": 129.7
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Georgia",
+      "winProb": 0.504,
+      "spread": 2.3,
+      "total": 112.4,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Washington",
+      "winProb": 0.921,
+      "spread": 2.3,
+      "total": 112.4,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Washington",
+      "winProb": 0.568,
+      "spread": 1.5,
+      "total": 135.5
     }
   },
   "W_Y_S16_1v4": {
@@ -2353,6 +4813,26 @@
       "winProb": 0.934,
       "spread": 11.2,
       "total": 142.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.944,
+      "spread": 5.5,
+      "total": 136.9,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.998,
+      "spread": 5.5,
+      "total": 136.9,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Texas",
+      "winProb": 0.793,
+      "spread": 8.7,
+      "total": 145.0
     }
   },
   "W_Y_S16_3v2": {
@@ -2364,14 +4844,34 @@
     "seeded": {
       "predWinner": "Michigan",
       "winProb": 0.669,
-      "spread": -3.0,
+      "spread": 3.0,
       "total": 154.5
     },
     "noSeed": {
       "predWinner": "Louisville",
       "winProb": 0.643,
-      "spread": -1.2,
+      "spread": 1.2,
       "total": 149.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.854,
+      "spread": 8.3,
+      "total": 133.4,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.675,
+      "spread": 8.3,
+      "total": 133.4,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "Michigan",
+      "winProb": 0.576,
+      "spread": 2.7,
+      "total": 154.2
     }
   },
   "W_Z_S16_1v5": {
@@ -2391,6 +4891,26 @@
       "winProb": 0.597,
       "spread": 6.4,
       "total": 141.1
+    },
+    "unbalanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.913,
+      "spread": 10.7,
+      "total": 148.9,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.995,
+      "spread": 10.7,
+      "total": 148.9,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "UCLA",
+      "winProb": 0.93,
+      "spread": 16.0,
+      "total": 157.1
     }
   },
   "W_Z_S16_3v2": {
@@ -2402,14 +4922,34 @@
     "seeded": {
       "predWinner": "LSU",
       "winProb": 0.793,
-      "spread": -9.8,
+      "spread": 9.8,
       "total": 150.2
     },
     "noSeed": {
       "predWinner": "LSU",
       "winProb": 0.774,
-      "spread": -10.4,
+      "spread": 10.4,
       "total": 144.3
+    },
+    "unbalanced_rounds": {
+      "predWinner": "LSU",
+      "winProb": 0.95,
+      "spread": 21.4,
+      "total": 150.8,
+      "round": 3
+    },
+    "balanced_rounds": {
+      "predWinner": "LSU",
+      "winProb": 0.946,
+      "spread": 21.4,
+      "total": 150.8,
+      "round": 3
+    },
+    "kaggle": {
+      "predWinner": "LSU",
+      "winProb": 0.595,
+      "spread": 4.5,
+      "total": 157.1
     }
   },
   "W_W_E8": {
@@ -2429,6 +4969,26 @@
       "winProb": 0.636,
       "spread": 15.6,
       "total": 148.7
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.699,
+      "spread": 6.5,
+      "total": 151.6,
+      "round": 4
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.699,
+      "spread": 6.5,
+      "total": 151.6,
+      "round": 4
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.873,
+      "spread": 10.6,
+      "total": 152.2
     }
   },
   "W_X_E8": {
@@ -2448,6 +5008,26 @@
       "winProb": 0.941,
       "spread": 16.1,
       "total": 141.7
+    },
+    "unbalanced_rounds": {
+      "predWinner": "S Carolina",
+      "winProb": 0.981,
+      "spread": 32.0,
+      "total": 138.2,
+      "round": 4
+    },
+    "balanced_rounds": {
+      "predWinner": "S Carolina",
+      "winProb": 0.981,
+      "spread": 32.0,
+      "total": 138.2,
+      "round": 4
+    },
+    "kaggle": {
+      "predWinner": "S Carolina",
+      "winProb": 0.921,
+      "spread": 14.7,
+      "total": 146.9
     }
   },
   "W_Y_E8": {
@@ -2467,6 +5047,26 @@
       "winProb": 0.836,
       "spread": 8.2,
       "total": 148.6
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.699,
+      "spread": 6.9,
+      "total": 144.6,
+      "round": 4
+    },
+    "balanced_rounds": {
+      "predWinner": "Michigan",
+      "winProb": 0.699,
+      "spread": 6.9,
+      "total": 144.6,
+      "round": 4
+    },
+    "kaggle": {
+      "predWinner": "Texas",
+      "winProb": 0.71,
+      "spread": 6.4,
+      "total": 153.2
     }
   },
   "W_Z_E8": {
@@ -2478,7 +5078,7 @@
     "seeded": {
       "predWinner": "UCLA",
       "winProb": 0.542,
-      "spread": -1.3,
+      "spread": 1.3,
       "total": 154.7
     },
     "noSeed": {
@@ -2486,6 +5086,26 @@
       "winProb": 0.536,
       "spread": 0.6,
       "total": 146.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.601,
+      "spread": 4.5,
+      "total": 147.2,
+      "round": 4
+    },
+    "balanced_rounds": {
+      "predWinner": "UCLA",
+      "winProb": 0.601,
+      "spread": 4.5,
+      "total": 147.2,
+      "round": 4
+    },
+    "kaggle": {
+      "predWinner": "UCLA",
+      "winProb": 0.674,
+      "spread": 5.3,
+      "total": 164.1
     }
   },
   "W_FF_WX": {
@@ -2503,8 +5123,28 @@
     "noSeed": {
       "predWinner": "S Carolina",
       "winProb": 0.522,
-      "spread": -0.3,
+      "spread": 0.3,
       "total": 145.8
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.5,
+      "spread": 12.1,
+      "total": 146.5,
+      "round": 5
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.5,
+      "spread": 12.1,
+      "total": 146.5,
+      "round": 5
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.608,
+      "spread": 1.8,
+      "total": 154.5
     }
   },
   "W_FF_YZ": {
@@ -2524,6 +5164,26 @@
       "winProb": 0.725,
       "spread": 1.5,
       "total": 148.2
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.5,
+      "spread": 2.3,
+      "total": 146.9,
+      "round": 5
+    },
+    "balanced_rounds": {
+      "predWinner": "Texas",
+      "winProb": 0.5,
+      "spread": 2.3,
+      "total": 146.9,
+      "round": 5
+    },
+    "kaggle": {
+      "predWinner": "UCLA",
+      "winProb": 0.52,
+      "spread": 0.1,
+      "total": 152.5
     }
   },
   "W_CHAMP": {
@@ -2543,6 +5203,26 @@
       "winProb": 0.542,
       "spread": 0.5,
       "total": 142.5
+    },
+    "unbalanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.666,
+      "spread": 1.0,
+      "total": 140.5,
+      "round": 6
+    },
+    "balanced_rounds": {
+      "predWinner": "Connecticut",
+      "winProb": 0.929,
+      "spread": 1.0,
+      "total": 140.5,
+      "round": 6
+    },
+    "kaggle": {
+      "predWinner": "Connecticut",
+      "winProb": 0.675,
+      "spread": 4.1,
+      "total": 147.5
     }
   }
 }
