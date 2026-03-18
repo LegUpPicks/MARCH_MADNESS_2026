@@ -8,9 +8,14 @@ A machine learning pipeline for predicting NCAA March Madness tournament outcome
 
 This project uses XGBoost models trained on 40+ years of NCAA game data to predict tournament game outcomes. It produces win probabilities for all possible team matchups and simulates the full bracket round-by-round.
 
+Two bracket simulation approaches are implemented:
+- **With seeds** — uses a per-round Snowflake ML model trained on round-specific historical data
+- **No-seed** — uses a single model without seed information, run via Snowflake ML
+
 **2026 Results:**
-- Men's predicted champion: Duke (Seed 1, Region W)
-- Win prediction accuracy on 2024–2025 test data: **75.78%**
+- Men's predicted champion (with seeds, per-round model): Iowa St (Seed 2)
+- Men's predicted champion (no-seed model): Connecticut (Seed 1)
+- Win prediction accuracy on 2024–2025 test data: **75.78%** (with seeds), **65.62%** (no-seed)
 - Submission covers 132,133 matchup pairs
 
 ---
@@ -19,42 +24,67 @@ This project uses XGBoost models trained on 40+ years of NCAA game data to predi
 
 ```
 MARCH_MADNESS_2026/
-├── Notebooks (Men's pipeline)
-│   ├── 1_cleaning_2026.ipynb       # Data cleaning & feature engineering
-│   ├── 2_train_2026.ipynb          # Model training (with seeds)
-│   ├── 3_scores_2026.ipynb         # Score/spread prediction models
-│   ├── 4_no_seed_2026.ipynb        # Model training (without seeds)
-│   └── 5_submission.ipynb          # Generate Kaggle submission CSV
+├── Notebooks (Men's local pipeline)
+│   ├── 1_cleaning_2026.ipynb           # Data cleaning & feature engineering
+│   ├── 2_train_2026.ipynb              # Model training (with seeds)
+│   ├── 3_scores_2026.ipynb             # Score/spread prediction models
+│   └── 4_no_seed_2026.ipynb            # Model training (without seeds)
+│
+├── Notebooks (Bracket simulation — Snowflake ML)
+│   ├── submission_bracket_rounds.ipynb # Per-round models, bracket simulation
+│   └── submission_bracket_no_seeds.ipynb # No-seed model, bracket simulation
 │
 ├── Notebooks (Women's pipeline)
-│   ├── W1_cleaning_2026.ipynb
-│   ├── W2_train_2026.ipynb
-│   ├── W3_scores_2026.ipynb
-│   ├── W4_no_seed_2026.ipynb
-│   └── W5_submission.ipynb
+│   └── W2_train_2026.ipynb             # Women's model training (Snowflake ML)
 │
-├── data_2026/                      # Input data & generated features
+├── bracket_no_seed_visualization.html  # Static HTML bracket visualization (no-seed)
+│
+├── march-madness-tracker/              # React app — live bracket tracker
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── components/
+│   │   │   ├── BracketView.jsx         # Visual bracket
+│   │   │   ├── PredictionsTable.jsx    # Predictions + live odds table
+│   │   │   ├── GameCard.jsx
+│   │   │   ├── SidePanel.jsx
+│   │   │   ├── TournamentView.jsx      # Root view, wires bracket + odds
+│   │   │   └── BetslipModal.jsx
+│   │   ├── data/
+│   │   │   ├── bracketData.js          # Static bracket structure
+│   │   │   └── modelPredictions.json   # Model win probabilities per matchup
+│   │   ├── hooks/
+│   │   │   ├── useBracketState.js      # Bracket state management
+│   │   │   ├── useSelections.js        # User pick selections
+│   │   │   └── useSportsbookOdds.js    # ESPN odds polling
+│   │   └── services/
+│   │       └── sportsbookApi.js        # ESPN public API integration
+│   ├── package.json
+│   └── vite.config.js
+│
+├── data_2026/                          # Input data & generated features
 │   ├── MRegularSeasonDetailedResults.csv
 │   ├── MNCAATourneyDetailedResults.csv
 │   ├── MNCAATourneySeeds.csv
 │   ├── MTeams.csv
 │   ├── MTeamConferences.csv
 │   ├── MConferenceTourneyGames.csv
-│   ├── SampleSubmissionStage2.csv  # 132,133 matchup pairs to score
-│   ├── final_season_stats.csv      # Generated: aggregated 2026 team stats
-│   ├── final_features.csv          # Generated: historical training dataset
+│   ├── SampleSubmissionStage2.csv      # 132,133 matchup pairs to score
+│   ├── final_season_stats.csv          # Generated: aggregated 2026 team stats
+│   ├── final_features.csv              # Generated: historical training dataset
+│   ├── final_features_W.csv            # Generated: Women's training dataset
 │   └── [W* equivalents for Women's]
 │
-├── model/                          # Saved trained models
-│   ├── march_madness_model.joblib      # Win classifier (with seeds)
-│   ├── march_madness_model_no_seed.joblib
-│   ├── spread_model.joblib             # Point spread regressor
-│   ├── total_model.joblib              # Total score regressor
-│   └── [no_seed variants]
+├── model/                              # Saved trained models (local)
+│   ├── march_madness_model.joblib          # Win classifier (with seeds)
+│   ├── march_madness_model_W.joblib        # Women's win classifier
+│   ├── march_madness_model_no_seed.joblib  # Win classifier (no seeds)
+│   ├── march_madness_model_scores.joblib   # Combined score model
+│   ├── spread_model.joblib                 # Point spread regressor
+│   ├── spread_model_no_seed.joblib
+│   ├── total_model.joblib                  # Total score regressor
+│   └── total_model_no_seed.joblib
 │
-├── submission_2026.csv             # Men's predictions output
-├── submission_2026_W.csv           # Women's predictions output
-├── submission_2026_combined.csv    # Combined M+W submission
+├── submission_2026_combined.csv        # Combined M+W Kaggle submission
 ├── pyproject.toml
 └── uv.lock
 ```
@@ -100,13 +130,51 @@ Trains dedicated regression models focused on score prediction accuracy.
 
 Trains the same architecture but excludes seed information from features. Accuracy drops to **65.62%**, showing seeds account for ~10 percentage points of predictive power.
 
-### Step 5 — Submission (`5_submission.ipynb`)
+### Step 5 — Bracket Simulation (Snowflake ML)
 
-- Loads the 132,133 team-pair matchups from `SampleSubmissionStage2.csv`
-- Joins 2026 season stats to each team (missing stats filled with column medians)
-- Runs the trained model to produce P(Team1 beats Team2) for every pair
-- Simulates the full bracket round-by-round: play-in → Round of 64 → 32 → Sweet 16 → Elite 8 → Final Four → Championship
-- Outputs `submission_2026.csv`
+Two bracket simulation notebooks run via **Snowflake ML / Snowpark**, reading data from Snowflake tables and registering models in the Snowflake Model Registry.
+
+#### `submission_bracket_rounds.ipynb` — Per-Round Models
+- Trains a separate XGBoost classifier for each tournament round (R1–R6) using round-specific historical data
+- Simulates the bracket step-by-step: Round of 64 → 32 → Sweet 16 → Elite 8 → Final Four → Championship
+- Each round uses its dedicated model (r1_model through r6_model)
+- **2026 predicted champion: Iowa St (Seed 2)**
+
+#### `submission_bracket_no_seeds.ipynb` — Single No-Seed Model
+- Trains one XGBoost classifier across all rounds, excluding seed features
+- Simulates the full bracket using the same model at each round
+- Outputs `bracket_no_seed_visualization.html` — a static interactive HTML bracket
+- **2026 predicted champion: Connecticut (Seed 1)**
+
+---
+
+## React App — Live Bracket Tracker (`march-madness-tracker/`)
+
+A Vite + React 18 app for tracking the tournament in real time alongside model predictions.
+
+**Features:**
+- Visual bracket for both Men's and Women's tournaments (tab switcher)
+- Displays model win probabilities from `modelPredictions.json` round-by-round, auto-revealed as matchups are determined
+- Fetches live game results and odds from the **ESPN public API** — covers today + next 6 days, across all tournament rounds
+- Auto-fills winners for completed games based on ESPN final scores
+- Shows moneyline, spread, and total (over/under) for each upcoming game
+
+**Running the app:**
+
+```bash
+cd march-madness-tracker
+npm install
+npm run dev
+```
+
+Then open `http://localhost:5173` in your browser.
+
+To build for production:
+
+```bash
+npm run build   # outputs to dist/
+npm run preview # preview the production build locally
+```
 
 ---
 
@@ -122,7 +190,9 @@ uv sync
 uv run jupyter lab
 ```
 
-Run notebooks in order (1 → 2 → 3 → 4 → 5) for the Men's pipeline, and W1 → W5 for the Women's pipeline.
+Run notebooks in order: **1 → 2 → 3 → 4** for the local Men's pipeline.
+
+The bracket simulation notebooks (`submission_bracket_rounds.ipynb`, `submission_bracket_no_seeds.ipynb`) require an active **Snowflake** connection and data pre-loaded into Snowflake tables (`MEN.FINAL_FEATURES`, `MEN.FINAL_SEASON_STATS`, etc.).
 
 **Requirements:** Python 3.11+, pandas, numpy, scikit-learn, xgboost, lightgbm, matplotlib, seaborn, jupyter
 
@@ -135,4 +205,6 @@ Run notebooks in order (1 → 2 → 3 → 4 → 5) for the Men's pipeline, and W
 - **Conference one-hot encoding** — captures conference strength differences
 - **Feature aggregation** — uses mean/median/stddev rather than raw game stats for robustness
 - **Seed vs. no-seed models** — dual models allow ensemble strategies and quantify seed impact
+- **Per-round models** — round-specific training captures how tournament dynamics shift in later rounds
 - **Median imputation** — handles teams with no 2026 season data gracefully
+- **Snowflake ML** — bracket simulation leverages Snowflake's distributed compute and model registry for reproducibility
