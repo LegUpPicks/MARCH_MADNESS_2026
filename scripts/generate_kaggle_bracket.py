@@ -16,7 +16,7 @@ warnings.filterwarnings('ignore')
 BASE      = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE, 'model')
 DATA_DIR  = os.path.join(BASE, 'data_2026')
-OUT_FILE  = os.path.join(BASE, 'bracket_kaggle_visualization.html')
+OUT_FILE  = os.path.join(BASE, 'outputs', 'bracket_kaggle_visualization.html')
 
 # ─── Load models ─────────────────────────────────────────────────────────────────
 print("Loading models...")

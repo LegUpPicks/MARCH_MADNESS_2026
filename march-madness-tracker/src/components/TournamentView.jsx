@@ -73,6 +73,46 @@ export default function TournamentView({ gender }) {
         .bracket-view { zoom: ${scale}; }
         .builder-toolbar, .predictions-table-section,
         .model-summary-section, .app-header, .tab-bar { display: none !important; }
+
+        /* Force background colours to print */
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+        /* Selected / advancing team — bold left bar + strong text */
+        .team-selected,
+        .team-correct {
+          background: rgba(88, 166, 255, 0.18) !important;
+          border-left: 3px solid #1a6fc4 !important;
+        }
+        .team-selected .team-name,
+        .team-correct .team-name {
+          font-weight: 800 !important;
+          font-size: 12px !important;
+          color: #000 !important;
+        }
+        .team-selected .team-seed,
+        .team-correct .team-seed {
+          font-weight: 700 !important;
+          color: #000 !important;
+        }
+
+        /* Losing / non-selected team — visually dimmed */
+        .team-row:not(.team-selected):not(.team-correct):not(.team-tbd) .team-name {
+          color: #999 !important;
+          font-weight: 400 !important;
+        }
+        .team-row:not(.team-selected):not(.team-correct):not(.team-tbd) .team-seed {
+          color: #bbb !important;
+        }
+
+        /* Keep game-card background light for contrast */
+        .game-card-inner {
+          background: #fff !important;
+          border-color: #ccc !important;
+        }
+        .game-meta {
+          background: #f4f4f4 !important;
+          border-color: #ddd !important;
+        }
       }
     `;
     document.head.appendChild(styleEl);

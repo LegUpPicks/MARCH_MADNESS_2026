@@ -12,7 +12,7 @@ from xgboost import XGBClassifier, XGBRegressor
 
 warnings.filterwarnings('ignore')
 
-BASE = os.path.dirname(os.path.abspath(__file__))
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE, 'model')
 DATA_DIR  = os.path.join(BASE, 'data_2026')
 OUT_FILE  = os.path.join(BASE, 'march-madness-tracker', 'src', 'data', 'modelPredictions.json')
