@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchOddsForGames } from '../services/sportsbookApi';
 
 const storageKey = (gender) => `mm2026-odds-${gender}`;
@@ -20,6 +20,10 @@ function saveCached(gender, oddsMap) {
 
 export function useSportsbookOdds(games, gender = 'mens') {
   const [oddsMap, setOddsMap] = useState(() => loadCached(gender));
+
+  useEffect(() => {
+    setOddsMap(loadCached(gender));
+  }, [gender]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

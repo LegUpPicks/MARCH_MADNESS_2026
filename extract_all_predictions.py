@@ -1,11 +1,14 @@
 """
 Generate modelPredictions.json for ALL bracket rounds (both genders).
-Outputs seeded and no-seed predictions for every game.
+Outputs seeded, no-seed, per-round, and kaggle predictions for every game.
 """
 import json, os, warnings
 import numpy as np
 import pandas as pd
 import joblib
+import statsmodels.api as sm
+import xgboost as xgb
+from xgboost import XGBClassifier, XGBRegressor
 
 warnings.filterwarnings('ignore')
 
@@ -14,7 +17,7 @@ MODEL_DIR = os.path.join(BASE, 'model')
 DATA_DIR  = os.path.join(BASE, 'data_2026')
 OUT_FILE  = os.path.join(BASE, 'march-madness-tracker', 'src', 'data', 'modelPredictions.json')
 
-# ── Load models ────────────────────────────────────────────────
+# ── Load seeded / no-seed models ────────────────────────────────
 print("Loading models...")
 M = {
     'clf':      joblib.load(os.path.join(MODEL_DIR, 'march_madness_model.joblib')),
@@ -69,18 +72,188 @@ women_name_map = build_map(os.path.join(DATA_DIR, 'WTeamSpellings.csv'), {
     'nebraska*':   3304,
 })
 
-# ── Prediction helper ──────────────────────────────────────────
-def predict_game(name_map, stats_2026, models, top_name, top_seed, bot_name, bot_seed):
-    """Return (seeded_dict, noseed_dict) or None if stats missing for both teams."""
+# ══════════════════════════════════════════════════════════════
+# PER-ROUND MODELS
+# ══════════════════════════════════════════════════════════════
+
+NON_FEATURE_COLS = {'SEASON', 'WIN_INDICATOR', 'L_TEAMID', 'W_TEAMID',
+                    'W_SCORE', 'L_SCORE', 'ROUND', 'L_REGION', 'W_REGION'}
+DROP_COLS = ['W_CTWINS', 'W_AVERAGECTSCORE', 'L_CTWINS', 'L_AVERAGECTSCORE',
+             'W_WLOCN', 'W_WLOCH', 'W_WLOCA', 'L_WLOCN', 'L_WLOCH', 'L_WLOCA']
+
+def train_round_models(csv_path, label):
+    print(f"Training per-round models ({label})...")
+    final = (
+        pd.read_csv(csv_path)
+        .rename(columns={'WTEAMID':'W_TEAMID','LTEAMID':'L_TEAMID','WSCORE':'W_SCORE','LSCORE':'L_SCORE'})
+    )
+    final['WIN_INDICATOR'] = 1
+    final = final.drop(columns=[c for c in DROP_COLS if c in final.columns])
+    feat_cols = [c for c in final.columns if c not in NON_FEATURE_COLS]
+
+    train = final[(final.SEASON >= 2010) & (final.SEASON <= 2025)].copy()
+    w_cols = sorted([c for c in train.columns if c.startswith('W_')])
+    l_cols = ['L_' + c[2:] for c in w_cols]
+    swapped = train.copy()
+    for wc, lc in zip(w_cols, l_cols):
+        swapped[wc] = train[lc]; swapped[lc] = train[wc]
+    train = pd.concat([train, swapped], ignore_index=True)
+    train['WIN_INDICATOR'] = (train['W_SCORE'] > train['L_SCORE']).astype(int)
+
+    WIN_P = dict(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, eval_metric='logloss')
+    REG_P = dict(learning_rate=0.1, max_depth=3, min_child_weight=2, n_estimators=100, eval_metric='rmse')
+
+    round_models = {}
+    for r in range(0, 7):
+        rt = train[train.ROUND == r]
+        if len(rt) < 5:
+            continue
+        X = rt[feat_cols]
+        round_models[r] = {
+            'win':    XGBClassifier(**WIN_P).fit(X, rt['WIN_INDICATOR']),
+            'spread': XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] - rt['L_SCORE']),
+            'total':  XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] + rt['L_SCORE']),
+        }
+        print(f"  Round {r}: {len(rt)//2} unique games in training set")
+    return round_models, feat_cols
+
+PR_M, PR_M_FEAT_COLS = train_round_models(os.path.join(DATA_DIR, 'final_features.csv'), 'Men')
+PR_W, PR_W_FEAT_COLS = train_round_models(os.path.join(DATA_DIR, 'final_features_W.csv'), 'Women')
+
+# ══════════════════════════════════════════════════════════════
+# KAGGLE FEATURES FOR 2026
+# ══════════════════════════════════════════════════════════════
+
+KAGGLE_FEATURES = [
+    "men_women", "T1_seed", "T2_seed", "Seed_diff",
+    "T1_avg_Score","T1_avg_FGA","T1_avg_OR","T1_avg_DR","T1_avg_Blk","T1_avg_PF",
+    "T1_avg_opponent_FGA","T1_avg_opponent_Blk","T1_avg_opponent_PF","T1_avg_PointDiff",
+    "T2_avg_Score","T2_avg_FGA","T2_avg_OR","T2_avg_DR","T2_avg_Blk","T2_avg_PF",
+    "T2_avg_opponent_FGA","T2_avg_opponent_Blk","T2_avg_opponent_PF","T2_avg_PointDiff",
+    "T1_elo","T2_elo","elo_diff","T1_quality","T2_quality",
+]
+
+def prepare_data_kf(df):
+    """OT-adjust and create T1/T2 oriented rows."""
+    df = df[["Season","DayNum","LTeamID","LScore","WTeamID","WScore","NumOT",
+             "LFGM","LFGA","LFGM3","LFGA3","LFTM","LFTA","LOR","LDR","LAst","LTO","LStl","LBlk","LPF",
+             "WFGM","WFGA","WFGM3","WFGA3","WFTM","WFTA","WOR","WDR","WAst","WTO","WStl","WBlk","WPF"]].copy()
+    adjot = (40 + 5 * df["NumOT"]) / 40
+    for col in [c for c in df.columns if c not in ["Season","DayNum","LTeamID","WTeamID","NumOT"]]:
+        df[col] = df[col] / adjot
+    dfswap = df.copy()
+    df.columns    = [x.replace("W","T1_").replace("L","T2_") for x in df.columns]
+    dfswap.columns= [x.replace("L","T1_").replace("W","T2_") for x in dfswap.columns]
+    out = pd.concat([df, dfswap]).reset_index(drop=True)
+    out["PointDiff"] = out["T1_Score"] - out["T2_Score"]
+    out["win"] = (out["PointDiff"] > 0).astype(int)
+    return out
+
+def compute_kaggle_team_feats_2026(regular_csv, men_women_flag):
+    """Compute per-team kaggle feature vectors for Season=2026."""
+    raw = pd.read_csv(regular_csv)
+    raw = raw[raw.Season == 2026]
+    if len(raw) == 0:
+        print(f"  WARNING: no 2026 data in {regular_csv}")
+        return {}
+
+    reg = prepare_data_kf(raw)
+
+    BOXCOLS = [
+        "T1_Score","T1_FGM","T1_FGA","T1_FGM3","T1_FGA3","T1_FTM","T1_FTA",
+        "T1_OR","T1_DR","T1_Ast","T1_TO","T1_Stl","T1_Blk","T1_PF",
+        "T2_Score","T2_FGM","T2_FGA","T2_FGM3","T2_FGA3","T2_FTM","T2_FTA",
+        "T2_OR","T2_DR","T2_Ast","T2_TO","T2_Stl","T2_Blk","T2_PF","PointDiff",
+    ]
+    ss = reg.groupby("T1_TeamID")[BOXCOLS].mean()
+    ss.columns = [x.replace("T1_","avg_").replace("T2_","avg_opponent_") for x in ss.columns]
+
+    # ELO
+    base_elo, elo_width, k_factor = 1000, 400, 100
+    wins = reg[reg.win == 1].reset_index(drop=True)
+    teams = set(wins.T1_TeamID) | set(wins.T2_TeamID)
+    elo = dict.fromkeys(teams, base_elo)
+    for i in range(len(wins)):
+        w, l = wins.loc[i,"T1_TeamID"], wins.loc[i,"T2_TeamID"]
+        exp = 1.0 / (1 + 10**((elo[l]-elo[w])/elo_width))
+        c = k_factor * (1 - exp)
+        elo[w] += c; elo[l] -= c
+    elo_s = pd.Series(elo, name='elo')
+
+    # GLM quality (2026 only — fast)
+    dt = reg.copy()
+    dt["T1_TeamID"] = dt["T1_TeamID"].astype(str)
+    dt["T2_TeamID"] = dt["T2_TeamID"].astype(str)
+    try:
+        glm = sm.GLM.from_formula("PointDiff~-1+T1_TeamID+T2_TeamID",
+                                   data=dt, family=sm.families.Gaussian()).fit()
+        q = pd.DataFrame(glm.params).reset_index()
+        q.columns = ["param","quality"]
+        q = q[q.param.str.contains("T1_")].copy()
+        q["TeamID"] = q["param"].apply(lambda x: x[10:14]).astype(int)
+        quality_s = q.set_index("TeamID")["quality"]
+    except Exception as e:
+        print(f"  GLM warning: {e} — using zeros for quality")
+        quality_s = pd.Series(dtype=float)
+
+    result = {}
+    all_team_ids = set(ss.index) | set(elo.keys())
+    for tid in all_team_ids:
+        feat = {}
+        if tid in ss.index:
+            feat.update(ss.loc[tid].to_dict())
+        else:
+            feat.update({c: ss[c].median() for c in ss.columns})
+        feat['elo']     = elo.get(tid, base_elo)
+        feat['quality'] = float(quality_s.get(tid, quality_s.median() if len(quality_s) else 0.0))
+        result[tid] = feat
+
+    print(f"  Kaggle features computed for {len(result)} teams (men_women={men_women_flag})")
+    return result
+
+print("\nComputing kaggle features for 2026...")
+KF_M = compute_kaggle_team_feats_2026(
+    os.path.join(DATA_DIR, 'MRegularSeasonDetailedResults.csv'), men_women_flag=1)
+KF_W = compute_kaggle_team_feats_2026(
+    os.path.join(DATA_DIR, 'WRegularSeasonDetailedResults.csv'), men_women_flag=0)
+
+kaggle_bundle = joblib.load(os.path.join(MODEL_DIR, 'kaggle_proba.joblib'))
+KAGGLE_MODELS  = kaggle_bundle['models']   # {season: booster}
+KAGGLE_SPLINE  = kaggle_bundle['spline']
+KAGGLE_T       = kaggle_bundle['t']
+KAGGLE_SPREAD  = joblib.load(os.path.join(MODEL_DIR, 'kaggle_spread.joblib'))
+KAGGLE_TOTAL   = joblib.load(os.path.join(MODEL_DIR, 'kaggle_total.joblib'))
+
+def get_game_round(game_id):
+    """Extract ROUND integer from a game ID string."""
+    if '_PI_' in game_id or game_id.endswith('_PI'):
+        return 0
+    elif '_R64_' in game_id:
+        return 1
+    elif '_R32_' in game_id:
+        return 2
+    elif '_S16_' in game_id:
+        return 3
+    elif game_id.endswith('_E8'):
+        return 4
+    elif '_FF_' in game_id:
+        return 5
+    elif game_id.endswith('_CHAMP') or game_id.endswith('CHAMP'):
+        return 6
+    return 1
+
+# ── Prediction helpers ─────────────────────────────────────────
+def predict_game(name_map, stats_2026, models, top_name, top_seed, bot_name, bot_seed,
+                 pr_models=None, pr_feat_cols=None, game_id=None,
+                 kaggle_feats=None, men_women=1):
+    """Return dict with seeded, noSeed, perRound, kaggle predictions."""
     top_id = name_map.get(top_name.lower())
     bot_id = name_map.get(bot_name.lower())
 
-    if top_id is None:
-        print(f"  WARNING: no ID for '{top_name}'")
-    if bot_id is None:
-        print(f"  WARNING: no ID for '{bot_name}'")
+    if top_id is None: print(f"  WARNING: no ID for '{top_name}'")
+    if bot_id is None: print(f"  WARNING: no ID for '{bot_name}'")
 
-    stat_cols = list(stats_2026.columns)  # season stat columns (no TEAMID/SEASON)
+    stat_cols = list(stats_2026.columns)
 
     def get_stats(tid, prefix):
         if tid is not None and tid in stats_2026.index:
@@ -92,12 +265,11 @@ def predict_game(name_map, stats_2026, models, top_name, top_seed, bot_name, bot
     row = {}
     row.update(get_stats(top_id, 'W_'))
     row.update(get_stats(bot_id, 'L_'))
-
     df = pd.DataFrame([row])
 
     results = {}
 
-    # Seeded prediction (includes W_SEED, L_SEED)
+    # ── Seeded ────────────────────────────────────────────────
     df_s = df.copy()
     df_s['W_SEED'] = top_seed
     df_s['L_SEED'] = bot_seed
@@ -108,26 +280,16 @@ def predict_game(name_map, stats_2026, models, top_name, top_seed, bot_name, bot
         win_prob_s = float(round(proba_s[1], 3))
         pred_winner_s = top_name if win_prob_s >= 0.5 else bot_name
         display_prob_s = float(round(win_prob_s if win_prob_s >= 0.5 else 1 - win_prob_s, 3))
-
-        feat_sp = models['spread'].feature_names_in_
-        X_sp = df_s.reindex(columns=feat_sp, fill_value=0)
-        spread_s = round(float(models['spread'].predict(X_sp)[0]), 1)
-
-        feat_t = models['total'].feature_names_in_
-        X_t = df_s.reindex(columns=feat_t, fill_value=0)
-        total_s = round(float(models['total'].predict(X_t)[0]), 1)
-
-        results['seeded'] = {
-            'predWinner': pred_winner_s,
-            'winProb': display_prob_s,
-            'spread': spread_s,
-            'total': total_s,
-        }
+        spread_s = round(float(models['spread'].predict(df_s.reindex(columns=models['spread'].feature_names_in_, fill_value=0))[0]), 1)
+        total_s  = round(float(models['total'].predict(df_s.reindex(columns=models['total'].feature_names_in_, fill_value=0))[0]), 1)
+        if pred_winner_s == bot_name:
+            spread_s = -spread_s
+        results['seeded'] = {'predWinner': pred_winner_s, 'winProb': display_prob_s, 'spread': abs(spread_s), 'total': total_s}
     except Exception as e:
-        print(f"  Seeded model error: {e}")
+        print(f"  Seeded error: {e}")
         results['seeded'] = None
 
-    # No-seed prediction
+    # ── No-Seed ────────────────────────────────────────────────
     df_ns = df.copy()
     try:
         feat_ns = models['clf_ns'].feature_names_in_
@@ -136,24 +298,75 @@ def predict_game(name_map, stats_2026, models, top_name, top_seed, bot_name, bot
         win_prob_ns = float(round(proba_ns[1], 3))
         pred_winner_ns = top_name if win_prob_ns >= 0.5 else bot_name
         display_prob_ns = float(round(win_prob_ns if win_prob_ns >= 0.5 else 1 - win_prob_ns, 3))
-
-        feat_sp_ns = models['spread_ns'].feature_names_in_
-        X_sp_ns = df_ns.reindex(columns=feat_sp_ns, fill_value=0)
-        spread_ns = round(float(models['spread_ns'].predict(X_sp_ns)[0]), 1)
-
-        feat_t_ns = models['total_ns'].feature_names_in_
-        X_t_ns = df_ns.reindex(columns=feat_t_ns, fill_value=0)
-        total_ns = round(float(models['total_ns'].predict(X_t_ns)[0]), 1)
-
-        results['noSeed'] = {
-            'predWinner': pred_winner_ns,
-            'winProb': display_prob_ns,
-            'spread': spread_ns,
-            'total': total_ns,
-        }
+        spread_ns = round(float(models['spread_ns'].predict(df_ns.reindex(columns=models['spread_ns'].feature_names_in_, fill_value=0))[0]), 1)
+        total_ns  = round(float(models['total_ns'].predict(df_ns.reindex(columns=models['total_ns'].feature_names_in_, fill_value=0))[0]), 1)
+        if pred_winner_ns == bot_name:
+            spread_ns = -spread_ns
+        results['noSeed'] = {'predWinner': pred_winner_ns, 'winProb': display_prob_ns, 'spread': abs(spread_ns), 'total': total_ns}
     except Exception as e:
-        print(f"  No-seed model error: {e}")
+        print(f"  NoSeed error: {e}")
         results['noSeed'] = None
+
+    # ── Per-Round ──────────────────────────────────────────────
+    if pr_models and pr_feat_cols and game_id:
+        game_round = get_game_round(game_id)
+        rm = pr_models.get(game_round) or pr_models.get(1)
+        if rm:
+            try:
+                X_pr = df_s.reindex(columns=pr_feat_cols, fill_value=0)
+                proba_pr = rm['win'].predict_proba(X_pr)[0]
+                win_prob_pr = float(round(proba_pr[1], 3))
+                pred_winner_pr = top_name if win_prob_pr >= 0.5 else bot_name
+                display_prob_pr = float(round(win_prob_pr if win_prob_pr >= 0.5 else 1 - win_prob_pr, 3))
+                spread_pr = round(float(rm['spread'].predict(X_pr)[0]), 1)
+                total_pr  = round(float(rm['total'].predict(X_pr)[0]), 1)
+                if pred_winner_pr == bot_name:
+                    spread_pr = -spread_pr
+                results['perRound'] = {'predWinner': pred_winner_pr, 'winProb': display_prob_pr,
+                                       'spread': abs(spread_pr), 'total': total_pr, 'round': game_round}
+            except Exception as e:
+                print(f"  PerRound error (round={game_round}): {e}")
+                results['perRound'] = None
+
+    # ── Kaggle ────────────────────────────────────────────────
+    if kaggle_feats and top_id and bot_id:
+        try:
+            median_feats = {k: np.median([v[k] for v in kaggle_feats.values() if k in v])
+                            for k in next(iter(kaggle_feats.values()))}
+            t1 = kaggle_feats.get(top_id, median_feats)
+            t2 = kaggle_feats.get(bot_id, median_feats)
+
+            krow = {'men_women': men_women, 'T1_seed': top_seed, 'T2_seed': bot_seed,
+                    'Seed_diff': bot_seed - top_seed}
+            for k, v in t1.items():
+                col = f'T1_{k}' if not k.startswith('avg_') else f'T1_{k}'
+                krow[col] = v
+            for k, v in t2.items():
+                col = f'T2_{k}' if not k.startswith('avg_') else f'T2_{k}'
+                krow[col] = v
+            krow['elo_diff'] = t1.get('elo', 1000) - t2.get('elo', 1000)
+
+            kdf = pd.DataFrame([krow])
+
+            # Win probability: average LOSO models, then spline calibration
+            dtest = xgb.DMatrix(kdf.reindex(columns=KAGGLE_FEATURES, fill_value=0).values)
+            all_margins = np.array([KAGGLE_MODELS[s].predict(dtest) for s in sorted(KAGGLE_MODELS.keys())])
+            avg_margin = float(all_margins.mean())
+            win_prob_k = float(np.clip(KAGGLE_SPLINE(np.clip([avg_margin], -KAGGLE_T, KAGGLE_T)), 0.01, 0.99)[0])
+            pred_winner_k = top_name if win_prob_k >= 0.5 else bot_name
+            display_prob_k = float(round(win_prob_k if win_prob_k >= 0.5 else 1 - win_prob_k, 3))
+
+            X_kr = kdf.reindex(columns=KAGGLE_SPREAD.feature_names_in_, fill_value=0)
+            spread_k = round(float(KAGGLE_SPREAD.predict(X_kr)[0]), 1)
+            total_k  = round(float(KAGGLE_TOTAL.predict(X_kr)[0]), 1)
+            if pred_winner_k == bot_name:
+                spread_k = -spread_k
+
+            results['kaggle'] = {'predWinner': pred_winner_k, 'winProb': display_prob_k,
+                                 'spread': abs(spread_k), 'total': total_k}
+        except Exception as e:
+            print(f"  Kaggle error: {e}")
+            results['kaggle'] = None
 
     return results
 
@@ -325,35 +538,25 @@ output = {}
 print("\n=== MEN'S BRACKET ===")
 for (gid, top, tseed, bot, bseed, region) in MEN_GAMES:
     print(f"{gid}: {top}({tseed}) vs {bot}({bseed})")
-    preds = predict_game(men_name_map, ss_m_2026, M, top, tseed, bot, bseed)
-    entry = {
-        'wTeam': top, 'lTeam': bot,
-        'wSeed': tseed, 'lSeed': bseed,
-        'region': region,
-        'seeded': preds.get('seeded'),
-        'noSeed': preds.get('noSeed'),
-    }
-    if entry['seeded']:
-        print(f"  Seeded: {entry['seeded']}")
-    if entry['noSeed']:
-        print(f"  NoSeed: {entry['noSeed']}")
+    preds = predict_game(
+        men_name_map, ss_m_2026, M, top, tseed, bot, bseed,
+        pr_models=PR_M, pr_feat_cols=PR_M_FEAT_COLS, game_id=gid,
+        kaggle_feats=KF_M, men_women=1,
+    )
+    entry = {'wTeam': top, 'lTeam': bot, 'wSeed': tseed, 'lSeed': bseed, 'region': region}
+    entry.update(preds)
     output[gid] = entry
 
 print("\n=== WOMEN'S BRACKET ===")
 for (gid, top, tseed, bot, bseed, region) in WOMEN_GAMES:
     print(f"{gid}: {top}({tseed}) vs {bot}({bseed})")
-    preds = predict_game(women_name_map, ss_w_2026, W, top, tseed, bot, bseed)
-    entry = {
-        'wTeam': top, 'lTeam': bot,
-        'wSeed': tseed, 'lSeed': bseed,
-        'region': region,
-        'seeded': preds.get('seeded'),
-        'noSeed': preds.get('noSeed'),
-    }
-    if entry['seeded']:
-        print(f"  Seeded: {entry['seeded']}")
-    if entry['noSeed']:
-        print(f"  NoSeed: {entry['noSeed']}")
+    preds = predict_game(
+        women_name_map, ss_w_2026, W, top, tseed, bot, bseed,
+        pr_models=PR_W, pr_feat_cols=PR_W_FEAT_COLS, game_id=gid,
+        kaggle_feats=KF_W, men_women=0,
+    )
+    entry = {'wTeam': top, 'lTeam': bot, 'wSeed': tseed, 'lSeed': bseed, 'region': region}
+    entry.update(preds)
     output[gid] = entry
 
 with open(OUT_FILE, 'w') as f:

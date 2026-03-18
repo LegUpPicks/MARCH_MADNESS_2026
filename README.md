@@ -6,16 +6,17 @@ A machine learning pipeline for predicting NCAA March Madness tournament outcome
 
 ## Overview
 
-This project uses XGBoost models trained on 40+ years of NCAA game data to predict tournament game outcomes. It produces win probabilities for all possible team matchups and simulates the full bracket round-by-round.
+This project uses XGBoost models trained on 40+ years of NCAA game data to predict tournament game outcomes. It produces win probabilities, point spreads, and totals for all possible team matchups and simulates the full bracket round-by-round.
 
-Two bracket simulation approaches are implemented:
-- **With seeds** — uses a per-round Snowflake ML model trained on round-specific historical data
-- **No-seed** — uses a single model without seed information, run via Snowflake ML
+Four model pipelines are implemented and evaluated:
+- **With Seeds** — XGBoost classifier + regressors, 164 features including seed information
+- **No Seeds** — Same architecture with seed features removed; quantifies seed impact (~10 pp)
+- **Per-Round** — 18 models (win/spread/total × 6 rounds), trained on round-specific historical data
+- **Kaggle** — LOSO XGBoost with ELO + GLM quality features, spline-calibrated win probabilities
 
-**2026 Results:**
-- Men's predicted champion (with seeds, per-round model): Iowa St (Seed 2)
-- Men's predicted champion (no-seed model): Connecticut (Seed 1)
-- Win prediction accuracy on 2024–2025 test data: **75.78%** (with seeds), **65.62%** (no-seed)
+**2026 Results (best model — Kaggle pipeline):**
+- Win prediction accuracy on 2024–2025 test data: **80.04%**
+- Spread MAE: **8.26 pts** (in-sample) · Total MAE: **10.79 pts** (in-sample)
 - Submission covers 132,133 matchup pairs
 
 ---
@@ -37,6 +38,12 @@ MARCH_MADNESS_2026/
 ├── Notebooks (Women's pipeline)
 │   └── W2_train_2026.ipynb             # Women's model training (Snowflake ML)
 │
+├── model_evaluation.ipynb              # Evaluates all 4 pipelines on 2024–2025 test set
+│
+├── extract_all_predictions.py          # Generates modelPredictions.json for known 2026 games
+├── generate_all_matchups.py            # Pre-computes predictions for all possible 2026 pairings
+│                                       # → outputs allMatchupPredictions.json (~3 MB)
+│
 ├── bracket_no_seed_visualization.html  # Static HTML bracket visualization (no-seed)
 │
 ├── march-madness-tracker/              # React app — live bracket tracker
@@ -44,14 +51,17 @@ MARCH_MADNESS_2026/
 │   │   ├── App.jsx
 │   │   ├── components/
 │   │   │   ├── BracketView.jsx         # Visual bracket
-│   │   │   ├── PredictionsTable.jsx    # Predictions + live odds table
+│   │   │   ├── PredictionsTable.jsx    # All 4 model predictions + live DraftKings odds
+│   │   │   ├── ModelSummary.jsx        # Model performance metrics (bottom of page)
 │   │   │   ├── GameCard.jsx
 │   │   │   ├── SidePanel.jsx
-│   │   │   ├── TournamentView.jsx      # Root view, wires bracket + odds
+│   │   │   ├── TournamentView.jsx      # Root view, wires bracket + odds + predictions
 │   │   │   └── BetslipModal.jsx
 │   │   ├── data/
 │   │   │   ├── bracketData.js          # Static bracket structure
-│   │   │   └── modelPredictions.json   # Model win probabilities per matchup
+│   │   │   ├── modelPredictions.json   # Predictions keyed by game ID (known matchups)
+│   │   │   └── allMatchupPredictions.json  # Predictions for all possible 2026 pairings
+│   │   │                                   # keyed by "m:TeamA|TeamB" (alphabetical)
 │   │   ├── hooks/
 │   │   │   ├── useBracketState.js      # Bracket state management
 │   │   │   ├── useSelections.js        # User pick selections
@@ -82,12 +92,51 @@ MARCH_MADNESS_2026/
 │   ├── spread_model.joblib                 # Point spread regressor
 │   ├── spread_model_no_seed.joblib
 │   ├── total_model.joblib                  # Total score regressor
-│   └── total_model_no_seed.joblib
+│   ├── total_model_no_seed.joblib
+│   ├── round_models_M.joblib               # Per-round models (Men's): 18 models cached
+│   └── round_models_W.joblib               # Per-round models (Women's): 18 models cached
 │
 ├── submission_2026_combined.csv        # Combined M+W Kaggle submission
+├── model_evaluation.ipynb              # Full pipeline evaluation notebook
 ├── pyproject.toml
 └── uv.lock
 ```
+
+---
+
+## Model Performance Summary
+
+Test set: **2024 and 2025 tournament seasons** (134 unique games, augmented with W/L swap to 268).
+Full per-round breakdown: run `model_evaluation.ipynb`.
+
+| Pipeline | Win Accuracy | Spread MAE | Total MAE | Notes |
+|---|---|---|---|---|
+| **Kaggle** | **80.04%** | 8.26 pts † | 10.79 pts † | LOSO XGBoost + spline calibration, ELO + GLM quality (29 features) |
+| **With Seeds** | 73.51% | 10.07 pts | 14.16 pts | XGBClassifier + regressors, 164 features, seed info included |
+| **Per-Round** | 71.83% | 9.87 pts | 14.05 pts | 18 models: win/spread/total × 6 rounds; round-specific training |
+| **No Seeds** | 63.06% | 11.32 pts | 14.16 pts | Same as With Seeds but seed features removed; seeds worth ~10 pp |
+
+† Kaggle spread/total regressors were trained on all historical data including 2024–2025 — these figures are in-sample and optimistically biased.
+
+**Per-season breakdown:**
+
+| Season | With Seeds Win | No Seeds Win | Kaggle Win |
+|---|---|---|---|
+| 2024 | 70.15% | 57.46% | 77.24% |
+| 2025 | 76.87% | 68.66% | 82.84% |
+| **Overall** | **73.51%** | **63.06%** | **80.04%** |
+
+**Per-Round breakdown (win accuracy, 2024–2025 test set):**
+
+| Round | Games | Win Accuracy | Spread MAE | Total MAE |
+|---|---|---|---|---|
+| R64 | 64 | 77.34% | 9.78 pts | 12.19 pts |
+| R32 | 32 | 75.00% | 10.33 pts | 14.62 pts |
+| S16 | 16 | 59.38% | 9.47 pts | 19.27 pts |
+| E8 | 4 | 75.00% | 8.99 pts | 16.23 pts |
+| FF | 4 | 25.00% | 7.00 pts | 13.78 pts |
+| Champ | 6 | 58.33% | 11.87 pts | 15.72 pts |
+| **Overall** | **126** | **71.83%** | **9.87 pts** | **14.05 pts** |
 
 ---
 
@@ -114,21 +163,13 @@ Trains XGBoost models on historical tournament data (2010–2023).
 - Hyperparameters tuned via GridSearchCV (5-fold CV)
 - Test set is 2024–2025 tournament games
 
-**Model performance (Men's, with seeds):**
-
-| Model | Metric | Value |
-|---|---|---|
-| Win classifier | Accuracy | 75.78% |
-| Spread model | MAE | 10.41 pts |
-| Total score model | MAE | 12.82 pts |
-
 ### Step 3 — Score Models (`3_scores_2026.ipynb`)
 
 Trains dedicated regression models focused on score prediction accuracy.
 
 ### Step 4 — No-Seed Model (`4_no_seed_2026.ipynb`)
 
-Trains the same architecture but excludes seed information from features. Accuracy drops to **65.62%**, showing seeds account for ~10 percentage points of predictive power.
+Trains the same architecture but excludes seed information from features. Accuracy drops to **63.06%**, showing seeds account for ~10 percentage points of predictive power.
 
 ### Step 5 — Bracket Simulation (Snowflake ML)
 
@@ -154,10 +195,15 @@ A Vite + React 18 app for tracking the tournament in real time alongside model p
 
 **Features:**
 - Visual bracket for both Men's and Women's tournaments (tab switcher)
-- Displays model win probabilities from `modelPredictions.json` round-by-round, auto-revealed as matchups are determined
 - Fetches live game results and odds from the **ESPN public API** — covers today + next 6 days, across all tournament rounds
 - Auto-fills winners for completed games based on ESPN final scores
-- Shows moneyline, spread, and total (over/under) for each upcoming game
+- **Predictions table** showing all 4 model pipelines side-by-side (With Seeds, No Seeds, Per-Round, Kaggle) for the current round — win pick + win probability, predicted spread, and predicted total
+  - Predictions are looked up dynamically from `allMatchupPredictions.json` by team names + round, so any matchup determined by live bracket progression is instantly covered
+  - Per-Round predictions use the round-specific model (R64 through Championship)
+  - Column headers show each model's test-set accuracy (Win Acc / Spd MAE / Total MAE)
+- **Live DraftKings odds** shown alongside model predictions — moneyline, spread, and over/under
+- **Betslip builder** — check any games to generate a printable betslip comparing model picks to DK lines
+- **Model Summary** at the bottom of the page with full pipeline accuracy table and per-round breakdown
 
 **Running the app:**
 
@@ -191,6 +237,15 @@ uv run jupyter lab
 ```
 
 Run notebooks in order: **1 → 2 → 3 → 4** for the local Men's pipeline.
+
+To regenerate predictions for the React app (required after any model update):
+
+```bash
+# Pre-compute predictions for all possible 2026 tournament team pairings
+python generate_all_matchups.py
+# Outputs: march-madness-tracker/src/data/allMatchupPredictions.json
+# Also caches per-round models to model/round_models_M.joblib and model/round_models_W.joblib
+```
 
 The bracket simulation notebooks (`submission_bracket_rounds.ipynb`, `submission_bracket_no_seeds.ipynb`) require an active **Snowflake** connection and data pre-loaded into Snowflake tables (`MEN.FINAL_FEATURES`, `MEN.FINAL_SEASON_STATS`, etc.).
 

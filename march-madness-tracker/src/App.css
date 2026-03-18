@@ -1297,3 +1297,131 @@ body {
   transition: background 0.12s;
 }
 .betslip-pdf-btn:hover { background: #b8860b; }
+
+/* ── Per-Round & Kaggle model column highlight ──────────────── */
+.pt-col-model-highlight {
+  color: var(--gold) !important;
+}
+
+/* ── Accuracy badge in column headers ───────────────────────── */
+.pt-acc {
+  display: block;
+  font-size: 0.72em;
+  font-weight: 400;
+  opacity: 0.75;
+  letter-spacing: 0;
+}
+
+/* ── Model Summary Section ─────────────────────────────────── */
+.model-summary-section {
+  margin: 32px 16px 24px;
+  padding: 20px 24px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.ms-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+.ms-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.ms-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  margin: 18px 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ms-table-wrap {
+  overflow-x: auto;
+}
+
+.ms-table {
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 520px;
+}
+
+.ms-table th {
+  padding: 6px 14px;
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+.ms-table td {
+  padding: 7px 14px;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.ms-table tr:last-child td { border-bottom: none; }
+
+.ms-row-best td { background: rgba(210,153,34,0.06); }
+
+.ms-row-total td {
+  font-weight: 600;
+  border-top: 2px solid var(--border);
+  background: var(--surface2);
+}
+
+.ms-table-compact td,
+.ms-table-compact th {
+  padding: 5px 14px;
+}
+
+.ms-pipeline {
+  font-weight: 600;
+  color: var(--text);
+  min-width: 100px;
+}
+
+.ms-metric {
+  text-align: right;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ms-small {
+  color: var(--text-muted);
+}
+
+.ms-acc-badge {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.ms-desc {
+  color: var(--text-muted);
+  font-size: 11px;
+  min-width: 240px;
+}
+
+.ms-sup {
+  color: var(--text-muted);
+  font-size: 9px;
+  margin-left: 1px;
+}
+
+.ms-footnote {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 10px 0 0;
+  font-style: italic;
+}

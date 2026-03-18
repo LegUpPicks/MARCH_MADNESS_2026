@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import modelPredictions from '../data/modelPredictions.json';
+import allMatchupPredictions from '../data/allMatchupPredictions.json';
 import BetslipModal from './BetslipModal';
 
 const ROUND_ORDER = ['playin', 'r64', 'r32', 's16', 'e8', 'ff', 'championship'];
@@ -7,6 +7,7 @@ const ROUND_LABELS = {
   playin: 'Play-In', r64: 'Round of 64', r32: 'Round of 32',
   s16: 'Sweet 16', e8: 'Elite 8', ff: 'Final Four', championship: 'Championship',
 };
+const ROUND_INT = { playin: 0, r64: 1, r32: 2, s16: 3, e8: 4, ff: 5, championship: 6 };
 
 function abbr(name) {
   if (!name) return '?';
@@ -20,6 +21,25 @@ function WinBadge({ team, prob }) {
       <span className="pt-name">{team}</span>
       <span className="pt-prob">{pct}%</span>
     </span>
+  );
+}
+
+function ModelCells({ pred }) {
+  if (!pred) return <td colSpan={3} className="pt-na">—</td>;
+  return (
+    <>
+      <td className="pt-pick"><WinBadge team={pred.predWinner} prob={pred.winProb} /></td>
+      <td className="pt-spread">
+        {pred.spread != null && pred.predWinner
+          ? <div className="odds-line spread-neg">{abbr(pred.predWinner)}: -{Math.abs(pred.spread).toFixed(1)}</div>
+          : '—'}
+      </td>
+      <td className="pt-total">
+        {pred.total != null
+          ? <div className="odds-line">{pred.total.toFixed(1)}</div>
+          : '—'}
+      </td>
+    </>
   );
 }
 
@@ -70,7 +90,7 @@ function LiveOddsCells({ oddsData, topName, botName }) {
   );
 }
 
-export default function PredictionsTable({ games, predictedRounds, resolveTeams, oddsMap, oddsLoading, oddsError, onRefreshOdds }) {
+export default function PredictionsTable({ games, predictedRounds, resolveTeams, oddsMap, oddsLoading, oddsError, onRefreshOdds, gender }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [showBetslip, setShowBetslip] = useState(false);
 
@@ -84,11 +104,25 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
   const roundGames = games.filter((g) => g.round === displayRound);
   if (!roundGames.length) return null;
 
+  const prefix = gender === 'womens' ? 'w' : 'm';
+  const roundIdx = ROUND_INT[displayRound] ?? 1;
+
   const rows = roundGames.map((g) => {
-    const mp = modelPredictions[g.id];
     const { topTeam, botTeam } = resolveTeams(g);
-    return { game: g, mp, topTeam, botTeam };
-  }).filter((r) => r.mp);
+    const topName = topTeam?.name ?? null;
+    const botName = botTeam?.name ?? null;
+    if (!topName || !botName) return null;
+    const [a, b] = [topName, botName].sort();
+    const entry = allMatchupPredictions[`${prefix}:${a}|${b}`];
+    if (!entry) return null;
+    const mp = {
+      seeded:   entry.seeded   ?? null,
+      noSeed:   entry.noSeed   ?? null,
+      perRound: entry.perRound?.[String(roundIdx)] ?? null,
+      kaggle:   entry.kaggle   ?? null,
+    };
+    return { game: g, mp, topName, botName };
+  }).filter(Boolean);
 
   if (!rows.length) return null;
 
@@ -104,10 +138,10 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
 
   const betslipItems = rows
     .filter(({ game }) => selectedIds.has(game.id))
-    .map(({ game, topTeam, botTeam, mp }) => ({
+    .map(({ game, topName, botName, mp }) => ({
       id:        game.id,
-      topName:   topTeam?.name ?? mp.wTeam,
-      botName:   botTeam?.name ?? mp.lTeam,
+      topName,
+      botName,
       oddsData:  oddsMap?.[game.id]?.dk ?? null,
       modelData: { seeded: mp.seeded ?? null, noSeed: mp.noSeed ?? null },
     }));
@@ -120,7 +154,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
           <span className="predictions-table-title">
             {ROUND_LABELS[displayRound]} — Model Predictions &amp; Live Odds
           </span>
-          <span className="predictions-table-subtitle">Seeded Model vs No-Seed Model</span>
+          <span className="predictions-table-subtitle">Test set 2024–2025 · Win Acc / Spread MAE / Total MAE</span>
         </div>
         <div className="predictions-table-actions">
           <button
@@ -149,30 +183,31 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
             <tr>
               <th className="pt-col-check" rowSpan={2}></th>
               <th className="pt-col-matchup" rowSpan={2}>Matchup</th>
-              <th className="pt-col-model" colSpan={3}>With Seeds</th>
+              <th className="pt-col-model" colSpan={3}>With Seeds <span className="pt-acc">Win Acc 73.5% · Spd MAE 10.1 · Total MAE 14.2</span></th>
               <th className="pt-col-divider" rowSpan={2}></th>
-              <th className="pt-col-model" colSpan={3}>No Seeds</th>
+              <th className="pt-col-model" colSpan={3}>No Seeds <span className="pt-acc">Win Acc 63.1% · Spd MAE 11.3 · Total MAE 14.2</span></th>
+              <th className="pt-col-divider" rowSpan={2}></th>
+              <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Per-Round <span className="pt-acc">Win Acc 71.8% · Spd MAE 9.9 · Total MAE 14.1</span></th>
+              <th className="pt-col-divider" rowSpan={2}></th>
+              <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Kaggle <span className="pt-acc">Win Acc 80.0% · Spd MAE 8.3† · Total MAE 10.8†</span></th>
               <th className="pt-col-divider-wide" rowSpan={2}></th>
               <th className="pt-col-book" colSpan={3}>DraftKings</th>
             </tr>
             <tr className="pt-subheader">
               <th>Pick</th><th>Spread</th><th>O/U</th>
               <th>Pick</th><th>Spread</th><th>O/U</th>
+              <th>Pick</th><th>Spread</th><th>O/U</th>
+              <th>Pick</th><th>Spread</th><th>O/U</th>
               <th>ML</th><th>Spread</th><th>O/U</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ game, mp, topTeam, botTeam }) => {
-              const s  = mp.seeded;
-              const ns = mp.noSeed;
-              const topName  = topTeam?.name ?? mp.wTeam;
-              const botName  = botTeam?.name ?? mp.lTeam;
-              const agree    = s && ns && s.predWinner === ns.predWinner;
+            {rows.map(({ game, mp, topName, botName }) => {
               const gameOdds = oddsMap?.[game.id]?.dk ?? null;
               const checked  = selectedIds.has(game.id);
 
               return (
-                <tr key={game.id} className={`${agree ? 'pt-row' : 'pt-row pt-row-disagree'}${checked ? ' pt-row-checked' : ''}`}>
+                <tr key={game.id} className={`pt-row${checked ? ' pt-row-checked' : ''}`}>
                   <td className="pt-check">
                     <input
                       type="checkbox"
@@ -187,53 +222,13 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
                     <span className="pt-team">{botName}</span>
                     {game.region && <span className="pt-region">{game.region}</span>}
                   </td>
-                  {s ? (
-                    <>
-                      <td className="pt-pick"><WinBadge team={s.predWinner} prob={s.winProb} /></td>
-                      <td className="pt-spread">
-                        {s.spread !== null && s.predWinner
-                          ? <>
-                              <div className="odds-line spread-neg">{abbr(s.predWinner)}: -{Math.abs(s.spread).toFixed(1)}</div>
-                              {gameOdds?.spread?.[s.predWinner]?.odds && <div className="odds-line odds-juice">({gameOdds.spread[s.predWinner].odds})</div>}
-                            </>
-                          : '—'}
-                      </td>
-                      <td className="pt-total">
-                        {s.total !== null
-                          ? <>
-                              <div className="odds-line">{s.total.toFixed(1)}</div>
-                              {gameOdds?.total && (
-                                <div className="odds-line odds-juice">o{gameOdds.total.overOdds ?? '—'} u{gameOdds.total.underOdds ?? '—'}</div>
-                              )}
-                            </>
-                          : '—'}
-                      </td>
-                    </>
-                  ) : <td colSpan={3} className="pt-na">—</td>}
+                  <ModelCells pred={mp.seeded} />
                   <td className="pt-col-divider"></td>
-                  {ns ? (
-                    <>
-                      <td className="pt-pick"><WinBadge team={ns.predWinner} prob={ns.winProb} /></td>
-                      <td className="pt-spread">
-                        {ns.spread !== null && ns.predWinner
-                          ? <>
-                              <div className="odds-line spread-neg">{abbr(ns.predWinner)}: -{Math.abs(ns.spread).toFixed(1)}</div>
-                              {gameOdds?.spread?.[ns.predWinner]?.odds && <div className="odds-line odds-juice">({gameOdds.spread[ns.predWinner].odds})</div>}
-                            </>
-                          : '—'}
-                      </td>
-                      <td className="pt-total">
-                        {ns.total !== null
-                          ? <>
-                              <div className="odds-line">{ns.total.toFixed(1)}</div>
-                              {gameOdds?.total && (
-                                <div className="odds-line odds-juice">o{gameOdds.total.overOdds ?? '—'} u{gameOdds.total.underOdds ?? '—'}</div>
-                              )}
-                            </>
-                          : '—'}
-                      </td>
-                    </>
-                  ) : <td colSpan={3} className="pt-na">—</td>}
+                  <ModelCells pred={mp.noSeed} />
+                  <td className="pt-col-divider"></td>
+                  <ModelCells pred={mp.perRound} />
+                  <td className="pt-col-divider"></td>
+                  <ModelCells pred={mp.kaggle} />
                   <td className="pt-col-divider-wide"></td>
                   <LiveOddsCells oddsData={gameOdds} topName={topName} botName={botName} />
                 </tr>

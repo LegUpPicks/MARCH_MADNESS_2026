@@ -3,6 +3,7 @@ import { useBracketState } from '../hooks/useBracketState';
 import { useSportsbookOdds } from '../hooks/useSportsbookOdds';
 import BracketView from './BracketView';
 import PredictionsTable from './PredictionsTable';
+import ModelSummary from './ModelSummary';
 
 export default function TournamentView({ gender }) {
   const state = useBracketState(gender);
@@ -42,8 +43,10 @@ export default function TournamentView({ gender }) {
           oddsLoading={oddsLoading}
           oddsError={oddsError}
           onRefreshOdds={refreshOdds}
+          gender={gender}
         />
       </div>
+      <ModelSummary />
     </div>
   );
 }
