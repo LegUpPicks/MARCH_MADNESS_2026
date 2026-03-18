@@ -101,7 +101,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
   }
   if (!displayRound) return null;
 
-  const roundGames = games.filter((g) => g.round === displayRound && !(confirmedGames?.has(g.id)));
+  const roundGames = games.filter((g) => g.round === displayRound);
   if (!roundGames.length) return null;
 
   const prefix = gender === 'womens' ? 'w' : 'm';
