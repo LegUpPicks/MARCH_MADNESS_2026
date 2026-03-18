@@ -68,15 +68,17 @@ def train_models(train_df, feat_cols, balanced):
         X   = rt[feat_cols]
         y   = rt["WIN_INDICATOR"]
         spw = 1.0
+        sample_w = None
         if balanced:
             seed_diff = rt["W_SEED"] - rt["L_SEED"]
             n_upsets  = ((seed_diff >= UPSET_SEED_DIFF) & (y == 1)).sum()
             n_non     = len(rt) - n_upsets
             spw = round(n_non / n_upsets, 2) if n_upsets > 0 else 1.0
+            sample_w  = np.where((seed_diff >= UPSET_SEED_DIFF) & (y == 1), spw, 1.0)
         round_models[r] = {
             "win":    XGBClassifier(scale_pos_weight=spw, **WIN_P).fit(X, y),
-            "spread": XGBRegressor(**REG_P).fit(X, rt["W_SCORE"] - rt["L_SCORE"]),
-            "total":  XGBRegressor(**REG_P).fit(X, rt["W_SCORE"] + rt["L_SCORE"]),
+            "spread": XGBRegressor(**REG_P).fit(X, rt["W_SCORE"] - rt["L_SCORE"], sample_weight=sample_w),
+            "total":  XGBRegressor(**REG_P).fit(X, rt["W_SCORE"] + rt["L_SCORE"],  sample_weight=sample_w),
         }
     return round_models
 

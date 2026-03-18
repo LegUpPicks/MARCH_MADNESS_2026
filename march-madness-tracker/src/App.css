@@ -1425,3 +1425,242 @@ body {
   margin: 10px 0 0;
   font-style: italic;
 }
+
+/* ============================================================
+   Bracket Builder Toolbar
+   ============================================================ */
+.builder-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.builder-toggle-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.builder-toggle-btn:hover { background: var(--card-hover); }
+.builder-toggle-btn.builder-mode-active {
+  background: #1f3a5f;
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.builder-print-btn,
+.builder-clear-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.builder-print-btn:hover { background: var(--card-hover); }
+.builder-clear-btn { border-color: #3d1f1f; color: var(--red); }
+.builder-clear-btn:hover { background: #2a1010; }
+
+/* ============================================================
+   Game Card — Builder Mode
+   ============================================================ */
+.game-card-pickable {
+  cursor: pointer;
+  outline: 1px solid transparent;
+  transition: outline-color 0.15s, background 0.15s;
+}
+.game-card-pickable:hover {
+  outline-color: var(--blue);
+  background: #1a2433;
+}
+
+/* ============================================================
+   Bracket Picker Modal
+   ============================================================ */
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.picker-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 420px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.picker-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.picker-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+.picker-close-btn:hover { color: var(--text); background: var(--surface2); }
+
+.picker-teams {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px;
+}
+
+.picker-team-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.picker-team-btn:hover { border-color: var(--blue); background: #1a2433; }
+.picker-team-btn.picker-team-staged {
+  border-color: var(--blue);
+  background: #1f3a5f;
+}
+.picker-team-btn.picker-team-model-pick {
+  border-color: var(--gold);
+}
+.picker-team-btn.picker-team-staged.picker-team-model-pick {
+  border-color: var(--blue);
+}
+
+.picker-seed {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 16px;
+}
+.picker-name { flex: 1; text-align: left; }
+.picker-model-star { color: var(--gold); font-size: 14px; }
+
+.picker-preds {
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.picker-preds-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.picker-pred-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 12px;
+  transition: background 0.1s;
+}
+.picker-pred-row.picker-pred-primary {
+  background: var(--surface2);
+  border-color: var(--border);
+  order: -1;
+}
+.picker-pred-row.picker-pred-agrees { border-color: var(--green); }
+.picker-pred-row.picker-pred-disagrees { border-color: var(--red); opacity: 0.75; }
+
+.picker-pred-label {
+  flex: 1;
+  color: var(--text-muted);
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.picker-pred-acc {
+  color: var(--text-muted);
+  font-size: 10px;
+  opacity: 0.7;
+}
+.picker-pred-winner { font-weight: 700; color: var(--text); }
+.picker-pred-pct { color: var(--blue); min-width: 36px; text-align: right; }
+.picker-pred-spread { color: var(--text-muted); font-size: 11px; }
+.picker-pred-total { color: var(--text-muted); font-size: 11px; }
+
+.picker-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.picker-cancel-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+.picker-cancel-btn:hover { color: var(--text); background: var(--card-hover); }
+
+.picker-confirm-btn {
+  flex: 2;
+  padding: 8px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--blue);
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.picker-confirm-btn:disabled {
+  background: var(--surface2);
+  color: var(--text-muted);
+  cursor: default;
+}
+.picker-confirm-btn:not(:disabled):hover { opacity: 0.85; }
+
+/* Print styles are injected dynamically by TournamentView.handlePrint
+   so that zoom can be computed from the live bracket width. */

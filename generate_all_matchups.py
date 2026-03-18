@@ -59,7 +59,7 @@ KAGGLE_FEATURES = [
 ]
 
 # ═══════════════════════════════════════════════════════════════
-# PER-ROUND MODELS — unbalanced and balanced, all data (2003–2025)
+# PER-ROUND MODELS — unbalanced and balanced, all data (2010–2025)
 # ═══════════════════════════════════════════════════════════════
 NON_FEATURE_COLS = {'SEASON','WIN_INDICATOR','L_TEAMID','W_TEAMID','W_SCORE','L_SCORE','ROUND','L_REGION','W_REGION'}
 DROP_COLS = ['W_CTWINS','W_AVERAGECTSCORE','L_CTWINS','L_AVERAGECTSCORE',
@@ -82,8 +82,9 @@ def _load_and_augment(csv_path):
     return train, feat_cols
 
 def train_unbalanced_rounds(csv_path, label):
-    print(f"  Training unbalanced_rounds ({label}, all seasons 2003–2025)...")
+    print(f"  Training unbalanced_rounds ({label}, seasons 2010–2025)...")
     train, feat_cols = _load_and_augment(csv_path)
+    train = train[train.SEASON >= 2010].copy()
     WIN_P = dict(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, eval_metric='logloss')
     REG_P = dict(learning_rate=0.1, max_depth=3, min_child_weight=2, n_estimators=100, eval_metric='rmse')
     round_models = {}
@@ -100,8 +101,9 @@ def train_unbalanced_rounds(csv_path, label):
     return round_models, feat_cols
 
 def train_balanced_rounds(csv_path, label):
-    print(f"  Training balanced_rounds ({label}, scale_pos_weight per round, all seasons 2003–2025)...")
+    print(f"  Training balanced_rounds ({label}, scale_pos_weight per round, seasons 2010–2025)...")
     train, feat_cols = _load_and_augment(csv_path)
+    train = train[train.SEASON >= 2010].copy()
     WIN_P = dict(learning_rate=0.1, max_depth=4, min_child_weight=4, n_estimators=100, eval_metric='logloss')
     REG_P = dict(learning_rate=0.1, max_depth=3, min_child_weight=2, n_estimators=100, eval_metric='rmse')
     round_models = {}
@@ -114,10 +116,11 @@ def train_balanced_rounds(csv_path, label):
         n_upsets = ((seed_diff >= UPSET_SEED_DIFF) & (y_win == 1)).sum()
         n_non = len(rt) - n_upsets
         spw = round(n_non / n_upsets, 2) if n_upsets > 0 else 1.0
+        sample_w = np.where((seed_diff >= UPSET_SEED_DIFF) & (y_win == 1), spw, 1.0)
         round_models[r] = {
             'win':    XGBClassifier(scale_pos_weight=spw, **WIN_P).fit(X, y_win),
-            'spread': XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] - rt['L_SCORE']),
-            'total':  XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] + rt['L_SCORE']),
+            'spread': XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] - rt['L_SCORE'], sample_weight=sample_w),
+            'total':  XGBRegressor(**REG_P).fit(X, rt['W_SCORE'] + rt['L_SCORE'],  sample_weight=sample_w),
         }
         print(f"    Round {r}: {len(rt)//2} games | scale_pos_weight={spw}")
     return round_models, feat_cols

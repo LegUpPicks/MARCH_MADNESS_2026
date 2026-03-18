@@ -1,6 +1,31 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { mensGames, womensGames, FEEDS_INTO, FEEDS_FROM } from '../data/bracketData';
 
+// Recursively resolve the actual current team that won a given game,
+// following promotions all the way down the chain rather than trusting
+// static topTeam/botTeam names (which only match the original predictions).
+function resolveActualTeam(gameId, slot, gameById, selections) {
+  const fromId = FEEDS_FROM[gameId]?.[slot];
+  if (!fromId) return null;
+  const fromGame = gameById[fromId];
+  if (!fromGame) return null;
+  const winner = selections[fromId];
+  if (!winner) return null;
+
+  let topTeam, botTeam;
+  if (fromGame.round === 'playin' || fromGame.round === 'r64') {
+    topTeam = fromGame.topTeam;
+    botTeam = fromGame.botTeam;
+  } else {
+    topTeam = resolveActualTeam(fromId, 'top', gameById, selections);
+    botTeam = resolveActualTeam(fromId, 'bot', gameById, selections);
+  }
+
+  if (winner === topTeam?.name) return topTeam;
+  if (winner === botTeam?.name) return botTeam;
+  return null;
+}
+
 export const ROUND_ORDER = ['playin', 'r64', 'r32', 's16', 'e8', 'ff', 'championship'];
 
 export const ROUND_LABELS = {
@@ -86,17 +111,7 @@ export function useBracketState(gender) {
   }, [selections, predictedRounds, storageKey]);
 
   const getPromotedTeam = useCallback(
-    (gameId, slot) => {
-      const fromId = FEEDS_FROM[gameId]?.[slot];
-      if (!fromId) return null;
-      const fromGame = gameById[fromId];
-      if (!fromGame) return null;
-      const winner = selections[fromId];
-      if (!winner) return null;
-      if (winner === fromGame.topTeam?.name) return fromGame.topTeam;
-      if (winner === fromGame.botTeam?.name) return fromGame.botTeam;
-      return null;
-    },
+    (gameId, slot) => resolveActualTeam(gameId, slot, gameById, selections),
     [gameById, selections]
   );
 

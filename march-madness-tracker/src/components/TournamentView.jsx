@@ -1,13 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useBracketState } from '../hooks/useBracketState';
 import { useSportsbookOdds } from '../hooks/useSportsbookOdds';
 import BracketView from './BracketView';
 import PredictionsTable from './PredictionsTable';
 import ModelSummary from './ModelSummary';
+import BracketPickerModal from './BracketPickerModal';
 
 export default function TournamentView({ gender }) {
   const state = useBracketState(gender);
   const { oddsMap, loading: oddsLoading, error: oddsError, refresh: refreshOdds } = useSportsbookOdds(state.games, gender);
+
+  const [builderMode, setBuilderMode]       = useState(false);
+  const [confirmedGames, setConfirmedGames] = useState(new Set());
+  const [activeGame, setActiveGame]         = useState(null); // { game, topTeam, botTeam }
 
   // Auto-fill winners for completed games from ESPN results
   useEffect(() => {
@@ -26,14 +31,89 @@ export default function TournamentView({ gender }) {
     }
   }, [state.nextPredictableRound, state.predictRound]);
 
+  const handleGameClick = useCallback((game) => {
+    if (!builderMode) return;
+    const { topTeam, botTeam } = state.resolveTeams(game);
+    if (!topTeam || !botTeam) return;
+    setActiveGame({ game, topTeam, botTeam });
+  }, [builderMode, state]);
+
+  const handleConfirm = useCallback((teamName) => {
+    if (!activeGame) return;
+    state.setWinner(activeGame.game.id, teamName);
+    setConfirmedGames(prev => new Set([...prev, activeGame.game.id]));
+    setActiveGame(null);
+  }, [activeGame, state]);
+
+  const handleClear = useCallback(() => {
+    state.clearAll();
+    setConfirmedGames(new Set());
+  }, [state]);
+
+  const handlePrint = useCallback(() => {
+    const bracket = document.querySelector('.bracket-view');
+
+    // Compute scale to fit bracket width into a landscape letter page
+    // (11in × 8.5in at 96 dpi = 1056 × 816px; ~0.5in margins each side → ~960px usable)
+    const printableWidth = 960;
+    const naturalWidth = bracket ? bracket.scrollWidth : printableWidth;
+    const scale = Math.min(1, printableWidth / naturalWidth).toFixed(4);
+
+    const styleEl = document.createElement('style');
+    styleEl.id = '__bracket_print_style__';
+    styleEl.textContent = `
+      @page { size: landscape; margin: 0.4in; }
+      @media print {
+        html, body, #root,
+        .app, .app-main, .tournament-view, .bracket-container {
+          overflow: visible !important;
+          height: auto !important;
+          width: auto !important;
+        }
+        .bracket-view { zoom: ${scale}; }
+        .builder-toolbar, .predictions-table-section,
+        .model-summary-section, .app-header, .tab-bar { display: none !important; }
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    window.addEventListener('afterprint', () => {
+      document.getElementById('__bracket_print_style__')?.remove();
+    }, { once: true });
+
+    window.print();
+  }, []);
+
   return (
     <div className="tournament-view">
+
+      <div className="builder-toolbar">
+        <button
+          className={`builder-toggle-btn${builderMode ? ' builder-mode-active' : ''}`}
+          onClick={() => setBuilderMode(m => !m)}
+        >
+          ✏ Bracket Builder{builderMode ? ': ON' : ''}
+        </button>
+        {builderMode && (
+          <>
+            <button className="builder-print-btn" onClick={handlePrint}>
+              Print Bracket
+            </button>
+            <button className="builder-clear-btn" onClick={handleClear}>
+              Clear Bracket
+            </button>
+          </>
+        )}
+      </div>
+
       <div className="bracket-container">
         <BracketView
           games={state.games}
           selections={state.selections}
           predictedRounds={state.predictedRounds}
           resolveTeams={state.resolveTeams}
+          builderMode={builderMode}
+          onGameClick={handleGameClick}
         />
         <PredictionsTable
           games={state.games}
@@ -44,9 +124,22 @@ export default function TournamentView({ gender }) {
           oddsError={oddsError}
           onRefreshOdds={refreshOdds}
           gender={gender}
+          confirmedGames={confirmedGames}
         />
       </div>
+
       <ModelSummary />
+
+      {activeGame && (
+        <BracketPickerModal
+          game={activeGame.game}
+          topTeam={activeGame.topTeam}
+          botTeam={activeGame.botTeam}
+          gender={gender}
+          onConfirm={handleConfirm}
+          onClose={() => setActiveGame(null)}
+        />
+      )}
     </div>
   );
 }

@@ -90,7 +90,7 @@ function LiveOddsCells({ oddsData, topName, botName }) {
   );
 }
 
-export default function PredictionsTable({ games, predictedRounds, resolveTeams, oddsMap, oddsLoading, oddsError, onRefreshOdds, gender }) {
+export default function PredictionsTable({ games, predictedRounds, resolveTeams, oddsMap, oddsLoading, oddsError, onRefreshOdds, gender, confirmedGames }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [showBetslip, setShowBetslip] = useState(false);
 
@@ -101,7 +101,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
   }
   if (!displayRound) return null;
 
-  const roundGames = games.filter((g) => g.round === displayRound);
+  const roundGames = games.filter((g) => g.round === displayRound && !(confirmedGames?.has(g.id)));
   if (!roundGames.length) return null;
 
   const prefix = gender === 'womens' ? 'w' : 'm';
@@ -188,9 +188,9 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               <th className="pt-col-divider" rowSpan={2}></th>
               <th className="pt-col-model" colSpan={3}>No Seeds <span className="pt-acc">Win Acc 63.1% · Spd MAE 11.3 · Total MAE 14.2</span></th>
               <th className="pt-col-divider" rowSpan={2}></th>
-              <th className="pt-col-model" colSpan={3}>Unbalanced Rounds <span className="pt-acc">Win Acc 99.7% · Spd MAE 2.4 · Total MAE 2.8</span></th>
+              <th className="pt-col-model" colSpan={3}>Unbalanced Rounds <span className="pt-acc">Win Acc 76.9% · Spd MAE 10.2 · Total MAE 14.6</span></th>
               <th className="pt-col-divider" rowSpan={2}></th>
-              <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Balanced Rounds <span className="pt-acc">Win Acc 81.2% · Spd MAE 9.9 · Total MAE 15.6</span></th>
+              <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Balanced Rounds <span className="pt-acc">Win Acc 96.3% · Spd MAE 11.7 · Total MAE 14.3</span></th>
               <th className="pt-col-divider" rowSpan={2}></th>
               <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Kaggle <span className="pt-acc">Win Acc 80.0% · Spd MAE 8.3† · Total MAE 10.8†</span></th>
               <th className="pt-col-divider-wide" rowSpan={2}></th>

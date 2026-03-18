@@ -13,8 +13,9 @@ function confFromPred(prediction) {
   return 'low';
 }
 
-export default function GameCard({ game, topTeam, botTeam, prediction, selection }) {
+export default function GameCard({ game, topTeam, botTeam, prediction, selection, builderMode, onClick }) {
   const isDisabled = !topTeam || !botTeam;
+  const isPickable = builderMode && !isDisabled;
 
   const predictedWinner = prediction?.winner ?? null;
   const hasSelection = !!selection;
@@ -81,7 +82,10 @@ export default function GameCard({ game, topTeam, botTeam, prediction, selection
   }
 
   return (
-    <div className={`game-card${isDisabled ? ' game-card-tbd' : ''}`}>
+    <div
+      className={`game-card${isDisabled ? ' game-card-tbd' : ''}${isPickable ? ' game-card-pickable' : ''}`}
+      onClick={isPickable ? onClick : undefined}
+    >
       <div className="game-card-inner">
         {renderTeamRow(topTeam, true)}
         <div className="game-meta">
