@@ -5,45 +5,49 @@ function abbr(name) {
   return name.replace(/\s+/g, '').slice(0, 3).toUpperCase();
 }
 
+const BMS_MODELS = [
+  { key: 'balanced_rounds',   label: 'Balanced',    primary: true },
+  { key: 'unbalanced_rounds', label: 'Unbalanced' },
+  { key: 'seeded',            label: 'With Seeds' },
+  { key: 'noSeed',            label: 'No Seeds' },
+  { key: 'kaggle',            label: 'Kaggle' },
+];
+
 function ModelSummary({ modelData, betType, pick }) {
   if (!modelData) return null;
-  const { seeded, noSeed } = modelData;
 
-  function mlLine(m) {
+  const rows = BMS_MODELS.map(({ key, label, primary }) => {
+    const m = modelData[key];
     if (!m) return null;
-    const pct = Math.round(m.winProb * 100);
-    return `${m.predWinner} ${pct}%`;
-  }
-  function spreadLine(m, pickTeam) {
-    if (!m || m.spread == null) return null;
-    // spread is from the predicted winner's perspective (negative = fav)
-    const favSign = m.predWinner === pickTeam ? '-' : '+';
-    return `${abbr(pickTeam)}: ${favSign}${Math.abs(m.spread).toFixed(1)}`;
-  }
-  function totalLine(m) {
-    if (!m || m.total == null) return null;
-    return `o/u ${m.total.toFixed(1)}`;
-  }
 
-  let s = null, ns = null;
-  if (betType === 'ml') {
-    s  = mlLine(seeded);
-    ns = mlLine(noSeed);
-  } else if (betType === 'spread') {
-    s  = spreadLine(seeded,  pick);
-    ns = spreadLine(noSeed,  pick);
-  } else {
-    s  = totalLine(seeded);
-    ns = totalLine(noSeed);
-  }
+    let value = null;
+    if (betType === 'ml') {
+      const pct = Math.round((m.winProb ?? 0) * 100);
+      value = `${m.predWinner}  ${pct}%`;
+    } else if (betType === 'spread') {
+      if (m.spread == null) return null;
+      const sign = m.predWinner === pick ? '-' : '+';
+      value = `${abbr(pick)} ${sign}${Math.abs(m.spread).toFixed(1)}`;
+    } else {
+      if (m.total == null) return null;
+      value = `o/u ${m.total.toFixed(1)}`;
+    }
 
-  if (!s && !ns) return null;
+    return { label, primary: !!primary, value, winner: m.predWinner };
+  }).filter(Boolean);
+
+  if (!rows.length) return null;
 
   return (
     <div className="betslip-model-summary">
-      <span className="bms-label">Model</span>
-      {s  && <span className="bms-val"><span className="bms-tag">S</span>{s}</span>}
-      {ns && <span className="bms-val"><span className="bms-tag">NS</span>{ns}</span>}
+      <div className="bms-header">Model Predictions</div>
+      {rows.map(({ label, primary, value, winner }) => (
+        <div key={label} className={`bms-row${primary ? ' bms-row-primary' : ''}`}>
+          <span className="bms-tag">{label}</span>
+          <span className="bms-winner">{winner}</span>
+          <span className="bms-val">{value}</span>
+        </div>
+      ))}
     </div>
   );
 }

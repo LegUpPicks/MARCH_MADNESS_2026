@@ -1110,6 +1110,68 @@ body {
 .pt-checkbox { cursor: pointer; width: 14px; height: 14px; accent-color: var(--gold); }
 .pt-row-checked { background: rgba(210, 153, 34, 0.07); }
 
+.value-bets-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(63, 185, 80, 0.35);
+  background: rgba(63, 185, 80, 0.06);
+  user-select: none;
+  white-space: nowrap;
+}
+.value-bets-toggle input { accent-color: var(--green); cursor: pointer; }
+.value-bets-toggle:hover { background: rgba(63, 185, 80, 0.12); }
+
+.pt-row-value {
+  background: rgba(63, 185, 80, 0.06) !important;
+  border-left: 3px solid var(--green) !important;
+}
+.pt-row-value.pt-row-checked {
+  background: rgba(63, 185, 80, 0.12) !important;
+}
+
+.pt-value-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.pt-value-star {
+  color: var(--green);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.pt-value-bet {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+}
+.pt-value-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.pt-value-types {
+  display: flex;
+  gap: 3px;
+}
+.pt-value-type {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(63, 185, 80, 0.15);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+  border-radius: 3px;
+  padding: 1px 4px;
+  letter-spacing: 0.03em;
+}
+
 /* ── Betslip modal ──────────────────────────────────────────── */
 .betslip-overlay {
   position: fixed;
@@ -1225,38 +1287,52 @@ body {
 
 /* ── Model summary inside betslip item ──────────────────────── */
 .betslip-model-summary {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 5px;
   border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
-.bms-label {
+.bms-header {
   font-size: 10px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
 }
-.bms-val {
+.bms-row {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text);
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 11.5px;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+}
+.bms-row:last-child { border-bottom: none; }
+.bms-row-primary {
+  background: rgba(88,166,255,0.06);
 }
 .bms-tag {
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--gold);
-  background: rgba(210, 153, 34, 0.15);
-  border-radius: 3px;
-  padding: 1px 4px;
-  letter-spacing: 0.3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 84px;
+  flex-shrink: 0;
+}
+.bms-row-primary .bms-tag { color: var(--blue); }
+.bms-winner {
+  flex: 1;
+  color: var(--text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bms-val {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .betslip-odds-row {
@@ -1310,6 +1386,40 @@ body {
   font-weight: 400;
   opacity: 0.75;
   letter-spacing: 0;
+}
+
+.pt-model-tip {
+  position: relative;
+  cursor: help;
+  display: inline-block;
+}
+
+.pt-model-tip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  background: #1c2128;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 11px;
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--text-muted);
+  white-space: normal;
+  text-align: left;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 200;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+.pt-model-tip:hover::after {
+  opacity: 1;
 }
 
 /* ── Model Summary Section ─────────────────────────────────── */
@@ -1661,6 +1771,64 @@ body {
   cursor: default;
 }
 .picker-confirm-btn:not(:disabled):hover { opacity: 0.85; }
+
+/* ============================================================
+   Model Guide Cards
+   ============================================================ */
+.mg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.mg-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--mg-accent, var(--blue));
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mg-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mg-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mg-acc {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mg-accent, var(--blue));
+  white-space: nowrap;
+}
+
+.mg-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mg-accent, var(--blue));
+  opacity: 0.85;
+}
+
+.mg-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
 
 /* Print styles are injected dynamically by TournamentView.handlePrint
    so that zoom can be computed from the live bracket width. */

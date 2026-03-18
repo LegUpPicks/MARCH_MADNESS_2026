@@ -2,12 +2,97 @@ import { useState } from 'react';
 import allMatchupPredictions from '../data/allMatchupPredictions.json';
 import BetslipModal from './BetslipModal';
 
+const MODEL_TOOLTIPS = {
+  seeded:            '164 features including seed numbers. One model covers all rounds. Seed rankings directly bias it toward lower-numbered seeds — most reliable for picking favorites. Trained on 2010–2025.',
+  noSeed:            'Same as With Seeds but seed info removed (162 features). Purely stats-driven — no seed bias. Lower overall accuracy but can surface upsets where a higher seed has genuinely strong numbers. Trained on 2010–2025.',
+  unbalanced_rounds: '14 models — one per round per gender. Each trained only on games from that round, so it captures round-specific dynamics. No upset weighting; reflects the natural favorite-heavy outcome distribution. Trained on 2010–2025.',
+  balanced_rounds:   '14 per-round models with upset up-weighting: games where a team seeded 5+ spots lower wins get extra emphasis (scale_pos_weight + sample_weight). More aggressive upset picks. Best holdout win accuracy (96.3%). Trained on 2010–2025.',
+  kaggle:            '29-feature model using Elo ratings and GLM team quality scores. LOSO XGBoost with spline-calibrated win probabilities. Trained on 2010–2025 for predictions. Holdout eval (2010–2023 train / 2024–2025 test): win 80.0%, spread MAE 7.6, total MAE 13.6.',
+};
+
+function ModelTh({ label, accLine, tooltip, highlight }) {
+  return (
+    <th className={`pt-col-model${highlight ? ' pt-col-model-highlight' : ''}`} colSpan={3}>
+      <span className="pt-model-tip" data-tooltip={tooltip}>
+        {label} <span className="pt-acc">{accLine}</span>
+      </span>
+    </th>
+  );
+}
+
 const ROUND_ORDER = ['playin', 'r64', 'r32', 's16', 'e8', 'ff', 'championship'];
 const ROUND_LABELS = {
   playin: 'Play-In', r64: 'Round of 64', r32: 'Round of 32',
   s16: 'Sweet 16', e8: 'Elite 8', ff: 'Final Four', championship: 'Championship',
 };
 const ROUND_INT = { playin: 0, r64: 1, r32: 2, s16: 3, e8: 4, ff: 5, championship: 6 };
+
+// ── Value-bet detection ────────────────────────────────────────────────────
+const SPREAD_THRESH = 5;   // pts of divergence for a model to "vote"
+const TOTAL_THRESH  = 8;
+const MODEL_KEYS    = ['balanced_rounds', 'unbalanced_rounds', 'seeded', 'noSeed', 'kaggle'];
+
+function parseNum(val) {
+  const n = parseFloat(String(val ?? '').replace(/[^\d.\-+]/g, ''));
+  return isNaN(n) ? null : n;
+}
+
+function computeValueBet(mp, oddsData, topName, botName) {
+  const bookSpreadTop = parseNum(oddsData?.spread?.[topName]?.line);
+  const bookTotal     = parseNum(oddsData?.total?.line);
+  if (bookSpreadTop == null && bookTotal == null) return null;
+
+  // direction buckets: each entry is { cushion }
+  const votes = { top: [], bot: [], over: [], under: [] };
+
+  for (const key of MODEL_KEYS) {
+    const pred = mp[key];
+    if (!pred) continue;
+
+    if (bookSpreadTop != null && pred.spread != null && pred.predWinner) {
+      // express model spread as signed from topName's perspective (negative = top favored)
+      const modelSigned = pred.predWinner === topName
+        ? -Math.abs(pred.spread)
+        : +Math.abs(pred.spread);
+      const div = modelSigned - bookSpreadTop;
+      if (div <= -SPREAD_THRESH) votes.top.push({ cushion: Math.abs(div) });
+      else if (div >= SPREAD_THRESH) votes.bot.push({ cushion: Math.abs(div) });
+    }
+
+    if (bookTotal != null && pred.total != null) {
+      const div = pred.total - bookTotal;
+      if (div >= TOTAL_THRESH)  votes.over.push({ cushion: Math.abs(div) });
+      else if (div <= -TOTAL_THRESH) votes.under.push({ cushion: Math.abs(div) });
+    }
+  }
+
+  const candidates = [
+    { side: 'top',   label: topName, betLabel: `${topName} covers`, type: 'spread', votes: votes.top   },
+    { side: 'bot',   label: botName, betLabel: `${botName} covers`, type: 'spread', votes: votes.bot   },
+    { side: 'over',  label: 'Over',  betLabel: 'Over',              type: 'total',  votes: votes.over  },
+    { side: 'under', label: 'Under', betLabel: 'Under',             type: 'total',  votes: votes.under },
+  ]
+    .filter(c => c.votes.length >= 3)
+    .sort((a, b) =>
+      b.votes.length - a.votes.length ||
+      (b.votes.reduce((s, v) => s + v.cushion, 0) / b.votes.length) -
+      (a.votes.reduce((s, v) => s + v.cushion, 0) / a.votes.length)
+    );
+
+  if (!candidates.length) return null;
+
+  const best = candidates[0];
+  const avgCushion = best.votes.reduce((s, v) => s + v.cushion, 0) / best.votes.length;
+  const bookLine   = best.type === 'spread' ? bookSpreadTop : bookTotal;
+  return {
+    betLabel:   best.betLabel,
+    count:      best.votes.length,
+    avgCushion: avgCushion.toFixed(1),
+    bookLine,
+    type:       best.type,
+  };
+}
+// ──────────────────────────────────────────────────────────────────────────
 
 function abbr(name) {
   if (!name) return '?';
@@ -93,6 +178,7 @@ function LiveOddsCells({ oddsData, topName, botName }) {
 export default function PredictionsTable({ games, predictedRounds, resolveTeams, oddsMap, oddsLoading, oddsError, onRefreshOdds, gender, confirmedGames }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [showBetslip, setShowBetslip] = useState(false);
+  const [valueBetsOnly, setValueBetsOnly] = useState(false);
 
   let displayRound = null;
   for (let i = ROUND_ORDER.length - 1; i >= 0; i--) {
@@ -122,10 +208,24 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
       balanced_rounds:   entry.balanced_rounds?.[String(roundIdx)]   ?? null,
       kaggle:           entry.kaggle              ?? null,
     };
-    return { game: g, mp, topName, botName };
+    const oddsData = oddsMap?.[g.id]?.dk ?? null;
+    const valueBet = computeValueBet(mp, oddsData, topName, botName);
+    return { game: g, mp, topName, botName, valueBet };
   }).filter(Boolean);
 
   if (!rows.length) return null;
+
+  // Float value bets to top, sorted by vote count then avg cushion
+  rows.sort((a, b) => {
+    const av = a.valueBet, bv = b.valueBet;
+    if (av && !bv) return -1;
+    if (!av && bv) return 1;
+    if (av && bv) {
+      if (bv.count !== av.count) return bv.count - av.count;
+      return parseFloat(bv.avgCushion) - parseFloat(av.avgCushion);
+    }
+    return 0;
+  });
 
   const hasAnyOdds = Object.keys(oddsMap ?? {}).length > 0;
 
@@ -144,7 +244,13 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
       topName,
       botName,
       oddsData:  oddsMap?.[game.id]?.dk ?? null,
-      modelData: { seeded: mp.seeded ?? null, noSeed: mp.noSeed ?? null },
+      modelData: {
+      seeded:            mp.seeded            ?? null,
+      noSeed:            mp.noSeed            ?? null,
+      unbalanced_rounds: mp.unbalanced_rounds ?? null,
+      balanced_rounds:   mp.balanced_rounds   ?? null,
+      kaggle:            mp.kaggle            ?? null,
+    },
     }));
 
   return (
@@ -165,6 +271,16 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
           >
             Create Betslip {selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
           </button>
+          <label className="value-bets-toggle">
+            <input
+              type="checkbox"
+              checked={valueBetsOnly}
+              onChange={e => setValueBetsOnly(e.target.checked)}
+            />
+            Value bets only {valueBetsOnly && rows.filter(r => r.valueBet).length > 0
+              ? `(${rows.filter(r => r.valueBet).length})`
+              : ''}
+          </label>
           <button
             className={`odds-refresh-btn${oddsLoading ? ' odds-refresh-loading' : ''}`}
             onClick={onRefreshOdds}
@@ -184,15 +300,15 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
             <tr>
               <th className="pt-col-check" rowSpan={2}></th>
               <th className="pt-col-matchup" rowSpan={2}>Matchup</th>
-              <th className="pt-col-model" colSpan={3}>With Seeds <span className="pt-acc">Win Acc 73.5% · Spd MAE 10.1 · Total MAE 14.2</span></th>
+              <ModelTh label="With Seeds"        accLine="Win Acc 73.5% · Spd MAE 10.1 · Total MAE 14.2"  tooltip={MODEL_TOOLTIPS.seeded} />
               <th className="pt-col-divider" rowSpan={2}></th>
-              <th className="pt-col-model" colSpan={3}>No Seeds <span className="pt-acc">Win Acc 63.1% · Spd MAE 11.3 · Total MAE 14.2</span></th>
+              <ModelTh label="No Seeds"           accLine="Win Acc 63.1% · Spd MAE 11.3 · Total MAE 14.2"  tooltip={MODEL_TOOLTIPS.noSeed} />
               <th className="pt-col-divider" rowSpan={2}></th>
-              <th className="pt-col-model" colSpan={3}>Unbalanced Rounds <span className="pt-acc">Win Acc 76.9% · Spd MAE 10.2 · Total MAE 14.6</span></th>
+              <ModelTh label="Unbalanced Rounds"  accLine="Win Acc 76.9% · Spd MAE 10.2 · Total MAE 14.6"  tooltip={MODEL_TOOLTIPS.unbalanced_rounds} />
               <th className="pt-col-divider" rowSpan={2}></th>
-              <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Balanced Rounds <span className="pt-acc">Win Acc 96.3% · Spd MAE 11.7 · Total MAE 14.3</span></th>
+              <ModelTh label="Balanced Rounds"    accLine="Win Acc 96.3% · Spd MAE 11.7 · Total MAE 14.3"  tooltip={MODEL_TOOLTIPS.balanced_rounds} highlight />
               <th className="pt-col-divider" rowSpan={2}></th>
-              <th className="pt-col-model pt-col-model-highlight" colSpan={3}>Kaggle <span className="pt-acc">Win Acc 80.0% · Spd MAE 8.3† · Total MAE 10.8†</span></th>
+              <ModelTh label="Kaggle"             accLine="Win Acc 80.0% · Spd MAE 7.6 · Total MAE 13.6"   tooltip={MODEL_TOOLTIPS.kaggle} highlight />
               <th className="pt-col-divider-wide" rowSpan={2}></th>
               <th className="pt-col-book" colSpan={3}>DraftKings</th>
             </tr>
@@ -206,12 +322,40 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ game, mp, topName, botName }) => {
+            {(valueBetsOnly ? rows.filter(r => r.valueBet) : rows).map(({ game, mp, topName, botName, valueBet }) => {
               const gameOdds = oddsMap?.[game.id]?.dk ?? null;
               const checked  = selectedIds.has(game.id);
 
+              // Collect all qualifying bet types for this game (spread + total may both qualify)
+              const allVotes = { top: [], bot: [], over: [], under: [] };
+              if (gameOdds) {
+                const bst = parseNum(gameOdds?.spread?.[topName]?.line);
+                const btt = parseNum(gameOdds?.total?.line);
+                for (const key of MODEL_KEYS) {
+                  const pred = mp[key];
+                  if (!pred) continue;
+                  if (bst != null && pred.spread != null && pred.predWinner) {
+                    const ms = pred.predWinner === topName ? -Math.abs(pred.spread) : +Math.abs(pred.spread);
+                    const d  = ms - bst;
+                    if (d <= -SPREAD_THRESH) allVotes.top.push(1);
+                    else if (d >= SPREAD_THRESH) allVotes.bot.push(1);
+                  }
+                  if (btt != null && pred.total != null) {
+                    const d = pred.total - btt;
+                    if (d >= TOTAL_THRESH) allVotes.over.push(1);
+                    else if (d <= -TOTAL_THRESH) allVotes.under.push(1);
+                  }
+                }
+              }
+              const hasSpreadBet = allVotes.top.length >= 3 || allVotes.bot.length >= 3;
+              const hasTotalBet  = allVotes.over.length >= 3 || allVotes.under.length >= 3;
+
               return (
-                <tr key={game.id} className={`pt-row${checked ? ' pt-row-checked' : ''}`}>
+                <tr key={game.id} className={[
+                  'pt-row',
+                  checked   ? 'pt-row-checked' : '',
+                  valueBet  ? 'pt-row-value'   : '',
+                ].filter(Boolean).join(' ')}>
                   <td className="pt-check">
                     <input
                       type="checkbox"
@@ -225,6 +369,17 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
                     <span className="pt-vs"> vs </span>
                     <span className="pt-team">{botName}</span>
                     {game.region && <span className="pt-region">{game.region}</span>}
+                    {valueBet && (
+                      <div className="pt-value-badge">
+                        <span className="pt-value-star">★</span>
+                        <span className="pt-value-bet">{valueBet.betLabel}</span>
+                        <span className="pt-value-meta">{valueBet.count}/5 · +{valueBet.avgCushion} pts</span>
+                        <span className="pt-value-types">
+                          {hasSpreadBet && <span className="pt-value-type">SPR</span>}
+                          {hasTotalBet  && <span className="pt-value-type">TOT</span>}
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <ModelCells pred={mp.seeded} />
                   <td className="pt-col-divider"></td>
