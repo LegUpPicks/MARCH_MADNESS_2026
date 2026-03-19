@@ -237,48 +237,63 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
   }
   if (!displayRound) return null;
 
-  const roundGames = games.filter((g) => g.round === displayRound);
-  if (!roundGames.length) return null;
-
   const prefix = gender === 'womens' ? 'w' : 'm';
-  const roundIdx = ROUND_INT[displayRound] ?? 1;
 
-  const rows = roundGames.map((g) => {
-    const { topTeam, botTeam } = resolveTeams(g);
-    const topName = topTeam?.name?.replace(/\*$/, '') ?? null;
-    const botName = botTeam?.name?.replace(/\*$/, '') ?? null;
-    if (!topName || !botName) return null;
-    const [a, b] = [topName, botName].sort();
-    const entry = allMatchupPredictions[`${prefix}:${a}|${b}`];
-    if (!entry) return null;
-    const mp = {
-      seeded:           entry.seeded              ?? null,
-      noSeed:           entry.noSeed              ?? null,
-      unbalanced_rounds: entry.unbalanced_rounds?.[String(roundIdx)] ?? null,
-      balanced_rounds:   entry.balanced_rounds?.[String(roundIdx)]   ?? null,
-      kaggle:           entry.kaggle              ?? null,
-    };
-    const oddsData = oddsMap?.[g.id]?.dk ?? null;
-    mp.ensemble     = computeEnsemble(mp, topName);
-    const valueBet      = computeValueBet(mp, oddsData, topName, botName);
-    const favoriteCover = computeFavoriteCover(mp, oddsData, topName, botName);
-    const consensusTeam = getConsensusDisagreement(mp);
-    return { game: g, mp, topName, botName, valueBet, favoriteCover, consensusTeam };
-  }).filter(Boolean);
+  // Build rows for a given round (roundIdx needed for per-round models)
+  function buildRows(round) {
+    const idx = ROUND_INT[round] ?? 1;
+    return games
+      .filter(g => g.round === round)
+      .map(g => {
+        const { topTeam, botTeam } = resolveTeams(g);
+        const topName = topTeam?.name?.replace(/\*$/, '') ?? null;
+        const botName = botTeam?.name?.replace(/\*$/, '') ?? null;
+        if (!topName || !botName) return null;
+        const [a, b] = [topName, botName].sort();
+        const entry = allMatchupPredictions[`${prefix}:${a}|${b}`];
+        if (!entry) return null;
+        const mp = {
+          seeded:            entry.seeded                             ?? null,
+          noSeed:            entry.noSeed                            ?? null,
+          unbalanced_rounds: entry.unbalanced_rounds?.[String(idx)]  ?? null,
+          balanced_rounds:   entry.balanced_rounds?.[String(idx)]    ?? null,
+          kaggle:            entry.kaggle                            ?? null,
+        };
+        const oddsData = oddsMap?.[g.id]?.dk ?? null;
+        mp.ensemble     = computeEnsemble(mp, topName);
+        const valueBet      = computeValueBet(mp, oddsData, topName, botName);
+        const favoriteCover = computeFavoriteCover(mp, oddsData, topName, botName);
+        const consensusTeam = getConsensusDisagreement(mp);
+        return { game: g, round, mp, topName, botName, valueBet, favoriteCover, consensusTeam };
+      })
+      .filter(Boolean);
+  }
 
-  if (!rows.length) return null;
+  // Current round rows (full list for main table body)
+  const currentRows = buildRows(displayRound);
+  if (!currentRows.length) return null;
 
-  // Float value bets to top, sorted by vote count then avg cushion
-  rows.sort((a, b) => {
-    const av = a.valueBet, bv = b.valueBet;
-    if (av && !bv) return -1;
-    if (!av && bv) return 1;
-    if (av && bv) {
-      if (bv.count !== av.count) return bv.count - av.count;
-      return parseFloat(bv.avgCushion) - parseFloat(av.avgCushion);
-    }
-    return 0;
-  });
+  // Value bets from ALL predicted rounds (deduplicated by game id)
+  const allPredictedRounds = ROUND_ORDER.filter(r => predictedRounds.has(r) && r !== 'playin');
+  const seenIds = new Set();
+  const allValueBets = allPredictedRounds
+    .flatMap(r => r === displayRound ? currentRows : buildRows(r))
+    .filter(row => {
+      if (!row.valueBet || seenIds.has(row.game.id)) return false;
+      seenIds.add(row.game.id);
+      return true;
+    })
+    .sort((a, b) => {
+      if (b.valueBet.count !== a.valueBet.count) return b.valueBet.count - a.valueBet.count;
+      return parseFloat(b.valueBet.avgCushion) - parseFloat(a.valueBet.avgCushion);
+    });
+
+  // Current round rows without value bets (they appear above already)
+  const valueBetIds = new Set(allValueBets.map(r => r.game.id));
+  const rows = [
+    ...allValueBets,
+    ...currentRows.filter(r => !valueBetIds.has(r.game.id)),
+  ];
 
   const hasAnyOdds = Object.keys(oddsMap ?? {}).length > 0;
 
@@ -454,6 +469,9 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
                       )}
                     </span>
                     {game.region && <span className="pt-region">{game.region}</span>}
+                    {round !== displayRound && (
+                      <span className="pt-round-badge">{ROUND_LABELS[round] ?? round}</span>
+                    )}
                     {valueBet && (
                       <div className="pt-value-badge">
                         <span className="pt-value-star">★</span>
