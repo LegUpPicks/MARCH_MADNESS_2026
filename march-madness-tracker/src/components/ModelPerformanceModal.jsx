@@ -6,7 +6,25 @@ const MODEL_KEYS = [
   { key: 'kaggle',            label: 'Kaggle' },
   { key: 'seeded',            label: 'With Seeds' },
   { key: 'noSeed',            label: 'No Seeds' },
+  { key: 'ensemble',          label: 'Ensemble' },
 ];
+
+function computeEnsemble(mp, topName) {
+  const keys = ['balanced_rounds', 'unbalanced_rounds', 'seeded', 'noSeed', 'kaggle'];
+  const preds = keys.map(k => mp[k]).filter(Boolean);
+  if (!preds.length) return null;
+  const tally = {};
+  preds.forEach(p => { if (p.predWinner) tally[p.predWinner] = (tally[p.predWinner] || 0) + 1; });
+  const predWinner = Object.entries(tally).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const probParts = preds.filter(p => p.winProb != null && p.predWinner);
+  const winProb = probParts.length
+    ? probParts.reduce((s, p) => s + (p.predWinner === predWinner ? p.winProb : 1 - p.winProb), 0) / probParts.length
+    : null;
+  const spreads = preds.map(p => p.spread).filter(v => v != null);
+  const totals  = preds.map(p => p.total).filter(v => v != null);
+  const avg = arr => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null;
+  return { predWinner, winProb, spread: avg(spreads), total: avg(totals) };
+}
 
 const ROUND_INT = { playin: 0, r64: 1, r32: 2, s16: 3, e8: 4, ff: 5, championship: 6 };
 const ROUND_LABELS = {
@@ -42,6 +60,8 @@ export default function ModelPerformanceModal({ games, oddsMap, gender, onClose 
         balanced_rounds:   entry?.balanced_rounds?.[String(roundIdx)]   ?? null,
         kaggle:            entry?.kaggle                             ?? null,
       };
+
+      mp.ensemble = computeEnsemble(mp, topName);
 
       return {
         topName,

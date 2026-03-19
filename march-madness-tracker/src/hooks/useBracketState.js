@@ -175,13 +175,10 @@ export function useBracketState(gender) {
 
   const setWinner = useCallback((gameId, teamName) => {
     setSelections((prev) => {
-      if (prev[gameId] === teamName) {
-        const next = { ...prev };
-        delete next[gameId];
-        return cascadeClear(gameId, next);
-      }
-      const next = { ...prev, [gameId]: teamName };
-      return cascadeClear(gameId, next);
+      if (prev[gameId] === teamName) return prev; // already set — no-op
+      const next = cascadeClear(gameId, { ...prev });
+      next[gameId] = teamName;
+      return next;
     });
   }, []);
 

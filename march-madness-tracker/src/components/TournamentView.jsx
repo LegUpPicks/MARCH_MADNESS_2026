@@ -175,6 +175,7 @@ export default function TournamentView({ gender }) {
           game={activeGame.game}
           topTeam={activeGame.topTeam}
           botTeam={activeGame.botTeam}
+          currentSelection={state.selections[activeGame.game.id] ?? null}
           gender={gender}
           onConfirm={handleConfirm}
           onClose={() => setActiveGame(null)}

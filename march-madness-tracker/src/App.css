@@ -879,7 +879,7 @@ body {
 }
 
 .predictions-table th {
-  padding: 6px 10px;
+  padding: 5px 6px;
   text-align: left;
   color: var(--text-muted);
   font-weight: 600;
@@ -889,14 +889,14 @@ body {
 }
 
 .pt-subheader th {
-  padding: 4px 10px;
+  padding: 3px 6px;
   font-size: 10px;
   border-bottom: 2px solid var(--border);
   background: var(--surface2);
 }
 
 .predictions-table td {
-  padding: 7px 10px;
+  padding: 6px 6px;
   border-bottom: 1px solid rgba(48, 54, 61, 0.5);
   vertical-align: middle;
   white-space: nowrap;
@@ -932,7 +932,7 @@ body {
 
 .pt-matchup {
   color: var(--text);
-  min-width: 200px;
+  min-width: 160px;
 }
 
 .pt-team {
@@ -955,7 +955,7 @@ body {
 }
 
 .pt-pick {
-  min-width: 120px;
+  min-width: 90px;
 }
 
 .pt-winner {
@@ -980,7 +980,7 @@ body {
 
 .pt-spread {
   font-weight: 600;
-  min-width: 55px;
+  min-width: 44px;
 }
 
 .spread-pos {
@@ -993,8 +993,22 @@ body {
 
 .pt-total {
   color: var(--text-muted);
-  min-width: 50px;
+  min-width: 40px;
 }
+
+/* ── Ensemble row in betslip model summary ───────────────────── */
+.bms-row-ensemble {
+  background: rgba(188, 140, 255, 0.06);
+  border-top: 1px solid rgba(188, 140, 255, 0.2);
+}
+.bms-row-ensemble .bms-tag { color: var(--purple); }
+
+/* ── Ensemble row in picker ──────────────────────────────────── */
+.picker-pred-ensemble {
+  border-top: 1px solid rgba(188, 140, 255, 0.2);
+  background: rgba(188, 140, 255, 0.06);
+}
+.picker-pred-ensemble .picker-pred-label { color: var(--purple); }
 
 .pt-na {
   color: var(--text-muted);

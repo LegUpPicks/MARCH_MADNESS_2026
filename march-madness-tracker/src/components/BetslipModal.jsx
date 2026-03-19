@@ -11,6 +11,7 @@ const BMS_MODELS = [
   { key: 'seeded',            label: 'With Seeds' },
   { key: 'noSeed',            label: 'No Seeds' },
   { key: 'kaggle',            label: 'Kaggle' },
+  { key: 'ensemble',          label: 'Ensemble',    ensemble: true },
 ];
 
 // ── Value-bet detection (mirrors PredictionsTable) ─────────────────────────
@@ -89,11 +90,14 @@ function ValueBetInsight({ vb }) {
   );
 }
 
-function ModelSummary({ modelData, betType, pick }) {
+function ModelSummary({ modelData, betType, pick, topName }) {
   if (!modelData) return null;
 
-  const rows = BMS_MODELS.map(({ key, label, primary }) => {
-    const m = modelData[key];
+  // Inject ensemble into modelData for display
+  const dataWithEnsemble = { ...modelData, ensemble: computeEnsemble(modelData, topName) };
+
+  const rows = BMS_MODELS.map(({ key, label, primary, ensemble: isEnsemble }) => {
+    const m = dataWithEnsemble[key];
     if (!m) return null;
 
     let value = null;
@@ -109,7 +113,7 @@ function ModelSummary({ modelData, betType, pick }) {
       value = `o/u ${m.total.toFixed(1)}`;
     }
 
-    return { label, primary: !!primary, value, winner: m.predWinner };
+    return { label, primary: !!primary, ensemble: !!isEnsemble, value, winner: m.predWinner };
   }).filter(Boolean);
 
   if (!rows.length) return null;
@@ -117,8 +121,8 @@ function ModelSummary({ modelData, betType, pick }) {
   return (
     <div className="betslip-model-summary">
       <div className="bms-header">Model Predictions</div>
-      {rows.map(({ label, primary, value, winner }) => (
-        <div key={label} className={`bms-row${primary ? ' bms-row-primary' : ''}`}>
+      {rows.map(({ label, primary, ensemble, value, winner }) => (
+        <div key={label} className={`bms-row${primary ? ' bms-row-primary' : ''}${ensemble ? ' bms-row-ensemble' : ''}`}>
           <span className="bms-tag">{label}</span>
           <span className="bms-winner">{winner}</span>
           <span className="bms-val">{value}</span>
@@ -299,7 +303,7 @@ export default function BetslipModal({ items, onClose }) {
                   ))}
                 </div>
 
-                <ModelSummary modelData={modelData} betType={sel.betType} pick={sel.pick} />
+                <ModelSummary modelData={modelData} betType={sel.betType} pick={sel.pick} topName={topName} />
 
                 {sel.betType === 'spread' && (
                   <div className="betslip-odds-row">

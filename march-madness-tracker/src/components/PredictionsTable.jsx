@@ -93,6 +93,24 @@ function computeValueBet(mp, oddsData, topName, botName) {
     type:       best.type,
   };
 }
+// ── Ensemble: majority-vote winner, averaged prob/spread/total ─────────────
+function computeEnsemble(mp, topName) {
+  const keys = ['balanced_rounds', 'unbalanced_rounds', 'seeded', 'noSeed', 'kaggle'];
+  const preds = keys.map(k => mp[k]).filter(Boolean);
+  if (!preds.length) return null;
+  const tally = {};
+  preds.forEach(p => { if (p.predWinner) tally[p.predWinner] = (tally[p.predWinner] || 0) + 1; });
+  const predWinner = Object.entries(tally).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const probParts = preds.filter(p => p.winProb != null && p.predWinner);
+  const winProb = probParts.length
+    ? probParts.reduce((s, p) => s + (p.predWinner === predWinner ? p.winProb : 1 - p.winProb), 0) / probParts.length
+    : null;
+  const spreads = preds.map(p => p.spread).filter(v => v != null);
+  const totals  = preds.map(p => p.total).filter(v => v != null);
+  const avg = arr => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null;
+  return { predWinner, winProb, spread: avg(spreads), total: avg(totals) };
+}
+
 // ── Consensus disagreement: 4 models pick differently from balanced_rounds ─
 function getConsensusDisagreement(mp) {
   const balanced = mp.balanced_rounds?.predWinner;
@@ -241,6 +259,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
       kaggle:           entry.kaggle              ?? null,
     };
     const oddsData = oddsMap?.[g.id]?.dk ?? null;
+    mp.ensemble     = computeEnsemble(mp, topName);
     const valueBet      = computeValueBet(mp, oddsData, topName, botName);
     const favoriteCover = computeFavoriteCover(mp, oddsData, topName, botName);
     const consensusTeam = getConsensusDisagreement(mp);
@@ -359,10 +378,13 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               <ModelTh label="Balanced Rounds"    accLine="Win Acc 96.3% · Spd MAE 11.7 · Total MAE 14.3"  tooltip={MODEL_TOOLTIPS.balanced_rounds} highlight />
               <th className="pt-col-divider" rowSpan={2}></th>
               <ModelTh label="Kaggle"             accLine="Win Acc 80.0% · Spd MAE 7.6 · Total MAE 13.6"   tooltip={MODEL_TOOLTIPS.kaggle} highlight />
+              <th className="pt-col-divider" rowSpan={2}></th>
+              <ModelTh label="Ensemble" accLine="avg of all 5" tooltip="Simple average of win probability, spread, and total across all 5 models. Winner by majority vote." />
               <th className="pt-col-divider-wide" rowSpan={2}></th>
               <th className="pt-col-book" colSpan={3}>DraftKings</th>
             </tr>
             <tr className="pt-subheader">
+              <th>Pick</th><th>Spread</th><th>O/U</th>
               <th>Pick</th><th>Spread</th><th>O/U</th>
               <th>Pick</th><th>Spread</th><th>O/U</th>
               <th>Pick</th><th>Spread</th><th>O/U</th>
@@ -459,6 +481,8 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
                   <ModelCells pred={mp.balanced_rounds} />
                   <td className="pt-col-divider"></td>
                   <ModelCells pred={mp.kaggle} />
+                  <td className="pt-col-divider"></td>
+                  <ModelCells pred={mp.ensemble} />
                   <td className="pt-col-divider-wide"></td>
                   <LiveOddsCells oddsData={gameOdds} topName={topName} botName={botName} />
                 </tr>

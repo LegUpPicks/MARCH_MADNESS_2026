@@ -27,8 +27,8 @@ function getRecommendedWinner(predsArray) {
   return disagreers.every(p => p.pred.predWinner === consensusPick) ? consensusPick : balanced;
 }
 
-export default function BracketPickerModal({ game, topTeam, botTeam, gender, onConfirm, onClose }) {
-  const [staged, setStaged] = useState(null);
+export default function BracketPickerModal({ game, topTeam, botTeam, currentSelection, gender, onConfirm, onClose }) {
+  const [staged, setStaged] = useState(() => currentSelection ?? null);
 
   const prefix = gender === 'womens' ? 'w' : 'm';
   const roundIdx = ROUND_INT[game.round] ?? 1;
@@ -43,6 +43,23 @@ export default function BracketPickerModal({ game, topTeam, botTeam, gender, onC
   }).filter(p => p.pred != null);
 
   const recommendedWinner = getRecommendedWinner(predictions);
+
+  // Ensemble: majority-vote winner, averaged probs/spread/total
+  const ensemblePred = (() => {
+    const preds = predictions.filter(p => p.pred);
+    if (!preds.length) return null;
+    const tally = {};
+    preds.forEach(({ pred: p }) => { if (p.predWinner) tally[p.predWinner] = (tally[p.predWinner] || 0) + 1; });
+    const predWinner = Object.entries(tally).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+    const probParts = preds.filter(({ pred: p }) => p.winProb != null && p.predWinner);
+    const winProb = probParts.length
+      ? probParts.reduce((s, { pred: p }) => s + (p.predWinner === predWinner ? p.winProb : 1 - p.winProb), 0) / probParts.length
+      : null;
+    const spreads = preds.map(({ pred: p }) => p.spread).filter(v => v != null);
+    const totals  = preds.map(({ pred: p }) => p.total).filter(v => v != null);
+    const avg = arr => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null;
+    return { predWinner, winProb, spread: avg(spreads), total: avg(totals) };
+  })();
 
   function handleConfirm() {
     if (staged) { onConfirm(staged); }
@@ -110,6 +127,22 @@ export default function BracketPickerModal({ game, topTeam, botTeam, gender, onC
                 </div>
               );
             })}
+            {ensemblePred && (() => {
+              const agrees    = staged != null && ensemblePred.predWinner === staged;
+              const disagrees = staged != null && ensemblePred.predWinner !== staged;
+              const pct       = ensemblePred.winProb != null ? Math.round(ensemblePred.winProb * 100) : null;
+              const spread    = ensemblePred.spread != null ? Math.abs(ensemblePred.spread).toFixed(1) : null;
+              const total     = ensemblePred.total  != null ? ensemblePred.total.toFixed(1) : null;
+              return (
+                <div className={['picker-pred-row picker-pred-ensemble', agrees ? 'picker-pred-agrees' : '', disagrees ? 'picker-pred-disagrees' : ''].filter(Boolean).join(' ')}>
+                  <span className="picker-pred-label">Ensemble<span className="picker-pred-acc">avg</span></span>
+                  <span className="picker-pred-winner">{ensemblePred.predWinner}</span>
+                  {pct != null && <span className="picker-pred-pct">{pct}%</span>}
+                  {spread && <span className="picker-pred-spread">-{spread}</span>}
+                  {total  && <span className="picker-pred-total">o/u {total}</span>}
+                </div>
+              );
+            })()}
           </div>
         )}
 
