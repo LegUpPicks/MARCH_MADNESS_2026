@@ -93,6 +93,35 @@ function computeValueBet(mp, oddsData, topName, botName) {
     type:       best.type,
   };
 }
+// ── Consensus disagreement: 4 models pick differently from balanced_rounds ─
+function getConsensusDisagreement(mp) {
+  const balanced = mp.balanced_rounds?.predWinner;
+  if (!balanced) return null;
+  const otherKeys = ['seeded', 'noSeed', 'unbalanced_rounds', 'kaggle'];
+  const tally = {};
+  for (const k of otherKeys) {
+    const pick = mp[k]?.predWinner;
+    if (pick && pick !== balanced) tally[pick] = (tally[pick] || 0) + 1;
+  }
+  for (const [team, count] of Object.entries(tally)) {
+    if (count === 4) return team;
+  }
+  return null;
+}
+
+// ── Favorite cover: any model predicts book favorite covers the spread ─────
+function computeFavoriteCover(mp, oddsData, topName, botName) {
+  const topLine = parseNum(oddsData?.spread?.[topName]?.line);
+  if (topLine == null) return false;
+  const bookFavored = topLine < 0 ? topName : botName;
+  const bookMargin  = Math.abs(topLine);
+  for (const key of MODEL_KEYS) {
+    const pred = mp[key];
+    if (!pred?.predWinner || pred.spread == null) continue;
+    if (pred.predWinner === bookFavored && Math.abs(pred.spread) > bookMargin) return true;
+  }
+  return false;
+}
 // ──────────────────────────────────────────────────────────────────────────
 
 function abbr(name) {
@@ -181,6 +210,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
   const [showBetslip, setShowBetslip] = useState(false);
   const [showPerformance, setShowPerformance] = useState(false);
   const [valueBetsOnly, setValueBetsOnly] = useState(false);
+  const [favCoverOnly, setFavCoverOnly] = useState(false);
 
   let displayRound = null;
   for (let i = ROUND_ORDER.length - 1; i >= 0; i--) {
@@ -197,8 +227,8 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
 
   const rows = roundGames.map((g) => {
     const { topTeam, botTeam } = resolveTeams(g);
-    const topName = topTeam?.name ?? null;
-    const botName = botTeam?.name ?? null;
+    const topName = topTeam?.name?.replace(/\*$/, '') ?? null;
+    const botName = botTeam?.name?.replace(/\*$/, '') ?? null;
     if (!topName || !botName) return null;
     const [a, b] = [topName, botName].sort();
     const entry = allMatchupPredictions[`${prefix}:${a}|${b}`];
@@ -211,8 +241,10 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
       kaggle:           entry.kaggle              ?? null,
     };
     const oddsData = oddsMap?.[g.id]?.dk ?? null;
-    const valueBet = computeValueBet(mp, oddsData, topName, botName);
-    return { game: g, mp, topName, botName, valueBet };
+    const valueBet      = computeValueBet(mp, oddsData, topName, botName);
+    const favoriteCover = computeFavoriteCover(mp, oddsData, topName, botName);
+    const consensusTeam = getConsensusDisagreement(mp);
+    return { game: g, mp, topName, botName, valueBet, favoriteCover, consensusTeam };
   }).filter(Boolean);
 
   if (!rows.length) return null;
@@ -283,6 +315,16 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               ? `(${rows.filter(r => r.valueBet).length})`
               : ''}
           </label>
+          <label className="value-bets-toggle">
+            <input
+              type="checkbox"
+              checked={favCoverOnly}
+              onChange={e => setFavCoverOnly(e.target.checked)}
+            />
+            Favorite covers {favCoverOnly && rows.filter(r => r.favoriteCover).length > 0
+              ? `(${rows.filter(r => r.favoriteCover).length})`
+              : ''}
+          </label>
           <button
             className="odds-refresh-btn"
             onClick={() => setShowPerformance(true)}
@@ -330,7 +372,9 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
             </tr>
           </thead>
           <tbody>
-            {(valueBetsOnly ? rows.filter(r => r.valueBet) : rows).map(({ game, mp, topName, botName, valueBet }) => {
+            {rows
+              .filter(r => (!valueBetsOnly || r.valueBet) && (!favCoverOnly || r.favoriteCover))
+              .map(({ game, mp, topName, botName, valueBet, favoriteCover, consensusTeam }) => {
               const gameOdds = oddsMap?.[game.id]?.dk ?? null;
               const checked  = selectedIds.has(game.id);
 
@@ -361,8 +405,9 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               return (
                 <tr key={game.id} className={[
                   'pt-row',
-                  checked   ? 'pt-row-checked' : '',
-                  valueBet  ? 'pt-row-value'   : '',
+                  checked        ? 'pt-row-checked'   : '',
+                  valueBet       ? 'pt-row-value'      : '',
+                  favoriteCover  ? 'pt-row-fav-cover'  : '',
                 ].filter(Boolean).join(' ')}>
                   <td className="pt-check">
                     <input
@@ -373,9 +418,19 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
                     />
                   </td>
                   <td className="pt-matchup">
-                    <span className="pt-team">{topName}</span>
+                    <span className="pt-team">
+                      {topName}
+                      {consensusTeam === topName && (
+                        <span className="pt-consensus-star" title="4 models disagree with Balanced Rounds">⭐</span>
+                      )}
+                    </span>
                     <span className="pt-vs"> vs </span>
-                    <span className="pt-team">{botName}</span>
+                    <span className="pt-team">
+                      {botName}
+                      {consensusTeam === botName && (
+                        <span className="pt-consensus-star" title="4 models disagree with Balanced Rounds">⭐</span>
+                      )}
+                    </span>
                     {game.region && <span className="pt-region">{game.region}</span>}
                     {valueBet && (
                       <div className="pt-value-badge">
@@ -386,6 +441,12 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
                           {hasSpreadBet && <span className="pt-value-type">SPR</span>}
                           {hasTotalBet  && <span className="pt-value-type">TOT</span>}
                         </span>
+                      </div>
+                    )}
+                    {favoriteCover && (
+                      <div className="pt-fav-cover-badge">
+                        <span className="pt-fav-cover-icon">▼</span>
+                        <span>Fav covers</span>
                       </div>
                     )}
                   </td>

@@ -1136,6 +1136,36 @@ body {
   background: rgba(63, 185, 80, 0.12) !important;
 }
 
+/* ── Consensus disagreement star ─────────────────────────── */
+.pt-consensus-star {
+  margin-left: 3px;
+  font-size: 12px;
+  vertical-align: middle;
+  cursor: default;
+}
+
+/* ── Favorite cover row + badge ──────────────────────────── */
+.pt-row-fav-cover {
+  background: rgba(188, 140, 255, 0.05) !important;
+  border-left: 2px solid rgba(188, 140, 255, 0.4);
+}
+.pt-fav-cover-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.pt-fav-cover-icon { color: var(--purple); font-size: 10px; }
+.pt-fav-cover-badge span:last-child {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--purple);
+  background: rgba(188, 140, 255, 0.15);
+  border: 1px solid rgba(188, 140, 255, 0.3);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
 .pt-value-badge {
   display: flex;
   align-items: center;

@@ -1,6 +1,19 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { mensGames, womensGames, FEEDS_INTO, FEEDS_FROM } from '../data/bracketData';
 
+// For an R64 game with a playinSlot, resolve the play-in team (marked with *)
+// to the actual winner selected in the play-in game.
+function resolvePlayinTeamForSlot(r64Game, slotTeam, gameById, selections) {
+  if (!r64Game.playinSlot || !slotTeam?.name?.endsWith('*')) return slotTeam;
+  const playinGame = Object.values(gameById).find(
+    g => g.round === 'playin' && g.playinSlot === r64Game.playinSlot
+  );
+  if (!playinGame) return slotTeam;
+  const sel = selections[playinGame.id];
+  if (!sel) return slotTeam; // not picked yet — keep * placeholder
+  return sel === playinGame.topTeam.name ? playinGame.topTeam : playinGame.botTeam;
+}
+
 // Recursively resolve the actual current team that won a given game,
 // following promotions all the way down the chain rather than trusting
 // static topTeam/botTeam names (which only match the original predictions).
@@ -13,9 +26,12 @@ function resolveActualTeam(gameId, slot, gameById, selections) {
   if (!winner) return null;
 
   let topTeam, botTeam;
-  if (fromGame.round === 'playin' || fromGame.round === 'r64') {
+  if (fromGame.round === 'playin') {
     topTeam = fromGame.topTeam;
     botTeam = fromGame.botTeam;
+  } else if (fromGame.round === 'r64') {
+    topTeam = resolvePlayinTeamForSlot(fromGame, fromGame.topTeam, gameById, selections);
+    botTeam = resolvePlayinTeamForSlot(fromGame, fromGame.botTeam, gameById, selections);
   } else {
     topTeam = resolveActualTeam(fromId, 'top', gameById, selections);
     botTeam = resolveActualTeam(fromId, 'bot', gameById, selections);
@@ -117,15 +133,21 @@ export function useBracketState(gender) {
 
   const resolveTeams = useCallback(
     (game) => {
-      if (game.round === 'playin' || game.round === 'r64') {
+      if (game.round === 'playin') {
         return { topTeam: game.topTeam, botTeam: game.botTeam };
+      }
+      if (game.round === 'r64') {
+        return {
+          topTeam: resolvePlayinTeamForSlot(game, game.topTeam, gameById, selections),
+          botTeam: resolvePlayinTeamForSlot(game, game.botTeam, gameById, selections),
+        };
       }
       return {
         topTeam: getPromotedTeam(game.id, 'top'),
         botTeam: getPromotedTeam(game.id, 'bot'),
       };
     },
-    [getPromotedTeam]
+    [gameById, selections, getPromotedTeam]
   );
 
   const isRoundFilled = useCallback(
