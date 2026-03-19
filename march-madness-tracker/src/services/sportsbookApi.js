@@ -192,6 +192,8 @@ export async function fetchOddsForGames(bracketGames, gender = 'mens') {
 
     const homeApiName = homeComp.team.displayName;
     const awayApiName = awayComp.team.displayName;
+    // Skip events where ESPN hasn't resolved the opponent yet
+    if (homeApiName === 'TBD' || awayApiName === 'TBD') continue;
 
     for (const bracketGame of relevantGames) {
       // Skip if already matched AND has a completedWinner; otherwise keep trying
