@@ -41,6 +41,10 @@ function completedDataFor(game, oddsMap) {
   return { winner: entry.completedWinner, scores: entry.scores ?? null };
 }
 
+function liveDataFor(game, oddsMap) {
+  return oddsMap?.[game.id]?.liveData ?? null;
+}
+
 function RegionBracket({ region, games, selections, predictedRounds, resolveTeams, builderMode, onGameClick, oddsMap }) {
   const rounds = ['r64','r32','s16','e8'];
   const roundGames = {};
@@ -62,6 +66,7 @@ function RegionBracket({ region, games, selections, predictedRounds, resolveTeam
         builderMode={builderMode}
         onClick={onGameClick ? () => onGameClick(game) : undefined}
         completedData={completedDataFor(game, oddsMap)}
+        liveData={liveDataFor(game, oddsMap)}
       />
     );
   }
@@ -106,6 +111,7 @@ export default function BracketView({
         builderMode={builderMode}
         onClick={onGameClick ? () => onGameClick(game) : undefined}
         completedData={completedDataFor(game, oddsMap)}
+        liveData={liveDataFor(game, oddsMap)}
       />
     );
   }

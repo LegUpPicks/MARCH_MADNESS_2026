@@ -13,9 +13,10 @@ function confFromPred(prediction) {
   return 'low';
 }
 
-export default function GameCard({ game, topTeam, botTeam, prediction, selection, builderMode, onClick, completedData }) {
+export default function GameCard({ game, topTeam, botTeam, prediction, selection, builderMode, onClick, completedData, liveData }) {
   const isDisabled = !topTeam || !botTeam;
   const isCompleted = !!completedData;
+  const isLive = !isCompleted && !!liveData;
   const isPickable = builderMode && !isDisabled && !isCompleted;
 
   const predictedWinner = prediction?.winner ?? null;
@@ -69,7 +70,7 @@ export default function GameCard({ game, topTeam, botTeam, prediction, selection
       );
     }
     const cleanName = team.name.replace(/\*$/, '');
-    const score = completedData?.scores?.[cleanName] ?? null;
+    const score = completedData?.scores?.[cleanName] ?? liveData?.scores?.[cleanName] ?? null;
     const isWinner = completedData?.winner === cleanName;
     return (
       <div key={team.name} className={teamClass(isTop)}>
@@ -77,7 +78,7 @@ export default function GameCard({ game, topTeam, botTeam, prediction, selection
         <span className="team-name">{cleanName}</span>
         {score != null
           ? <span className={`team-score${isWinner ? ' team-score-win' : ''}`}>{score}</span>
-          : (!isCompleted && (isTop ? topPredicted : botPredicted) && prediction && (
+          : (!isCompleted && !isLive && (isTop ? topPredicted : botPredicted) && prediction && (
               <span className="pred-star">★</span>
             ))
         }
@@ -87,7 +88,7 @@ export default function GameCard({ game, topTeam, botTeam, prediction, selection
 
   return (
     <div
-      className={`game-card${isDisabled ? ' game-card-tbd' : ''}${isPickable ? ' game-card-pickable' : ''}${isCompleted ? ' game-card-final' : ''}`}
+      className={`game-card${isDisabled ? ' game-card-tbd' : ''}${isPickable ? ' game-card-pickable' : ''}${isCompleted ? ' game-card-final' : ''}${isLive ? ' game-card-live' : ''}`}
       onClick={isPickable ? onClick : undefined}
     >
       <div className="game-card-inner">
@@ -95,6 +96,11 @@ export default function GameCard({ game, topTeam, botTeam, prediction, selection
         <div className="game-meta">
           {isCompleted ? (
             <span className="game-final-label">Final</span>
+          ) : isLive ? (
+            <span className="game-live-label">
+              <span className="live-dot" />
+              {liveData.statusText ?? 'Live'}
+            </span>
           ) : prediction ? (
             <>
               <span className="conf-dot" style={{ background: confColor }} title={`Conf: ${confidence}`} />
