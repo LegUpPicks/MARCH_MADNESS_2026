@@ -12,5 +12,8 @@ __pycache__/
 # Large files exceeding GitHub's 100MB limit
 data_2026/MMasseyOrdinals.csv
 
+# Secrets
+.env
+
 # Claude IDE config
 .claude/

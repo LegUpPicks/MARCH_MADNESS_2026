@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>March Madness 2026 — No-Seed Model Bracket</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #c9d1d9; padding: 16px; }
+h1 { color: #58a6ff; text-align: center; font-size: 1.8em; margin-bottom: 4px; }
+h2 { color: #bc8cff; text-align: center; font-size: 1.4em; margin: 28px 0 10px; border-bottom: 2px solid #bc8cff; padding-bottom: 6px; }
+.subtitle { text-align: center; color: #8b949e; font-size: 0.85em; margin-bottom: 8px; }
+.model-note { text-align: center; background: #1c1c3a; border: 1px solid #bc8cff; border-radius: 6px; padding: 8px 16px; max-width: 700px; margin: 0 auto 20px; font-size: 0.82em; color: #c9d1d9; }
+.model-note strong { color: #bc8cff; }
+
+/* Play-in */
+.playin { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; max-width: 1400px; margin-left: auto; margin-right: auto; }
+.playin h3 { color: #79c0ff; font-size: 0.9em; margin-bottom: 8px; }
+.playin-games { display: flex; flex-wrap: wrap; gap: 10px; }
+.playin-game { background: #0d1117; border: 1px solid #30363d; border-radius: 4px; padding: 6px 10px; font-size: 0.8em; }
+.pi-w { color: #58a6ff; font-weight: bold; }
+.pi-l { color: #484f58; text-decoration: line-through; }
+.pi-label { color: #8b949e; font-size: 0.85em; margin-right: 4px; }
+.pi-diff { color: #f0a500; font-size: 0.75em; margin-left: 6px; }
+
+/* Bracket outer layout */
+.bracket-wrap { display: grid; grid-template-columns: 1fr 180px 1fr; gap: 8px; max-width: 1400px; margin: 0 auto; align-items: start; }
+.left-side, .right-side { display: flex; flex-direction: column; gap: 8px; }
+
+/* Region bracket */
+.region { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px; }
+.region-name { color: #bc8cff; font-size: 0.8em; font-weight: bold; text-align: center; margin-bottom: 6px; letter-spacing: 1px; }
+.rounds { display: flex; flex-direction: row; gap: 2px; align-items: flex-start; }
+.right-side .rounds { flex-direction: row; }
+
+.round-col { display: flex; flex-direction: column; min-width: 112px; max-width: 120px; }
+.rnd-label { font-size: 0.62em; color: #8b949e; text-align: center; padding: 2px; border-bottom: 1px solid #21262d; margin-bottom: 3px; }
+
+.game { display: flex; flex-direction: column; margin-bottom: 0; }
+.team { display: flex; align-items: center; padding: 2px 5px; font-size: 0.72em; border: 1px solid #21262d; background: #0d1117; height: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team:first-child { border-bottom: none; }
+.seed { color: #8b949e; font-size: 0.8em; min-width: 14px; display: inline-block; margin-right: 3px; }
+
+/* Winner = purple theme for no-seed model */
+.team.win { background: #1e0a3c; border-color: #bc8cff; color: #e6edf3; font-weight: bold; }
+.team.win .seed { color: #d2a8ff; }
+.team.loss { color: #3d444d; }
+.team.loss .seed { color: #3d444d; }
+
+/* Upset highlight */
+.team.upset { background: #3a1a00; border-color: #f0a500; color: #ffd866; font-weight: bold; }
+.team.upset .seed { color: #f0a500; }
+
+.r32-col .game:not(:first-child) { margin-top: 24px; }
+.r32-col .game:first-child { margin-top: 12px; }
+.s16-col .game:not(:first-child) { margin-top: 72px; }
+.s16-col .game:first-child { margin-top: 60px; }
+.e8-col .game { margin-top: 180px; }
+
+.right-side .r32-col .game:not(:first-child) { margin-top: 24px; }
+.right-side .r32-col .game:first-child { margin-top: 12px; }
+.right-side .s16-col .game:not(:first-child) { margin-top: 72px; }
+.right-side .s16-col .game:first-child { margin-top: 60px; }
+.right-side .e8-col .game { margin-top: 180px; }
+
+/* Final Four / Championship */
+.center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding-top: 20px; }
+.ff-box, .champ-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 10px 14px; width: 180px; }
+.champ-box { border-color: #bc8cff; }
+.ff-box h3 { color: #79c0ff; font-size: 0.8em; margin-bottom: 8px; text-align: center; }
+.champ-box h3 { color: #bc8cff; font-size: 0.8em; margin-bottom: 8px; text-align: center; }
+.ff-game { margin-bottom: 10px; }
+.ff-game:last-child { margin-bottom: 0; }
+.ff-team { display: flex; align-items: center; padding: 4px 6px; background: #0d1117; border: 1px solid #21262d; font-size: 0.8em; height: 28px; }
+.ff-team:first-child { border-bottom: none; }
+.ff-team.win { background: #1e0a3c; border-color: #bc8cff; color: #e6edf3; font-weight: bold; }
+.ff-team.loss { color: #3d444d; }
+.ff-team.upset { background: #3a1a00; border-color: #f0a500; color: #ffd866; font-weight: bold; }
+.champ-name { text-align: center; font-size: 1.3em; font-weight: bold; color: #bc8cff; padding: 8px 0 4px; }
+.champ-detail { text-align: center; font-size: 0.72em; color: #8b949e; }
+.trophy { text-align: center; font-size: 2em; margin-bottom: 4px; }
+
+.accuracy { text-align: center; color: #8b949e; font-size: 0.8em; margin-bottom: 10px; }
+.no-data-box { background: #161b22; border: 2px dashed #484f58; border-radius: 8px; padding: 30px; text-align: center; color: #484f58; max-width: 1400px; margin: 0 auto; }
+.no-data-box h3 { color: #f85149; margin-bottom: 8px; }
+.upset-key { display: inline-block; width: 12px; height: 12px; background: #3a1a00; border: 1px solid #f0a500; margin-right: 4px; vertical-align: middle; }
+.win-key { display: inline-block; width: 12px; height: 12px; background: #1e0a3c; border: 1px solid #bc8cff; margin-right: 4px; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<h1>🏀 March Madness 2026 — No-Seed Model Predictions</h1>
+<p class="subtitle">Seeds excluded from features — model relies entirely on season statistics</p>
+<div class="model-note">
+  <strong>No-Seed Model:</strong> W_SEED and L_SEED are removed as input features. The model predicts winners based solely on season performance stats, making it blind to seeding. This produces more upsets and tests whether team quality metrics alone can predict tournament outcomes. Men's accuracy: <strong>65.62%</strong> vs seeded model's 75.78%.
+</div>
+
+<!-- ===== MEN'S BRACKET ===== -->
+<h2>MEN'S TOURNAMENT (No-Seed Model)</h2>
+<p class="accuracy">Win model: 65.62% accuracy · Spread MAE: 12.24 pts · Total MAE: 12.77 pts &nbsp;|&nbsp; <span class="upset-key"></span>= Upset pick &nbsp; <span class="win-key"></span>= Predicted winner</p>
+
+<div class="playin" style="margin-bottom:14px;">
+  <h3>PLAY-IN GAMES (First Four)</h3>
+  <div class="playin-games">
+    <div class="playin-game"><span class="pi-label">SOUTH #16:</span><span class="pi-w">Lehigh</span> def. <span class="pi-l">Prairie View</span> <span style="color:#8b949e;font-size:0.8em;">(same)</span></div>
+    <div class="playin-game"><span class="pi-label">MIDWEST #11:</span><span class="pi-w">SMU</span> def. <span class="pi-l">Miami OH</span> <span style="color:#8b949e;font-size:0.8em;">(same)</span></div>
+    <div class="playin-game"><span class="pi-label">MIDWEST #16:</span><span class="pi-w">Howard</span> def. <span class="pi-l">UMBC</span> <span class="pi-diff">⚡ diff (seeded: UMBC)</span></div>
+    <div class="playin-game"><span class="pi-label">WEST #11:</span><span class="pi-w">NC State</span> def. <span class="pi-l">Texas</span> <span style="color:#8b949e;font-size:0.8em;">(same)</span></div>
+  </div>
+</div>
+
+<div class="bracket-wrap">
+  <!-- LEFT: W (East) and Y (Midwest) -->
+  <div class="left-side">
+
+    <!-- W REGION -->
+    <div class="region">
+      <div class="region-name">EAST REGION</div>
+      <div class="rounds">
+        <div class="round-col">
+          <div class="rnd-label">ROUND OF 64</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Duke</div><div class="team loss"><span class="seed">16</span>Siena</div></div>
+          <div class="game"><div class="team loss"><span class="seed">8</span>Ohio St</div><div class="team win"><span class="seed">9</span>TCU</div></div>
+          <div class="game"><div class="team win"><span class="seed">5</span>St John's</div><div class="team loss"><span class="seed">12</span>N Iowa</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>Kansas</div><div class="team loss"><span class="seed">13</span>Cal Baptist</div></div>
+          <div class="game"><div class="team win"><span class="seed">6</span>Louisville</div><div class="team loss"><span class="seed">11</span>S Florida</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Michigan St</div><div class="team loss"><span class="seed">14</span>N Dakota St</div></div>
+          <div class="game"><div class="team win"><span class="seed">7</span>UCLA</div><div class="team loss"><span class="seed">10</span>UCF</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Connecticut</div><div class="team loss"><span class="seed">15</span>Furman</div></div>
+        </div>
+        <div class="round-col r32-col">
+          <div class="rnd-label">ROUND OF 32</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Duke</div><div class="team loss"><span class="seed">9</span>TCU</div></div>
+          <!-- St John's(5) upsets Kansas(4) -->
+          <div class="game"><div class="team upset"><span class="seed">5</span>St John's</div><div class="team loss"><span class="seed">4</span>Kansas</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Michigan St</div><div class="team loss"><span class="seed">6</span>Louisville</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Connecticut</div><div class="team loss"><span class="seed">7</span>UCLA</div></div>
+        </div>
+        <div class="round-col s16-col">
+          <div class="rnd-label">SWEET 16</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Duke</div><div class="team loss"><span class="seed">5</span>St John's</div></div>
+          <!-- Connecticut(2) upsets Michigan St(3) -->
+          <div class="game"><div class="team win"><span class="seed">2</span>Connecticut</div><div class="team loss"><span class="seed">3</span>Michigan St</div></div>
+        </div>
+        <div class="round-col e8-col">
+          <div class="rnd-label">ELITE 8</div>
+          <!-- Connecticut(2) upsets Duke(1)! -->
+          <div class="game"><div class="team upset"><span class="seed">2</span>Connecticut</div><div class="team loss"><span class="seed">1</span>Duke</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDWEST REGION -->
+    <div class="region">
+      <div class="region-name">MIDWEST REGION</div>
+      <div class="rounds">
+        <div class="round-col">
+          <div class="rnd-label">ROUND OF 64</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Michigan</div><div class="team loss"><span class="seed">16</span>Howard*</div></div>
+          <!-- St Louis(9) upsets Georgia(8) → wait, Georgia beat St Louis in seeded; here St Louis wins -->
+          <div class="game"><div class="team upset"><span class="seed">9</span>St Louis</div><div class="team loss"><span class="seed">8</span>Georgia</div></div>
+          <!-- Akron(12) upsets Texas Tech(5) -->
+          <div class="game"><div class="team upset"><span class="seed">12</span>Akron</div><div class="team loss"><span class="seed">5</span>Texas Tech</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>Alabama</div><div class="team loss"><span class="seed">13</span>Hofstra</div></div>
+          <div class="game"><div class="team win"><span class="seed">6</span>Tennessee</div><div class="team loss"><span class="seed">11</span>SMU*</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Virginia</div><div class="team loss"><span class="seed">14</span>Wright St</div></div>
+          <div class="game"><div class="team win"><span class="seed">7</span>Kentucky</div><div class="team loss"><span class="seed">10</span>Santa Clara</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Iowa St</div><div class="team loss"><span class="seed">15</span>Tennessee St</div></div>
+        </div>
+        <div class="round-col r32-col">
+          <div class="rnd-label">ROUND OF 32</div>
+          <!-- St Louis(9) upsets Michigan(1)! -->
+          <div class="game"><div class="team upset"><span class="seed">9</span>St Louis</div><div class="team loss"><span class="seed">1</span>Michigan</div></div>
+          <!-- Akron(12) upsets Alabama(4) -->
+          <div class="game"><div class="team upset"><span class="seed">12</span>Akron</div><div class="team loss"><span class="seed">4</span>Alabama</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Virginia</div><div class="team loss"><span class="seed">6</span>Tennessee</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Iowa St</div><div class="team loss"><span class="seed">7</span>Kentucky</div></div>
+        </div>
+        <div class="round-col s16-col">
+          <div class="rnd-label">SWEET 16</div>
+          <!-- Akron(12) beats St Louis(9) -->
+          <div class="game"><div class="team upset"><span class="seed">12</span>Akron</div><div class="team loss"><span class="seed">9</span>St Louis</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Virginia</div><div class="team loss"><span class="seed">2</span>Iowa St</div></div>
+        </div>
+        <div class="round-col e8-col">
+          <div class="rnd-label">ELITE 8</div>
+          <!-- Virginia(3) beats Akron(12) -->
+          <div class="game"><div class="team win"><span class="seed">3</span>Virginia</div><div class="team loss"><span class="seed">12</span>Akron</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end left-side -->
+
+  <!-- CENTER -->
+  <div class="center">
+    <div class="ff-box">
+      <h3>FINAL FOUR</h3>
+      <div class="ff-game">
+        <!-- Florida beats Connecticut -->
+        <div class="ff-team win"><span class="seed">1</span>Florida (South)</div>
+        <div class="ff-team loss"><span class="seed">2</span>Connecticut (W)</div>
+      </div>
+      <div class="ff-game">
+        <div class="ff-team win"><span class="seed">3</span>Virginia (Midwest)</div>
+        <div class="ff-team loss"><span class="seed">2</span>Purdue (Z)</div>
+      </div>
+    </div>
+    <div class="champ-box">
+      <div class="trophy">🏆</div>
+      <h3>CHAMPIONSHIP</h3>
+      <div class="ff-game">
+        <div class="ff-team win"><span class="seed">1</span>Florida</div>
+        <div class="ff-team loss"><span class="seed">3</span>Virginia</div>
+      </div>
+      <div class="champ-name">FLORIDA</div>
+      <div class="champ-detail">2026 Men's Champion<br><span style="color:#bc8cff;font-size:0.85em;">(No-Seed Model)</span></div>
+    </div>
+    <div style="background:#1c1c3a;border:1px solid #bc8cff;border-radius:6px;padding:10px;width:180px;font-size:0.72em;color:#8b949e;text-align:center;">
+      <div style="color:#f0a500;font-weight:bold;margin-bottom:4px;">Notable Upsets</div>
+      St Louis(9) beats Michigan(1)<br>
+      Akron(12) to Sweet 16<br>
+      VCU(11) to Sweet 16<br>
+      St Mary's CA(7) to E8<br>
+      Connecticut(2) beats Duke(1)<br>
+      Purdue(2) beats Arizona(1)
+    </div>
+  </div>
+
+  <!-- RIGHT: X (South) and Z (West) -->
+  <div class="right-side">
+
+    <!-- SOUTH REGION -->
+    <div class="region">
+      <div class="region-name">SOUTH REGION</div>
+      <div class="rounds">
+        <div class="round-col e8-col">
+          <div class="rnd-label">ELITE 8</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Florida</div><div class="team loss"><span class="seed">7</span>St Mary's CA</div></div>
+        </div>
+        <div class="round-col s16-col">
+          <div class="rnd-label">SWEET 16</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Florida</div><div class="team loss"><span class="seed">4</span>Nebraska</div></div>
+          <!-- St Mary's CA(7) upsets VCU(11) -->
+          <div class="game"><div class="team win"><span class="seed">7</span>St Mary's CA</div><div class="team loss"><span class="seed">11</span>VCU</div></div>
+        </div>
+        <div class="round-col r32-col">
+          <div class="rnd-label">ROUND OF 32</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Florida</div><div class="team loss"><span class="seed">8</span>Clemson</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>Nebraska</div><div class="team loss"><span class="seed">5</span>Vanderbilt</div></div>
+          <!-- VCU(11) upsets Illinois(3) -->
+          <div class="game"><div class="team upset"><span class="seed">11</span>VCU</div><div class="team loss"><span class="seed">3</span>Illinois</div></div>
+          <!-- St Mary's CA(7) upsets Houston(2) -->
+          <div class="game"><div class="team upset"><span class="seed">7</span>St Mary's CA</div><div class="team loss"><span class="seed">2</span>Houston</div></div>
+        </div>
+        <div class="round-col">
+          <div class="rnd-label">ROUND OF 64</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Florida</div><div class="team loss"><span class="seed">16</span>Lehigh*</div></div>
+          <div class="game"><div class="team win"><span class="seed">8</span>Clemson</div><div class="team loss"><span class="seed">9</span>Iowa</div></div>
+          <div class="game"><div class="team win"><span class="seed">5</span>Vanderbilt</div><div class="team loss"><span class="seed">12</span>McNeese St</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>Nebraska</div><div class="team loss"><span class="seed">13</span>Troy</div></div>
+          <!-- VCU(11) upsets N Carolina(6) -->
+          <div class="game"><div class="team upset"><span class="seed">11</span>VCU</div><div class="team loss"><span class="seed">6</span>N Carolina</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Illinois</div><div class="team loss"><span class="seed">14</span>Penn</div></div>
+          <div class="game"><div class="team win"><span class="seed">7</span>St Mary's CA</div><div class="team loss"><span class="seed">10</span>Texas A&amp;M</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Houston</div><div class="team loss"><span class="seed">15</span>Idaho</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEST REGION -->
+    <div class="region">
+      <div class="region-name">WEST REGION</div>
+      <div class="rounds">
+        <div class="round-col e8-col">
+          <div class="rnd-label">ELITE 8</div>
+          <!-- Purdue(2) upsets Arizona(1) -->
+          <div class="game"><div class="team upset"><span class="seed">2</span>Purdue</div><div class="team loss"><span class="seed">1</span>Arizona</div></div>
+        </div>
+        <div class="round-col s16-col">
+          <div class="rnd-label">SWEET 16</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Arizona</div><div class="team loss"><span class="seed">4</span>Arkansas</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Purdue</div><div class="team loss"><span class="seed">3</span>Gonzaga</div></div>
+        </div>
+        <div class="round-col r32-col">
+          <div class="rnd-label">ROUND OF 32</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Arizona</div><div class="team loss"><span class="seed">9</span>Utah St</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>Arkansas</div><div class="team loss"><span class="seed">5</span>Wisconsin</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Gonzaga</div><div class="team loss"><span class="seed">6</span>BYU</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Purdue</div><div class="team loss"><span class="seed">7</span>Miami FL</div></div>
+        </div>
+        <div class="round-col">
+          <div class="rnd-label">ROUND OF 64</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Arizona</div><div class="team loss"><span class="seed">16</span>LIU Brooklyn</div></div>
+          <!-- Utah St(9) upsets Villanova(8) -->
+          <div class="game"><div class="team upset"><span class="seed">9</span>Utah St</div><div class="team loss"><span class="seed">8</span>Villanova</div></div>
+          <div class="game"><div class="team win"><span class="seed">5</span>Wisconsin</div><div class="team loss"><span class="seed">12</span>High Point</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>Arkansas</div><div class="team loss"><span class="seed">13</span>Hawaii</div></div>
+          <div class="game"><div class="team win"><span class="seed">6</span>BYU</div><div class="team loss"><span class="seed">11</span>NC State*</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Gonzaga</div><div class="team loss"><span class="seed">14</span>Kennesaw</div></div>
+          <div class="game"><div class="team win"><span class="seed">7</span>Miami FL</div><div class="team loss"><span class="seed">10</span>Missouri</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Purdue</div><div class="team loss"><span class="seed">15</span>Queens NC</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end right-side -->
+</div><!-- end bracket-wrap -->
+
+<!-- ===== WOMEN'S NO-SEED ===== -->
+<h2>WOMEN'S TOURNAMENT (No-Seed Model)</h2>
+<p class="accuracy">Win model: 86.51% accuracy · Spread MAE: 11.11 pts · Total MAE: 12.71 pts &nbsp;|&nbsp; <span class="upset-key"></span>= Upset pick &nbsp; <span class="win-key"></span>= Predicted winner</p>
+
+<div class="playin" style="margin-bottom:14px;">
+  <h3>PLAY-IN GAMES (First Four)</h3>
+  <div class="playin-games">
+    <div class="playin-game"><span class="pi-label">X10:</span><span class="pi-w">Virginia</span> def. <span class="pi-l">Arizona St</span></div>
+    <div class="playin-game"><span class="pi-label">X16:</span><span class="pi-w">Southern Univ</span> def. <span class="pi-l">Samford</span></div>
+    <div class="playin-game"><span class="pi-label">Y16:</span><span class="pi-w">SF Austin</span> def. <span class="pi-l">Missouri St</span></div>
+    <div class="playin-game"><span class="pi-label">Z11:</span><span class="pi-w">Nebraska</span> def. <span class="pi-l">Richmond</span></div>
+  </div>
+</div>
+
+<div class="bracket-wrap">
+  <!-- LEFT: W and Y -->
+  <div class="left-side">
+
+    <!-- W REGION -->
+    <div class="region">
+      <div class="region-name">W REGION</div>
+      <div class="rounds">
+        <div class="round-col">
+          <div class="rnd-label">ROUND OF 64</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Connecticut</div><div class="team loss"><span class="seed">16</span>UT San Ant</div></div>
+          <!-- Syracuse(9) upsets Iowa St(8) -->
+          <div class="game"><div class="team upset"><span class="seed">9</span>Syracuse</div><div class="team loss"><span class="seed">8</span>Iowa St</div></div>
+          <div class="game"><div class="team win"><span class="seed">5</span>Maryland</div><div class="team loss"><span class="seed">12</span>Murray St</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>N Carolina</div><div class="team loss"><span class="seed">13</span>W Illinois</div></div>
+          <!-- Fairfield(11) upsets Notre Dame(6) -->
+          <div class="game"><div class="team upset"><span class="seed">11</span>Fairfield</div><div class="team loss"><span class="seed">6</span>Notre Dame</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Ohio St</div><div class="team loss"><span class="seed">14</span>Howard</div></div>
+          <div class="game"><div class="team win"><span class="seed">7</span>Illinois</div><div class="team loss"><span class="seed">10</span>Colorado</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Vanderbilt</div><div class="team loss"><span class="seed">15</span>High Point</div></div>
+        </div>
+        <div class="round-col r32-col">
+          <div class="rnd-label">ROUND OF 32</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Connecticut</div><div class="team loss"><span class="seed">9</span>Syracuse</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>N Carolina</div><div class="team loss"><span class="seed">5</span>Maryland</div></div>
+          <!-- Fairfield(11) upsets Ohio St(3) -->
+          <div class="game"><div class="team upset"><span class="seed">11</span>Fairfield</div><div class="team loss"><span class="seed">3</span>Ohio St</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Vanderbilt</div><div class="team loss"><span class="seed">7</span>Illinois</div></div>
+        </div>
+        <div class="round-col s16-col">
+          <div class="rnd-label">SWEET 16</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Connecticut</div><div class="team loss"><span class="seed">4</span>N Carolina</div></div>
+          <!-- Vanderbilt(2) beats Fairfield(11) -->
+          <div class="game"><div class="team win"><span class="seed">2</span>Vanderbilt</div><div class="team loss"><span class="seed">11</span>Fairfield</div></div>
+        </div>
+        <div class="round-col e8-col">
+          <div class="rnd-label">ELITE 8</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Connecticut</div><div class="team loss"><span class="seed">2</span>Vanderbilt</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Y REGION -->
+    <div class="region">
+      <div class="region-name">Y REGION</div>
+      <div class="rounds">
+        <div class="round-col">
+          <div class="rnd-label">ROUND OF 64</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Texas</div><div class="team loss"><span class="seed">16</span>SF Austin*</div></div>
+          <div class="game"><div class="team win"><span class="seed">8</span>Oregon</div><div class="team loss"><span class="seed">9</span>Va Tech</div></div>
+          <div class="game"><div class="team win"><span class="seed">5</span>Kentucky</div><div class="team loss"><span class="seed">12</span>Jas Madison</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>West Virginia</div><div class="team loss"><span class="seed">13</span>Miami OH</div></div>
+          <div class="game"><div class="team win"><span class="seed">6</span>Alabama</div><div class="team loss"><span class="seed">11</span>Rhode Island</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Louisville</div><div class="team loss"><span class="seed">14</span>Vermont</div></div>
+          <!-- Tennessee(10) upsets NC State(7) -->
+          <div class="game"><div class="team upset"><span class="seed">10</span>Tennessee</div><div class="team loss"><span class="seed">7</span>NC State</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Michigan</div><div class="team loss"><span class="seed">15</span>Holy Cross</div></div>
+        </div>
+        <div class="round-col r32-col">
+          <div class="rnd-label">ROUND OF 32</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Texas</div><div class="team loss"><span class="seed">8</span>Oregon</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>West Virginia</div><div class="team loss"><span class="seed">5</span>Kentucky</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Louisville</div><div class="team loss"><span class="seed">6</span>Alabama</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Michigan</div><div class="team loss"><span class="seed">10</span>Tennessee</div></div>
+        </div>
+        <div class="round-col s16-col">
+          <div class="rnd-label">SWEET 16</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Texas</div><div class="team loss"><span class="seed">4</span>West Virginia</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Michigan</div><div class="team loss"><span class="seed">3</span>Louisville</div></div>
+        </div>
+        <div class="round-col e8-col">
+          <div class="rnd-label">ELITE 8</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>Texas</div><div class="team loss"><span class="seed">2</span>Michigan</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end left-side -->
+
+  <!-- CENTER -->
+  <div class="center">
+    <div class="ff-box">
+      <h3>FINAL FOUR</h3>
+      <div class="ff-game">
+        <div class="ff-team win"><span class="seed">1</span>Connecticut (W)</div>
+        <div class="ff-team loss"><span class="seed">1</span>S Carolina (X)</div>
+      </div>
+      <div class="ff-game">
+        <div class="ff-team win"><span class="seed">1</span>Texas (Y)</div>
+        <div class="ff-team loss"><span class="seed">1</span>UCLA (Z)</div>
+      </div>
+    </div>
+    <div class="champ-box">
+      <div class="trophy">🏆</div>
+      <h3>CHAMPIONSHIP</h3>
+      <div class="ff-game">
+        <div class="ff-team win"><span class="seed">1</span>Connecticut</div>
+        <div class="ff-team loss"><span class="seed">1</span>Texas</div>
+      </div>
+      <div class="champ-name">CONNECTICUT</div>
+      <div class="champ-detail">2026 Women's Champion<br><span style="color:#bc8cff;font-size:0.85em;">(No-Seed Model)</span></div>
+    </div>
+    <div style="background:#1c1c3a;border:1px solid #bc8cff;border-radius:6px;padding:10px;width:180px;font-size:0.72em;color:#8b949e;text-align:center;">
+      <div style="color:#f0a500;font-weight:bold;margin-bottom:4px;">Notable Upsets</div>
+      Fairfield(11) to Sweet 16<br>
+      Fairfield(11) beats Ohio St(3)<br>
+      Georgia(7) beats Iowa(2)<br>
+      Washington(6) beats TCU(3)<br>
+      Tennessee(10) beats NC State(7)
+    </div>
+  </div>
+
+  <!-- RIGHT: X and Z -->
+  <div class="right-side">
+
+    <!-- X REGION -->
+    <div class="region">
+      <div class="region-name">X REGION</div>
+      <div class="rounds">
+        <div class="round-col e8-col">
+          <div class="rnd-label">ELITE 8</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>S Carolina</div><div class="team loss"><span class="seed">6</span>Washington</div></div>
+        </div>
+        <div class="round-col s16-col">
+          <div class="rnd-label">SWEET 16</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>S Carolina</div><div class="team loss"><span class="seed">5</span>Michigan St</div></div>
+          <!-- Washington(6) beats Georgia(7) — not an upset -->
+          <div class="game"><div class="team win"><span class="seed">6</span>Washington</div><div class="team loss"><span class="seed">7</span>Georgia</div></div>
+        </div>
+        <div class="round-col r32-col">
+          <div class="rnd-label">ROUND OF 32</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>S Carolina</div><div class="team loss"><span class="seed">9</span>USC</div></div>
+          <!-- Michigan St(5) upsets Oklahoma(4) -->
+          <div class="game"><div class="team upset"><span class="seed">5</span>Michigan St</div><div class="team loss"><span class="seed">4</span>Oklahoma</div></div>
+          <!-- Washington(6) upsets TCU(3) -->
+          <div class="game"><div class="team upset"><span class="seed">6</span>Washington</div><div class="team loss"><span class="seed">3</span>TCU</div></div>
+          <!-- Georgia(7) upsets Iowa(2) -->
+          <div class="game"><div class="team upset"><span class="seed">7</span>Georgia</div><div class="team loss"><span class="seed">2</span>Iowa</div></div>
+        </div>
+        <div class="round-col">
+          <div class="rnd-label">ROUND OF 64</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>S Carolina</div><div class="team loss"><span class="seed">16</span>S Univ*</div></div>
+          <!-- USC(9) upsets Clemson(8) -->
+          <div class="game"><div class="team upset"><span class="seed">9</span>USC</div><div class="team loss"><span class="seed">8</span>Clemson</div></div>
+          <div class="game"><div class="team win"><span class="seed">5</span>Michigan St</div><div class="team loss"><span class="seed">12</span>Colorado St</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>Oklahoma</div><div class="team loss"><span class="seed">13</span>Idaho</div></div>
+          <div class="game"><div class="team win"><span class="seed">6</span>Washington</div><div class="team loss"><span class="seed">11</span>S Dakota St</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>TCU</div><div class="team loss"><span class="seed">14</span>UC San Diego</div></div>
+          <div class="game"><div class="team win"><span class="seed">7</span>Georgia</div><div class="team loss"><span class="seed">10</span>Virginia*</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>Iowa</div><div class="team loss"><span class="seed">15</span>F Dickinson</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Z REGION -->
+    <div class="region">
+      <div class="region-name">Z REGION</div>
+      <div class="rounds">
+        <div class="round-col e8-col">
+          <div class="rnd-label">ELITE 8</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>UCLA</div><div class="team loss"><span class="seed">2</span>LSU</div></div>
+        </div>
+        <div class="round-col s16-col">
+          <div class="rnd-label">SWEET 16</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>UCLA</div><div class="team loss"><span class="seed">5</span>Mississippi</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>LSU</div><div class="team loss"><span class="seed">3</span>Duke</div></div>
+        </div>
+        <div class="round-col r32-col">
+          <div class="rnd-label">ROUND OF 32</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>UCLA</div><div class="team loss"><span class="seed">8</span>Oklahoma St</div></div>
+          <!-- Mississippi(5) upsets Minnesota(4) -->
+          <div class="game"><div class="team upset"><span class="seed">5</span>Mississippi</div><div class="team loss"><span class="seed">4</span>Minnesota</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Duke</div><div class="team loss"><span class="seed">6</span>Baylor</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>LSU</div><div class="team loss"><span class="seed">7</span>Texas Tech</div></div>
+        </div>
+        <div class="round-col">
+          <div class="rnd-label">ROUND OF 64</div>
+          <div class="game"><div class="team win"><span class="seed">1</span>UCLA</div><div class="team loss"><span class="seed">16</span>Cal Baptist</div></div>
+          <div class="game"><div class="team win"><span class="seed">8</span>Oklahoma St</div><div class="team loss"><span class="seed">9</span>Princeton</div></div>
+          <div class="game"><div class="team win"><span class="seed">5</span>Mississippi</div><div class="team loss"><span class="seed">12</span>Gonzaga</div></div>
+          <div class="game"><div class="team win"><span class="seed">4</span>Minnesota</div><div class="team loss"><span class="seed">13</span>WI Green Bay</div></div>
+          <div class="game"><div class="team win"><span class="seed">6</span>Baylor</div><div class="team loss"><span class="seed">11</span>Nebraska*</div></div>
+          <div class="game"><div class="team win"><span class="seed">3</span>Duke</div><div class="team loss"><span class="seed">14</span>Col Charleston</div></div>
+          <div class="game"><div class="team win"><span class="seed">7</span>Texas Tech</div><div class="team loss"><span class="seed">10</span>Villanova</div></div>
+          <div class="game"><div class="team win"><span class="seed">2</span>LSU</div><div class="team loss"><span class="seed">15</span>Jacksonville</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end right-side -->
+</div><!-- end women's bracket-wrap -->
+
+<hr style="border:1px solid #21262d;margin:30px auto;max-width:1400px;">
+
+<!-- Comparison Table -->
+<div style="max-width:900px;margin:20px auto;">
+  <h2 style="color:#58a6ff;border-color:#58a6ff;">MEN'S MODEL COMPARISON</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:0.85em;margin-top:10px;">
+    <thead>
+      <tr style="background:#161b22;color:#79c0ff;">
+        <th style="padding:8px;border:1px solid #30363d;text-align:left;">Round</th>
+        <th style="padding:8px;border:1px solid #30363d;">Seeded Model</th>
+        <th style="padding:8px;border:1px solid #30363d;">No-Seed Model</th>
+        <th style="padding:8px;border:1px solid #30363d;color:#f0a500;">Agree?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:6px 8px;border:1px solid #21262d;color:#8b949e;" colspan="4"><em>Play-in</em></td></tr>
+      <tr style="background:#0d1117;">
+        <td style="padding:6px 8px;border:1px solid #21262d;">Y16</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">UMBC</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f0a500;">Howard ⚡</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f85149;">✗</td>
+      </tr>
+      <tr><td style="padding:6px 8px;border:1px solid #21262d;color:#8b949e;" colspan="4"><em>Elite 8</em></td></tr>
+      <tr style="background:#0d1117;">
+        <td style="padding:6px 8px;border:1px solid #21262d;">W Region</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Duke (1)</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f0a500;">Connecticut (2) ⚡</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f85149;">✗</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;border:1px solid #21262d;">X Region</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Florida (1)</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Florida (1)</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#3fb950;">✓</td>
+      </tr>
+      <tr style="background:#0d1117;">
+        <td style="padding:6px 8px;border:1px solid #21262d;">Y Region</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Virginia (3)</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Virginia (3)</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#3fb950;">✓</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;border:1px solid #21262d;">Z Region</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Arizona (1)</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f0a500;">Purdue (2) ⚡</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f85149;">✗</td>
+      </tr>
+      <tr><td style="padding:6px 8px;border:1px solid #21262d;color:#8b949e;" colspan="4"><em>Final Four</em></td></tr>
+      <tr style="background:#0d1117;">
+        <td style="padding:6px 8px;border:1px solid #21262d;">W vs X</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Duke beats Florida</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f0a500;">Florida beats Connecticut ⚡</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f85149;">✗</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px;border:1px solid #21262d;">Y vs Z</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Virginia beats Arizona</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;">Virginia beats Purdue</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#ffa657;">~</td>
+      </tr>
+      <tr><td style="padding:6px 8px;border:1px solid #21262d;color:#8b949e;" colspan="4"><em>Championship</em></td></tr>
+      <tr style="background:#0d1117;">
+        <td style="padding:6px 8px;border:1px solid #21262d;">Champion</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;font-weight:bold;color:#f0a500;">Duke (1)</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;font-weight:bold;color:#bc8cff;">Florida (1)</td>
+        <td style="padding:6px 8px;border:1px solid #21262d;text-align:center;color:#f85149;">✗</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p style="text-align:center;color:#484f58;font-size:0.75em;margin-top:20px;">* = Play-in winner &nbsp;|&nbsp; ⚡ = Differs from seeded model &nbsp;|&nbsp; Orange highlight = upset pick (lower seed beats higher)</p>
+
+</body>
+</html>
