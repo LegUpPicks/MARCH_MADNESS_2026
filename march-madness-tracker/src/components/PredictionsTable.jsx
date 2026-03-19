@@ -281,9 +281,12 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
       .filter(Boolean);
   }
 
+  // Play-in rows shown as a separate section above the main round
+  const playinRows = predictedRounds.has('playin') ? buildRows('playin') : [];
+
   // Current round rows (full list for main table body)
   const currentRows = buildRows(displayRound);
-  if (!currentRows.length) return null;
+  if (!currentRows.length && !playinRows.length) return null;
 
   // Value bets from ALL predicted rounds (deduplicated by game id)
   const allPredictedRounds = ROUND_ORDER.filter(r => predictedRounds.has(r) && r !== 'playin');
@@ -317,7 +320,102 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
     });
   }
 
-  const betslipItems = rows
+  function renderGameRow({ game, round, mp, topName, botName, valueBet, favoriteCover, consensusTeam }) {
+    const gameOdds = oddsMap?.[game.id]?.dk ?? null;
+    const checked  = selectedIds.has(game.id);
+
+    const allVotes = { top: [], bot: [], over: [], under: [] };
+    if (gameOdds) {
+      const bst = parseNum(gameOdds?.spread?.[topName]?.line);
+      const btt = parseNum(gameOdds?.total?.line);
+      for (const key of MODEL_KEYS) {
+        const pred = mp[key];
+        if (!pred) continue;
+        if (bst != null && pred.spread != null && pred.predWinner) {
+          const ms = pred.predWinner === topName ? -Math.abs(pred.spread) : +Math.abs(pred.spread);
+          const d  = ms - bst;
+          if (d <= -SPREAD_THRESH) allVotes.top.push(1);
+          else if (d >= SPREAD_THRESH) allVotes.bot.push(1);
+        }
+        if (btt != null && pred.total != null) {
+          const d = pred.total - btt;
+          if (d >= TOTAL_THRESH) allVotes.over.push(1);
+          else if (d <= -TOTAL_THRESH) allVotes.under.push(1);
+        }
+      }
+    }
+    const hasSpreadBet = allVotes.top.length >= 3 || allVotes.bot.length >= 3;
+    const hasTotalBet  = allVotes.over.length >= 3 || allVotes.under.length >= 3;
+
+    return (
+      <tr key={game.id} className={[
+        'pt-row',
+        checked       ? 'pt-row-checked'  : '',
+        valueBet      ? 'pt-row-value'     : '',
+        favoriteCover ? 'pt-row-fav-cover' : '',
+      ].filter(Boolean).join(' ')}>
+        <td className="pt-check">
+          <input
+            type="checkbox"
+            className="pt-checkbox"
+            checked={checked}
+            onChange={() => toggleRow(game.id)}
+          />
+        </td>
+        <td className="pt-matchup">
+          <span className="pt-team">
+            {topName}
+            {consensusTeam === topName && (
+              <span className="pt-consensus-star" title="4 models disagree with Balanced Rounds">⭐</span>
+            )}
+          </span>
+          <span className="pt-vs"> vs </span>
+          <span className="pt-team">
+            {botName}
+            {consensusTeam === botName && (
+              <span className="pt-consensus-star" title="4 models disagree with Balanced Rounds">⭐</span>
+            )}
+          </span>
+          {game.region && <span className="pt-region">{game.region}</span>}
+          {round !== displayRound && game.round !== 'playin' && (
+            <span className="pt-round-badge">{ROUND_LABELS[round] ?? round}</span>
+          )}
+          {valueBet && (
+            <div className="pt-value-badge">
+              <span className="pt-value-star">★</span>
+              <span className="pt-value-bet">{valueBet.betLabel}</span>
+              <span className="pt-value-meta">{valueBet.count}/5 · +{valueBet.avgCushion} pts</span>
+              <span className="pt-value-types">
+                {hasSpreadBet && <span className="pt-value-type">SPR</span>}
+                {hasTotalBet  && <span className="pt-value-type">TOT</span>}
+              </span>
+            </div>
+          )}
+          {favoriteCover && (
+            <div className="pt-fav-cover-badge">
+              <span className="pt-fav-cover-icon">▼</span>
+              <span>Fav covers</span>
+            </div>
+          )}
+        </td>
+        <ModelCells pred={mp.seeded} />
+        <td className="pt-col-divider"></td>
+        <ModelCells pred={mp.noSeed} />
+        <td className="pt-col-divider"></td>
+        <ModelCells pred={mp.unbalanced_rounds} />
+        <td className="pt-col-divider"></td>
+        <ModelCells pred={mp.balanced_rounds} />
+        <td className="pt-col-divider"></td>
+        <ModelCells pred={mp.kaggle} />
+        <td className="pt-col-divider"></td>
+        <ModelCells pred={mp.ensemble} />
+        <td className="pt-col-divider-wide"></td>
+        <LiveOddsCells oddsData={gameOdds} topName={topName} botName={botName} />
+      </tr>
+    );
+  }
+
+  const betslipItems = [...playinRows, ...rows]
     .filter(({ game }) => selectedIds.has(game.id))
     .map(({ game, topName, botName, mp }) => ({
       id:        game.id,
@@ -421,103 +519,26 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
             </tr>
           </thead>
           <tbody>
+            {/* ── Play-In section ── */}
+            {playinRows.length > 0 && (
+              <>
+                <tr className="pt-section-divider">
+                  <td colSpan={29} className="pt-section-divider-cell">Play-In Games</td>
+                </tr>
+                {playinRows
+                  .filter(r => (!valueBetsOnly || r.valueBet) && (!favCoverOnly || r.favoriteCover))
+                  .map(row => renderGameRow(row))}
+                {currentRows.length > 0 && (
+                  <tr className="pt-section-divider">
+                    <td colSpan={29} className="pt-section-divider-cell">{ROUND_LABELS[displayRound]}</td>
+                  </tr>
+                )}
+              </>
+            )}
+            {/* ── Main round rows ── */}
             {rows
               .filter(r => (!valueBetsOnly || r.valueBet) && (!favCoverOnly || r.favoriteCover))
-              .map(({ game, round, mp, topName, botName, valueBet, favoriteCover, consensusTeam }) => {
-              const gameOdds = oddsMap?.[game.id]?.dk ?? null;
-              const checked  = selectedIds.has(game.id);
-
-              // Collect all qualifying bet types for this game (spread + total may both qualify)
-              const allVotes = { top: [], bot: [], over: [], under: [] };
-              if (gameOdds) {
-                const bst = parseNum(gameOdds?.spread?.[topName]?.line);
-                const btt = parseNum(gameOdds?.total?.line);
-                for (const key of MODEL_KEYS) {
-                  const pred = mp[key];
-                  if (!pred) continue;
-                  if (bst != null && pred.spread != null && pred.predWinner) {
-                    const ms = pred.predWinner === topName ? -Math.abs(pred.spread) : +Math.abs(pred.spread);
-                    const d  = ms - bst;
-                    if (d <= -SPREAD_THRESH) allVotes.top.push(1);
-                    else if (d >= SPREAD_THRESH) allVotes.bot.push(1);
-                  }
-                  if (btt != null && pred.total != null) {
-                    const d = pred.total - btt;
-                    if (d >= TOTAL_THRESH) allVotes.over.push(1);
-                    else if (d <= -TOTAL_THRESH) allVotes.under.push(1);
-                  }
-                }
-              }
-              const hasSpreadBet = allVotes.top.length >= 3 || allVotes.bot.length >= 3;
-              const hasTotalBet  = allVotes.over.length >= 3 || allVotes.under.length >= 3;
-
-              return (
-                <tr key={game.id} className={[
-                  'pt-row',
-                  checked        ? 'pt-row-checked'   : '',
-                  valueBet       ? 'pt-row-value'      : '',
-                  favoriteCover  ? 'pt-row-fav-cover'  : '',
-                ].filter(Boolean).join(' ')}>
-                  <td className="pt-check">
-                    <input
-                      type="checkbox"
-                      className="pt-checkbox"
-                      checked={checked}
-                      onChange={() => toggleRow(game.id)}
-                    />
-                  </td>
-                  <td className="pt-matchup">
-                    <span className="pt-team">
-                      {topName}
-                      {consensusTeam === topName && (
-                        <span className="pt-consensus-star" title="4 models disagree with Balanced Rounds">⭐</span>
-                      )}
-                    </span>
-                    <span className="pt-vs"> vs </span>
-                    <span className="pt-team">
-                      {botName}
-                      {consensusTeam === botName && (
-                        <span className="pt-consensus-star" title="4 models disagree with Balanced Rounds">⭐</span>
-                      )}
-                    </span>
-                    {game.region && <span className="pt-region">{game.region}</span>}
-                    {round !== displayRound && (
-                      <span className="pt-round-badge">{ROUND_LABELS[round] ?? round}</span>
-                    )}
-                    {valueBet && (
-                      <div className="pt-value-badge">
-                        <span className="pt-value-star">★</span>
-                        <span className="pt-value-bet">{valueBet.betLabel}</span>
-                        <span className="pt-value-meta">{valueBet.count}/5 · +{valueBet.avgCushion} pts</span>
-                        <span className="pt-value-types">
-                          {hasSpreadBet && <span className="pt-value-type">SPR</span>}
-                          {hasTotalBet  && <span className="pt-value-type">TOT</span>}
-                        </span>
-                      </div>
-                    )}
-                    {favoriteCover && (
-                      <div className="pt-fav-cover-badge">
-                        <span className="pt-fav-cover-icon">▼</span>
-                        <span>Fav covers</span>
-                      </div>
-                    )}
-                  </td>
-                  <ModelCells pred={mp.seeded} />
-                  <td className="pt-col-divider"></td>
-                  <ModelCells pred={mp.noSeed} />
-                  <td className="pt-col-divider"></td>
-                  <ModelCells pred={mp.unbalanced_rounds} />
-                  <td className="pt-col-divider"></td>
-                  <ModelCells pred={mp.balanced_rounds} />
-                  <td className="pt-col-divider"></td>
-                  <ModelCells pred={mp.kaggle} />
-                  <td className="pt-col-divider"></td>
-                  <ModelCells pred={mp.ensemble} />
-                  <td className="pt-col-divider-wide"></td>
-                  <LiveOddsCells oddsData={gameOdds} topName={topName} botName={botName} />
-                </tr>
-              );
-            })}
+              .map(row => renderGameRow(row))}
           </tbody>
         </table>
       </div>

@@ -953,6 +953,16 @@ body {
   padding: 1px 5px;
   border-radius: 3px;
 }
+.pt-section-divider { background: var(--bg-secondary); }
+.pt-section-divider-cell {
+  padding: 5px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
 .pt-round-badge {
   margin-left: 5px;
   font-size: 9px;

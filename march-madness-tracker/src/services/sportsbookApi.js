@@ -97,7 +97,8 @@ function teamMatches(espnName, bracketName) {
 // ── Fetch all events for one date (YYYYMMDD) ───────────────────
 async function fetchEspnGamesForDate(dateStr, gender = 'mens') {
   const base = ESPN_BASE[gender] ?? ESPN_BASE.mens;
-  const url = `${base}/scoreboard?dates=${dateStr}&groups=50`;
+  // No groups filter — tournament games (incl. First Four) span all groups
+  const url = `${base}/scoreboard?dates=${dateStr}`;
   try {
     const res = await fetch(url);
     if (!res.ok) return [];
@@ -106,6 +107,19 @@ async function fetchEspnGamesForDate(dateStr, gender = 'mens') {
   } catch {
     return [];
   }
+}
+
+// ── For a play-in slot, resolve the actual bracket team name from ESPN display name ─
+// Looks up the corresponding play-in game and uses teamMatches to find the right bracket name.
+function resolvePlayinTeamName(espnName, playinSlot, allBracketGames) {
+  if (playinSlot) {
+    const pg = allBracketGames.find(g => g.round === 'playin' && g.playinSlot === playinSlot);
+    if (pg) {
+      if (teamMatches(espnName, pg.topTeam.name)) return pg.topTeam.name;
+      if (teamMatches(espnName, pg.botTeam.name)) return pg.botTeam.name;
+    }
+  }
+  return normaliseEspnName(espnName);
 }
 
 // ── Parse ESPN event → { dk: { moneyline, spread, total } } ───
@@ -186,6 +200,8 @@ export async function fetchOddsForGames(bracketGames, gender = 'mens') {
       if (!top || !bot) continue;
 
       let homeTeamBracket = null, awayTeamBracket = null;
+      const topHasPlayin = top.endsWith('*');
+      const botHasPlayin = bot.endsWith('*');
 
       if (teamMatches(homeApiName, top) && teamMatches(awayApiName, bot)) {
         homeTeamBracket = top.replace(/\*$/, '');
@@ -193,6 +209,17 @@ export async function fetchOddsForGames(bracketGames, gender = 'mens') {
       } else if (teamMatches(homeApiName, bot) && teamMatches(awayApiName, top)) {
         homeTeamBracket = bot.replace(/\*$/, '');
         awayTeamBracket = top.replace(/\*$/, '');
+      } else if (topHasPlayin || botHasPlayin) {
+        // One side is a play-in placeholder — match by the known (non-*) team only
+        const fixedTeam  = topHasPlayin ? bot : top;
+        const playinSlot = bracketGame.playinSlot ?? null;
+        if (teamMatches(homeApiName, fixedTeam)) {
+          homeTeamBracket = fixedTeam.replace(/\*$/, '');
+          awayTeamBracket = resolvePlayinTeamName(awayApiName, playinSlot, relevantGames);
+        } else if (teamMatches(awayApiName, fixedTeam)) {
+          homeTeamBracket = resolvePlayinTeamName(homeApiName, playinSlot, relevantGames);
+          awayTeamBracket = fixedTeam.replace(/\*$/, '');
+        }
       }
 
       if (homeTeamBracket && awayTeamBracket) {

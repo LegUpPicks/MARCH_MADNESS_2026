@@ -93,7 +93,7 @@ export default function BracketPickerModal({ game, topTeam, botTeam, currentSele
                 onClick={() => toggleStaged(team.name)}
               >
                 <span className="picker-seed">{team.seed}</span>
-                <span className="picker-name">{team.name}</span>
+                <span className="picker-name">{team.name.replace(/\*$/, '')}</span>
                 {isRecommended && <span className="picker-model-star" title="Model consensus pick">★</span>}
               </button>
             );
@@ -153,7 +153,7 @@ export default function BracketPickerModal({ game, topTeam, botTeam, currentSele
             disabled={!staged}
             onClick={handleConfirm}
           >
-            {staged ? `Confirm: ${staged}` : 'Select a team above'}
+            {staged ? `Confirm: ${staged.replace(/\*$/, '')}` : 'Select a team above'}
           </button>
         </div>
 

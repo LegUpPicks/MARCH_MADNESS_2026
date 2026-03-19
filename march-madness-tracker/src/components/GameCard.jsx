@@ -73,7 +73,7 @@ export default function GameCard({ game, topTeam, botTeam, prediction, selection
         className={teamClass(isTop)}
       >
         <span className="team-seed">{team.seed}</span>
-        <span className="team-name">{team.name}</span>
+        <span className="team-name">{team.name.replace(/\*$/, '')}</span>
         {(isTop ? topPredicted : botPredicted) && prediction && (
           <span className="pred-star">★</span>
         )}
