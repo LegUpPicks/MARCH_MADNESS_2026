@@ -4,8 +4,36 @@
 import modelPredictions from './modelPredictions.json';
 
 /**
- * Build a prediction object from modelPredictions.json using balanced_rounds.
- * Falls back to seeded model if balanced_rounds not yet available.
+ * Determine the recommended winner from all 5 models.
+ * Rule: use Balanced Rounds by default.
+ * Override only if ALL 4 other models unanimously pick the opposing team.
+ * @param {object} entry - modelPredictions entry with keys seeded/noSeed/unbalanced_rounds/balanced_rounds/kaggle
+ */
+export function getRecommendedWinner(entry) {
+  const balanced = entry?.balanced_rounds?.predWinner ?? entry?.seeded?.predWinner ?? null;
+  if (!balanced) return null;
+
+  const otherKeys = ['seeded', 'noSeed', 'unbalanced_rounds', 'kaggle'];
+  let disagreePick = null;
+  let disagreeCount = 0;
+
+  for (const k of otherKeys) {
+    const pick = entry[k]?.predWinner;
+    if (!pick) continue;
+    if (pick !== balanced) {
+      // If the dissenters can't even agree among themselves, balanced wins
+      if (disagreePick && disagreePick !== pick) return balanced;
+      disagreePick = pick;
+      disagreeCount++;
+    }
+  }
+
+  return (disagreeCount === 4 && disagreePick) ? disagreePick : balanced;
+}
+
+/**
+ * Build a prediction object for a game, using the consensus-recommended winner.
+ * Spread/total still come from the balanced_rounds model (most accurate numerically).
  * @param {string} gameId  - e.g. 'M_W_R64_1v16'
  * @param {string} topName - the wTeam (top team) name as listed in the games array
  */
@@ -14,12 +42,13 @@ function getPred(gameId, topName) {
   if (!entry) return null;
   const src = entry.balanced_rounds ?? entry.seeded ?? null;
   if (!src) return null;
-  const topWins = src.predWinner === topName;
+  const recommended = getRecommendedWinner(entry) ?? src.predWinner;
+  const topWins = recommended === topName;
   return {
-    winner: src.predWinner,
-    spreadRaw: topWins ? src.spread : -src.spread,
+    winner:       recommended,
+    spreadRaw:    topWins ? src.spread : -src.spread,
     winIndicator: topWins ? 1 : 0,
-    total: src.total,
+    total:        src.total,
   };
 }
 

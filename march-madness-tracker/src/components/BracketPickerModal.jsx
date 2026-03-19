@@ -11,12 +11,28 @@ const MODELS = [
   { key: 'kaggle',            label: 'Kaggle',             acc: '80.0%†' },
 ];
 
+// Same rule as bracketData.getRecommendedWinner but operates on the predictions array.
+// Default to Balanced Rounds; override only if ALL 4 other models unanimously disagree.
+function getRecommendedWinner(predsArray) {
+  const balanced = predsArray.find(p => p.primary)?.pred?.predWinner ?? null;
+  if (!balanced) return predsArray[0]?.pred?.predWinner ?? null;
+
+  const others = predsArray.filter(p => !p.primary && p.pred?.predWinner);
+  if (others.length < 4) return balanced; // not enough votes to override
+
+  const disagreers = others.filter(p => p.pred.predWinner !== balanced);
+  if (disagreers.length !== 4) return balanced;
+
+  const consensusPick = disagreers[0].pred.predWinner;
+  return disagreers.every(p => p.pred.predWinner === consensusPick) ? consensusPick : balanced;
+}
+
 export default function BracketPickerModal({ game, topTeam, botTeam, gender, onConfirm, onClose }) {
   const [staged, setStaged] = useState(null);
 
   const prefix = gender === 'womens' ? 'w' : 'm';
   const roundIdx = ROUND_INT[game.round] ?? 1;
-  const [a, b] = [topTeam.name, botTeam.name].sort();
+  const [a, b] = [topTeam.name.replace(/\*$/, ''), botTeam.name.replace(/\*$/, '')].sort();
   const entry = allMatchupPredictions[`${prefix}:${a}|${b}`];
 
   const predictions = MODELS.map(({ key, label, acc, perRound, primary }) => {
@@ -25,6 +41,8 @@ export default function BracketPickerModal({ game, topTeam, botTeam, gender, onC
       : entry?.[key] ?? null;
     return { key, label, acc, primary: !!primary, pred };
   }).filter(p => p.pred != null);
+
+  const recommendedWinner = getRecommendedWinner(predictions);
 
   function handleConfirm() {
     if (staged) { onConfirm(staged); }
@@ -45,23 +63,21 @@ export default function BracketPickerModal({ game, topTeam, botTeam, gender, onC
 
         <div className="picker-teams">
           {[topTeam, botTeam].map(team => {
-            const isStaged = staged === team.name;
-            // find primary (balanced) prediction for this team
-            const primaryPred = predictions.find(p => p.primary)?.pred;
-            const isPrimaryPick = primaryPred?.predWinner === team.name;
+            const isStaged    = staged === team.name;
+            const isRecommended = recommendedWinner === team.name;
             return (
               <button
                 key={team.name}
                 className={[
                   'picker-team-btn',
-                  isStaged ? 'picker-team-staged' : '',
-                  isPrimaryPick ? 'picker-team-model-pick' : '',
+                  isStaged       ? 'picker-team-staged'      : '',
+                  isRecommended  ? 'picker-team-model-pick'  : '',
                 ].filter(Boolean).join(' ')}
                 onClick={() => toggleStaged(team.name)}
               >
                 <span className="picker-seed">{team.seed}</span>
                 <span className="picker-name">{team.name}</span>
-                {isPrimaryPick && <span className="picker-model-star" title="Balanced model pick">★</span>}
+                {isRecommended && <span className="picker-model-star" title="Model consensus pick">★</span>}
               </button>
             );
           })}
