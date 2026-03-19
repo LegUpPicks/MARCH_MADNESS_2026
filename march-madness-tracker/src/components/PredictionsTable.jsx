@@ -411,7 +411,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
           <tbody>
             {rows
               .filter(r => (!valueBetsOnly || r.valueBet) && (!favCoverOnly || r.favoriteCover))
-              .map(({ game, mp, topName, botName, valueBet, favoriteCover, consensusTeam }) => {
+              .map(({ game, round, mp, topName, botName, valueBet, favoriteCover, consensusTeam }) => {
               const gameOdds = oddsMap?.[game.id]?.dk ?? null;
               const checked  = selectedIds.has(game.id);
 
