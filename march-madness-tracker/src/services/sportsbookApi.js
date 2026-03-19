@@ -162,11 +162,12 @@ function parseEspnEvent(event, homeTeamName, awayTeamName) {
 // Fetches today + next 6 days in parallel to cover the current round
 // Returns: { [gameId]: { dk: { moneyline, spread, total } } }
 export async function fetchOddsForGames(bracketGames, gender = 'mens') {
-  // Build date strings for today + next 6 days
+  // Build date strings for 3 days back through next 6 days
+  // Play-in games start 2 days before R64, so we need to look back
   const today = new Date();
-  const dates = Array.from({ length: 7 }, (_, i) => {
+  const dates = Array.from({ length: 10 }, (_, i) => {
     const d = new Date(today);
-    d.setDate(d.getDate() + i);
+    d.setDate(d.getDate() + i - 3);
     return d.toISOString().slice(0, 10).replace(/-/g, '');
   });
 
@@ -193,7 +194,8 @@ export async function fetchOddsForGames(bracketGames, gender = 'mens') {
     const awayApiName = awayComp.team.displayName;
 
     for (const bracketGame of relevantGames) {
-      if (oddsMap[bracketGame.id]) continue;
+      // Skip if already matched AND has a completedWinner; otherwise keep trying
+      if (oddsMap[bracketGame.id]?.completedWinner) continue;
 
       const top = bracketGame.topTeam?.name;
       const bot = bracketGame.botTeam?.name;
