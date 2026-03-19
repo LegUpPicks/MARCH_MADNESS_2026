@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import allMatchupPredictions from '../data/allMatchupPredictions.json';
 import BetslipModal from './BetslipModal';
+import ModelPerformanceModal from './ModelPerformanceModal';
 
 const MODEL_TOOLTIPS = {
   seeded:            '164 features including seed numbers. One model covers all rounds. Seed rankings directly bias it toward lower-numbered seeds — most reliable for picking favorites. Trained on 2010–2025.',
@@ -178,6 +179,7 @@ function LiveOddsCells({ oddsData, topName, botName }) {
 export default function PredictionsTable({ games, predictedRounds, resolveTeams, oddsMap, oddsLoading, oddsError, onRefreshOdds, gender, confirmedGames }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [showBetslip, setShowBetslip] = useState(false);
+  const [showPerformance, setShowPerformance] = useState(false);
   const [valueBetsOnly, setValueBetsOnly] = useState(false);
 
   let displayRound = null;
@@ -281,6 +283,12 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               ? `(${rows.filter(r => r.valueBet).length})`
               : ''}
           </label>
+          <button
+            className="odds-refresh-btn"
+            onClick={() => setShowPerformance(true)}
+          >
+            &#9656; Model vs Actuals
+          </button>
           <button
             className={`odds-refresh-btn${oddsLoading ? ' odds-refresh-loading' : ''}`}
             onClick={onRefreshOdds}
@@ -401,6 +409,14 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
     </div>
     {showBetslip && (
       <BetslipModal items={betslipItems} onClose={() => setShowBetslip(false)} />
+    )}
+    {showPerformance && (
+      <ModelPerformanceModal
+        games={games}
+        oddsMap={oddsMap}
+        gender={gender}
+        onClose={() => setShowPerformance(false)}
+      />
     )}
     </>
   );

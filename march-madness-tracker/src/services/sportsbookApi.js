@@ -198,7 +198,7 @@ export async function fetchOddsForGames(bracketGames, gender = 'mens') {
       if (homeTeamBracket && awayTeamBracket) {
         const result = parseEspnEvent(event, homeTeamBracket, awayTeamBracket);
 
-        // Check if game is final and record the actual winner
+        // Check if game is final and record the actual winner + scores
         const isCompleted = competition.status?.type?.completed === true;
         if (isCompleted) {
           const winnerComp = competitors.find(c => c.winner === true);
@@ -207,6 +207,11 @@ export async function fetchOddsForGames(bracketGames, gender = 'mens') {
               ? homeTeamBracket
               : awayTeamBracket;
           }
+          const homeScore = parseFloat(homeComp.score ?? '0');
+          const awayScore = parseFloat(awayComp.score ?? '0');
+          result.actualSpread = Math.abs(homeScore - awayScore);
+          result.actualTotal  = homeScore + awayScore;
+          result.scores = { [homeTeamBracket]: homeScore, [awayTeamBracket]: awayScore };
         }
 
         oddsMap[bracketGame.id] = result;
