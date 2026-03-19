@@ -13,9 +13,10 @@ function confFromPred(prediction) {
   return 'low';
 }
 
-export default function GameCard({ game, topTeam, botTeam, prediction, selection, builderMode, onClick }) {
+export default function GameCard({ game, topTeam, botTeam, prediction, selection, builderMode, onClick, completedData }) {
   const isDisabled = !topTeam || !botTeam;
-  const isPickable = builderMode && !isDisabled;
+  const isCompleted = !!completedData;
+  const isPickable = builderMode && !isDisabled && !isCompleted;
 
   const predictedWinner = prediction?.winner ?? null;
   const hasSelection = !!selection;
@@ -67,29 +68,34 @@ export default function GameCard({ game, topTeam, botTeam, prediction, selection
         </div>
       );
     }
+    const cleanName = team.name.replace(/\*$/, '');
+    const score = completedData?.scores?.[cleanName] ?? null;
+    const isWinner = completedData?.winner === cleanName;
     return (
-      <div
-        key={team.name}
-        className={teamClass(isTop)}
-      >
+      <div key={team.name} className={teamClass(isTop)}>
         <span className="team-seed">{team.seed}</span>
-        <span className="team-name">{team.name.replace(/\*$/, '')}</span>
-        {(isTop ? topPredicted : botPredicted) && prediction && (
-          <span className="pred-star">★</span>
-        )}
+        <span className="team-name">{cleanName}</span>
+        {score != null
+          ? <span className={`team-score${isWinner ? ' team-score-win' : ''}`}>{score}</span>
+          : (!isCompleted && (isTop ? topPredicted : botPredicted) && prediction && (
+              <span className="pred-star">★</span>
+            ))
+        }
       </div>
     );
   }
 
   return (
     <div
-      className={`game-card${isDisabled ? ' game-card-tbd' : ''}${isPickable ? ' game-card-pickable' : ''}`}
+      className={`game-card${isDisabled ? ' game-card-tbd' : ''}${isPickable ? ' game-card-pickable' : ''}${isCompleted ? ' game-card-final' : ''}`}
       onClick={isPickable ? onClick : undefined}
     >
       <div className="game-card-inner">
         {renderTeamRow(topTeam, true)}
         <div className="game-meta">
-          {prediction ? (
+          {isCompleted ? (
+            <span className="game-final-label">Final</span>
+          ) : prediction ? (
             <>
               <span className="conf-dot" style={{ background: confColor }} title={`Conf: ${confidence}`} />
               {margin !== null && <span className="game-spread">{margin}</span>}

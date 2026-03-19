@@ -20,12 +20,12 @@ function saveCached(gender, oddsMap) {
 
 export function useSportsbookOdds(games, gender = 'mens') {
   const [oddsMap, setOddsMap] = useState(() => loadCached(gender));
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState(null);
 
   useEffect(() => {
     setOddsMap(loadCached(gender));
   }, [gender]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const refresh = useCallback(async () => {
     if (!games?.length) return;
@@ -41,6 +41,12 @@ export function useSportsbookOdds(games, gender = 'mens') {
       setLoading(false);
     }
   }, [games, gender]);
+
+  // Auto-fetch on mount and whenever the gender (bracket) changes
+  useEffect(() => {
+    if (games?.length) refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gender]);
 
   return { oddsMap, loading, error, refresh };
 }

@@ -366,6 +366,30 @@ body {
   flex-shrink: 0;
 }
 
+.team-score {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.team-score-win {
+  color: var(--green);
+}
+
+.game-final-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.game-card-final {
+  opacity: 0.85;
+}
+
 /* Team state classes */
 .team-correct {
   background: rgba(63, 185, 80, 0.15) !important;

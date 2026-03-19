@@ -263,16 +263,16 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
         };
         const oddsData  = oddsMap?.[g.id]?.dk ?? null;
         const completed = !!oddsMap?.[g.id]?.completedWinner;
+        if (completed) return null; // completed games are removed from betting table
         mp.ensemble     = computeEnsemble(mp, topName);
-        const valueBet  = completed ? null : computeValueBet(mp, oddsData, topName, botName);
-        // Only show favoriteCover when value bet is absent OR is also in the favorite direction
-        const rawFavCover = !completed && computeFavoriteCover(mp, oddsData, topName, botName);
+        const valueBet  = computeValueBet(mp, oddsData, topName, botName);
+        // Only show favoriteCover when value bet direction agrees (both for favorite)
+        const rawFavCover = computeFavoriteCover(mp, oddsData, topName, botName);
         const favCoverContradictsValueBet = (() => {
           if (!rawFavCover || !valueBet || valueBet.type !== 'spread') return false;
           const topLine = parseNum(oddsData?.spread?.[topName]?.line);
           if (topLine == null) return false;
-          const bookFavoredSide = topLine < 0 ? 'top' : 'bot';
-          return valueBet.side !== bookFavoredSide; // value bet says underdog covers
+          return valueBet.side !== (topLine < 0 ? 'top' : 'bot');
         })();
         const favoriteCover = rawFavCover && !favCoverContradictsValueBet;
         const consensusTeam = getConsensusDisagreement(mp);
