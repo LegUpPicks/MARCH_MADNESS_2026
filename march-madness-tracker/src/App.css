@@ -1230,13 +1230,65 @@ body {
   gap: 10px;
   background: var(--bg);
 }
+.betslip-item-value {
+  border-color: #2ea043;
+  box-shadow: 0 0 0 1px rgba(46,160,67,0.25);
+}
 
+.betslip-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .betslip-item-matchup {
   font-size: 11px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+.betslip-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.12s, background 0.12s;
+}
+.betslip-remove-btn:hover { color: var(--red); background: rgba(248,81,73,0.1); }
+
+.betslip-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 24px 0;
+}
+
+/* ── Value bet insight banner ─────────────────────────────── */
+.bms-value-insight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(46,160,67,0.1);
+  border: 1px solid rgba(46,160,67,0.3);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 11.5px;
+}
+.bms-value-type {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.bms-value-type-spread { background: rgba(88,166,255,0.2); color: var(--blue); }
+.bms-value-type-total  { background: rgba(210,153,34,0.2); color: var(--gold); }
+.bms-value-text { color: var(--text); line-height: 1.4; }
 
 .betslip-type-row {
   display: flex;
