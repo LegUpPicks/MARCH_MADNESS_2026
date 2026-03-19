@@ -86,6 +86,7 @@ function computeValueBet(mp, oddsData, topName, botName) {
   const avgCushion = best.votes.reduce((s, v) => s + v.cushion, 0) / best.votes.length;
   const bookLine   = best.type === 'spread' ? bookSpreadTop : bookTotal;
   return {
+    side:       best.side,
     betLabel:   best.betLabel,
     count:      best.votes.length,
     avgCushion: avgCushion.toFixed(1),
@@ -127,18 +128,19 @@ function getConsensusDisagreement(mp) {
   return null;
 }
 
-// ── Favorite cover: any model predicts book favorite covers the spread ─────
+// ── Favorite cover: 3/5 models predict book favorite covers with ≥5pt cushion ─
 function computeFavoriteCover(mp, oddsData, topName, botName) {
   const topLine = parseNum(oddsData?.spread?.[topName]?.line);
   if (topLine == null) return false;
   const bookFavored = topLine < 0 ? topName : botName;
   const bookMargin  = Math.abs(topLine);
+  let votes = 0;
   for (const key of MODEL_KEYS) {
     const pred = mp[key];
     if (!pred?.predWinner || pred.spread == null) continue;
-    if (pred.predWinner === bookFavored && Math.abs(pred.spread) > bookMargin) return true;
+    if (pred.predWinner === bookFavored && Math.abs(pred.spread) - bookMargin >= SPREAD_THRESH) votes++;
   }
-  return false;
+  return votes >= 3;
 }
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -259,10 +261,20 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
           balanced_rounds:   entry.balanced_rounds?.[String(idx)]    ?? null,
           kaggle:            entry.kaggle                            ?? null,
         };
-        const oddsData = oddsMap?.[g.id]?.dk ?? null;
+        const oddsData  = oddsMap?.[g.id]?.dk ?? null;
+        const completed = !!oddsMap?.[g.id]?.completedWinner;
         mp.ensemble     = computeEnsemble(mp, topName);
-        const valueBet      = computeValueBet(mp, oddsData, topName, botName);
-        const favoriteCover = computeFavoriteCover(mp, oddsData, topName, botName);
+        const valueBet  = completed ? null : computeValueBet(mp, oddsData, topName, botName);
+        // Only show favoriteCover when value bet is absent OR is also in the favorite direction
+        const rawFavCover = !completed && computeFavoriteCover(mp, oddsData, topName, botName);
+        const favCoverContradictsValueBet = (() => {
+          if (!rawFavCover || !valueBet || valueBet.type !== 'spread') return false;
+          const topLine = parseNum(oddsData?.spread?.[topName]?.line);
+          if (topLine == null) return false;
+          const bookFavoredSide = topLine < 0 ? 'top' : 'bot';
+          return valueBet.side !== bookFavoredSide; // value bet says underdog covers
+        })();
+        const favoriteCover = rawFavCover && !favCoverContradictsValueBet;
         const consensusTeam = getConsensusDisagreement(mp);
         return { game: g, round, mp, topName, botName, valueBet, favoriteCover, consensusTeam };
       })
