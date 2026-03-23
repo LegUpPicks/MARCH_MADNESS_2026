@@ -60,6 +60,7 @@ const ESPN_TO_BRACKET = {
   'long island university sharks':     'LIU Brooklyn',
   'green bay phoenix':                 'WI Green Bay',
   'wisconsin-green bay phoenix':       'WI Green Bay',
+  'southern jaguars':                  'Southern Univ',
   "st. john's red storm":              "St John's",
   "st john's red storm":               "St John's",
   'samford bulldogs':                  'Samford',
@@ -159,21 +160,21 @@ function parseEspnEvent(event, homeTeamName, awayTeamName) {
 }
 
 // ── Main: fetch odds for a set of bracket games ────────────────
-// Fetches today + next 6 days in parallel to cover the current round
+// Fetches a broad tournament window so fresh sessions can recover older results
 // Returns: { [gameId]: { dk: { moneyline, spread, total } } }
-export async function fetchOddsForGames(bracketGames, gender = 'mens') {
-  // Build date strings for 3 days back through next 6 days
-  // Play-in games start 2 days before R64, so we need to look back
+export async function fetchOddsForGames(bracketGames, resolveTeams, gender = 'mens') {
+  const LOOKBACK_DAYS = 14;
+  const LOOKAHEAD_DAYS = 6;
   const today = new Date();
-  const dates = Array.from({ length: 10 }, (_, i) => {
+  const dates = Array.from({ length: LOOKBACK_DAYS + LOOKAHEAD_DAYS + 1 }, (_, i) => {
     const d = new Date(today);
-    d.setDate(d.getDate() + i - 3);
+    d.setDate(d.getDate() + i - LOOKBACK_DAYS);
     return d.toISOString().slice(0, 10).replace(/-/g, '');
   });
 
   const allEventArrays = await Promise.all(dates.map(d => fetchEspnGamesForDate(d, gender)));
   const allEvents = allEventArrays.flat();
-  console.log('[sportsbookApi] ESPN events found across 7 days:', allEvents.length);
+  console.log(`[sportsbookApi] ESPN events found across ${dates.length} days:`, allEvents.length);
 
   const relevantGames = bracketGames.filter(
     g => ['playin', 'r64', 'r32', 's16', 'e8', 'ff', 'championship'].includes(g.round)
@@ -199,8 +200,11 @@ export async function fetchOddsForGames(bracketGames, gender = 'mens') {
       // Skip if already matched AND has a completedWinner; otherwise keep trying
       if (oddsMap[bracketGame.id]?.completedWinner) continue;
 
-      const top = bracketGame.topTeam?.name;
-      const bot = bracketGame.botTeam?.name;
+      const resolved = typeof resolveTeams === 'function'
+        ? resolveTeams(bracketGame)
+        : { topTeam: bracketGame.topTeam, botTeam: bracketGame.botTeam };
+      const top = resolved.topTeam?.name ?? bracketGame.topTeam?.name;
+      const bot = resolved.botTeam?.name ?? bracketGame.botTeam?.name;
       if (!top || !bot) continue;
 
       let homeTeamBracket = null, awayTeamBracket = null;

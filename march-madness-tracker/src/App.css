@@ -137,7 +137,7 @@ body {
 .bracket-container {
   height: 100%;
   overflow: auto;
-  padding: 12px;
+  padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px) + 56px);
 }
 
 /* ============================================================
