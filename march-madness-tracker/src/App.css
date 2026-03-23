@@ -1849,6 +1849,76 @@ body {
 .builder-clear-btn { border-color: #3d1f1f; color: var(--red); }
 .builder-clear-btn:hover { background: #2a1010; }
 
+@media (max-width: 768px) {
+  .app {
+    height: 100dvh;
+  }
+
+  .app-header {
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .app-title {
+    min-width: 0;
+  }
+
+  .app-title h1 {
+    font-size: 16px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    white-space: normal;
+  }
+
+  .tab-switcher {
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .builder-toolbar > * {
+    flex-shrink: 0;
+  }
+
+  .app-main,
+  .tournament-view {
+    min-width: 0;
+  }
+
+  .builder-toolbar {
+    padding: 8px 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .predictions-table-header {
+    align-items: flex-start;
+  }
+
+  .predictions-table-actions {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .model-summary-section {
+    margin: 24px 12px 20px;
+    padding: 16px;
+  }
+}
+
 /* ============================================================
    Game Card — Builder Mode
    ============================================================ */
