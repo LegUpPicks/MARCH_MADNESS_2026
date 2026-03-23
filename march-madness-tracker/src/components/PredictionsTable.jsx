@@ -237,7 +237,6 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
     const r = ROUND_ORDER[i];
     if (predictedRounds.has(r) && r !== 'playin') { displayRound = r; break; }
   }
-  if (!displayRound) return null;
 
   const prefix = gender === 'womens' ? 'w' : 'm';
 
@@ -285,16 +284,15 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
   const playinRows = predictedRounds.has('playin') ? buildRows('playin') : [];
 
   // Current round rows (full list for main table body)
-  const currentRows = buildRows(displayRound);
-  if (!currentRows.length && !playinRows.length) return null;
+  const currentRows = displayRound ? buildRows(displayRound) : [];
 
   // Value bets from ALL predicted rounds (deduplicated by game id)
   const allPredictedRounds = ROUND_ORDER.filter(r => predictedRounds.has(r) && r !== 'playin');
   const seenIds = new Set();
   const allValueBets = allPredictedRounds
-    .flatMap(r => r === displayRound ? currentRows : buildRows(r))
+    .flatMap(r => (r === displayRound ? currentRows : buildRows(r)))
     .filter(row => {
-      if (!row.valueBet || seenIds.has(row.game.id)) return false;
+      if (!row?.valueBet || seenIds.has(row.game.id)) return false;
       seenIds.add(row.game.id);
       return true;
     })
@@ -310,7 +308,14 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
     ...currentRows.filter(r => !valueBetIds.has(r.game.id)),
   ];
 
+  const visiblePlayinRows = playinRows.filter(r => (!valueBetsOnly || r.valueBet) && (!favCoverOnly || r.favoriteCover));
+  const visibleRows = rows.filter(r => (!valueBetsOnly || r.valueBet) && (!favCoverOnly || r.favoriteCover));
+  const valueBetCount = rows.filter(r => r.valueBet).length;
+  const favoriteCoverCount = rows.filter(r => r.favoriteCover).length;
+
   const hasAnyOdds = Object.keys(oddsMap ?? {}).length > 0;
+  if (!displayRound) return null;
+  if (!currentRows.length && !playinRows.length) return null;
 
   function toggleRow(id) {
     setSelectedIds(prev => {
@@ -455,8 +460,8 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               checked={valueBetsOnly}
               onChange={e => setValueBetsOnly(e.target.checked)}
             />
-            Value bets only {valueBetsOnly && rows.filter(r => r.valueBet).length > 0
-              ? `(${rows.filter(r => r.valueBet).length})`
+            Value bets only {valueBetsOnly && valueBetCount > 0
+              ? `(${valueBetCount})`
               : ''}
           </label>
           <label className="value-bets-toggle">
@@ -465,8 +470,8 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               checked={favCoverOnly}
               onChange={e => setFavCoverOnly(e.target.checked)}
             />
-            Favorite covers {favCoverOnly && rows.filter(r => r.favoriteCover).length > 0
-              ? `(${rows.filter(r => r.favoriteCover).length})`
+            Favorite covers {favCoverOnly && favoriteCoverCount > 0
+              ? `(${favoriteCoverCount})`
               : ''}
           </label>
           <button
@@ -525,9 +530,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
                 <tr className="pt-section-divider">
                   <td colSpan={29} className="pt-section-divider-cell">Play-In Games</td>
                 </tr>
-                {playinRows
-                  .filter(r => (!valueBetsOnly || r.valueBet) && (!favCoverOnly || r.favoriteCover))
-                  .map(row => renderGameRow(row))}
+                {visiblePlayinRows.map(row => renderGameRow(row))}
                 {currentRows.length > 0 && (
                   <tr className="pt-section-divider">
                     <td colSpan={29} className="pt-section-divider-cell">{ROUND_LABELS[displayRound]}</td>
@@ -536,9 +539,7 @@ export default function PredictionsTable({ games, predictedRounds, resolveTeams,
               </>
             )}
             {/* ── Main round rows ── */}
-            {rows
-              .filter(r => (!valueBetsOnly || r.valueBet) && (!favCoverOnly || r.favoriteCover))
-              .map(row => renderGameRow(row))}
+            {visibleRows.map(row => renderGameRow(row))}
           </tbody>
         </table>
       </div>
